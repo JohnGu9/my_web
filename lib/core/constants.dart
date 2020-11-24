@@ -1,3 +1,11 @@
+import 'package:flutter/material.dart';
+
 class Constants {
-  static String version = "0.0.1";
+  static const String version = "0.0.1";
+  static const AssetImage personLogoImage =
+      AssetImage("assets/images/logo.png");
+  static const AssetImage githubLogoImage =
+      AssetImage("assets/images/github.png");
+  static const AssetImage gmailLogoImage =
+      AssetImage("assets/images/gmail.png");
 }

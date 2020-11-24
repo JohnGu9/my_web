@@ -83,6 +83,11 @@ class StandardLocalizations {
       "about": "About",
       "language": "Language",
       "version": "Version",
+      "framework": "Framework",
+      "profile": "Profile",
+      "source": "Source",
+      "copy": "Copy",
+      "paste": "Paste",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -95,6 +100,11 @@ class StandardLocalizations {
       "about": "关于",
       "language": "语言",
       "version": "版本",
+      "framework": "框架",
+      "profile": "个人资料",
+      "source": "源代码",
+      "copy": "复制",
+      "paste": "粘贴",
     },
   };
 
@@ -136,6 +146,26 @@ class StandardLocalizations {
 
   String get version {
     return _localizedValues[locale.languageCode]['version'];
+  }
+
+  String get framework {
+    return _localizedValues[locale.languageCode]['framework'];
+  }
+
+  String get profile {
+    return _localizedValues[locale.languageCode]['profile'];
+  }
+
+  String get source {
+    return _localizedValues[locale.languageCode]['source'];
+  }
+
+  String get copy {
+    return _localizedValues[locale.languageCode]['copy'];
+  }
+
+  String get paste {
+    return _localizedValues[locale.languageCode]['paste'];
   }
 }
 

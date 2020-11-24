@@ -378,23 +378,11 @@ class _RouteLayerState extends State<_RouteLayer>
                 _secondaryAnimation,
                 widget.region,
               ),
-              ValueListenableBuilder<bool>(
-                valueListenable: _layer._isPopped,
-                builder: _rePushGestureBuilder,
-                child: AnimationControllerBuilder(builder: _builder),
-              ),
+              AnimationControllerBuilder(builder: _builder),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _rePushGestureBuilder(BuildContext context, bool value, Widget child) {
-    return Listener(
-      onPointerDown: value ? _onPointerDown : null,
-      behavior: HitTestBehavior.translucent,
-      child: IgnorePointer(ignoring: value, child: child),
     );
   }
 

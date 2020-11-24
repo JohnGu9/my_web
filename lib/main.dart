@@ -7,21 +7,50 @@ void main() {
   return runApp(const MainActivity());
 }
 
-class MainActivity extends StatelessWidget {
+class MainActivity extends StatefulWidget {
   const MainActivity({Key key}) : super(key: key);
 
+  @override
+  _MainActivityState createState() => _MainActivityState();
+}
+
+class _MainActivityState extends State<MainActivity>
+    with SingleTickerProviderStateMixin<MainActivity> {
   static Locale _localeResolutionCallback(
       Locale locale, Iterable<Locale> supportedLocales) {
-    // Check if the current device locale is supported
     for (final supportedLocale in supportedLocales) {
       if (supportedLocale.languageCode == locale?.languageCode ||
           supportedLocale.countryCode == locale?.countryCode) {
         return supportedLocale;
       }
     }
-    // If the locale of the device is not supported, use the first one
-    // from the list (English, in this case).
     return supportedLocales.first;
+  }
+
+  Future _init;
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    _init = () async {
+      await Future.wait([
+        precacheImage(Constants.personLogoImage, context),
+        precacheImage(Constants.githubLogoImage, context),
+        precacheImage(Constants.gmailLogoImage, context),
+      ]);
+    }()
+      ..then((value) async {
+        /// no need to check [mounted]. If state is not mounted, the app don't run at all.
+        _controller.animateTo(1.0, duration: const Duration(milliseconds: 750));
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -45,7 +74,17 @@ class MainActivity extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate,
                 ],
                 debugShowCheckedModeBanner: false,
-                home: const HomePage(),
+                home: FutureBuilder(
+                  future: _init,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done)
+                      return const SizedBox();
+                    return FadeTransition(
+                      opacity: _controller,
+                      child: const HomePage(),
+                    );
+                  },
+                ),
               );
             },
           );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:my_web/core/.lib.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key key}) : super(key: key);
@@ -149,7 +150,7 @@ class _LanguageBottomSheet extends StatelessWidget {
           ),
         ),
         Card(
-          margin: themeService.bottomSheetPadding,
+          margin: themeService.bottomSheetPadding.copyWith(top: 0.0),
           child: InkWell(
             child: Center(
               child: Padding(
@@ -221,11 +222,27 @@ class _AboutBottomSheet extends StatelessWidget {
                 title: Text(StandardLocalizations.of(context).version),
                 trailing: Text(Constants.version),
               ),
+              ListTile(
+                title: Text(StandardLocalizations.of(context).framework),
+                trailing: const FlutterLogo(),
+                onTap: () async {
+                  const url = 'https://flutter.dev';
+                  if (await canLaunch(url)) await launch(url);
+                },
+              ),
+              ListTile(
+                title: Text(StandardLocalizations.of(context).source),
+                trailing: SelectableText('https://github.com/JohnGu9/my_web'),
+                onTap: () async {
+                  const url = 'https://github.com/JohnGu9/my_web';
+                  if (await canLaunch(url)) await launch(url);
+                },
+              ),
             ],
           ),
         ),
         Card(
-          margin: themeService.bottomSheetPadding,
+          margin: themeService.bottomSheetPadding.copyWith(top: 0.0),
           child: InkWell(
             child: Center(
               child: Padding(

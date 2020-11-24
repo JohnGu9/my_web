@@ -30,7 +30,7 @@ class ThemeService extends StatefulWidget {
       : super(key: key);
   final ThemeServiceBuilder builder;
   final double expandedHeight;
-  final EdgeInsetsGeometry bottomSheetPadding;
+  final EdgeInsets bottomSheetPadding;
 
   @override
   _ThemeServiceState createState() => _ThemeServiceState();
@@ -74,7 +74,7 @@ class _ThemeService extends InheritedWidget {
     return state.widget.expandedHeight;
   }
 
-  EdgeInsetsGeometry get bottomSheetPadding {
+  EdgeInsets get bottomSheetPadding {
     return state.widget.bottomSheetPadding;
   }
 
