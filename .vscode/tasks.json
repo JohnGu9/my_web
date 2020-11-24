@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Locale",
+            "command": "flutter pub run intl_translation:generate_from_arb --output-dir=lib/l10n --no-use-deferred-loading lib/main.dart lib/l10n/intl_*.arb",
+            "args": [],
+            "type": "shell"
+        }
+    ]
+}

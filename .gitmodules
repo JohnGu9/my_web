@@ -1,0 +1,3 @@
+[submodule "lib/core/native"]
+	path = lib/core/native
+	url = https://github.com/JohnGu9/dart_native_channel.git
