@@ -1,8 +1,10 @@
 library ui;
 
-export 'package:flutter_localizations/flutter_localizations.dart';
 export 'home_page.dart';
 export 'settings_page.dart';
+export 'background_page.dart';
+export 'skill_page.dart';
+export 'other_page.dart';
 
-export 'mixin/.lib.dart';
 export 'widgets/.lib.dart';
+export 'dialogs/.lib.dart';

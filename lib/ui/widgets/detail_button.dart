@@ -81,9 +81,17 @@ class _DetailButtonState extends State<DetailButton>
             CustomSizeTransition(
               sizeFactor: _controller,
               axis: widget.axis,
-              child: Padding(
-                padding: padding,
-                child: widget.detail,
+              child: FadeTransition(
+                opacity: _controller,
+                child: Padding(
+                  padding: padding,
+                  child: DefaultTextStyle(
+                    style: theme.textTheme.subtitle2.copyWith(
+                      color: theme.canvasColor,
+                    ),
+                    child: widget.detail,
+                  ),
+                ),
               ),
             ),
           ]),

@@ -17,11 +17,14 @@
             "flutterMode": "profile"
         },
         {
-            "name": "Locale",
-            "preLaunchTask": "Locale",
-            "type": "extensionHost",
-            "request": "launch",
-            "args": []
+            "name": "Build release",
+            "preLaunchTask": "Build release",
+            "type": "extensionHost"
+        },
+        {
+            "name": "Build release with hardware accelerate",
+            "preLaunchTask": "Build release with hardware accelerate",
+            "type": "extensionHost"
         }
     ]
 }

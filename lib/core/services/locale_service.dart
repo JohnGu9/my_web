@@ -62,9 +62,11 @@ class _LocaleService extends InheritedWidget {
 }
 
 class StandardLocalizations {
-  StandardLocalizations(this.locale);
+  StandardLocalizations(this.locale)
+      : _localize = _localizedValues[locale.languageCode] ?? Map();
 
   final Locale locale;
+  final Map<String, String> _localize;
 
   static StandardLocalizations of(BuildContext context) {
     return Localizations.of<StandardLocalizations>(
@@ -88,6 +90,15 @@ class StandardLocalizations {
       "source": "Source",
       "copy": "Copy",
       "paste": "Paste",
+      "more": "More",
+      "background": "Background",
+      "skill": "Skill",
+      "other": "Other",
+      "@backgroundDescription": "",
+      "@skillDescription": "",
+      "@otherDescription": "",
+      "visit": "Visit",
+      "toVisitOtherWebsite": "To visit other website",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -105,67 +116,100 @@ class StandardLocalizations {
       "source": "源代码",
       "copy": "复制",
       "paste": "粘贴",
+      "skill": "技能",
+      "background": "背景",
+      "more": "更多",
+      "other": "其他",
+      "@backgroundDescription": "",
+      "@skillDescription": "",
+      "@otherDescription": "",
+      "visit": "访问",
+      "toVisitOtherWebsite": "准备跳转其他网站",
     },
   };
 
   String get helloWorld {
-    return _localizedValues[locale.languageCode]['helloWorld'];
+    return _localize['helloWorld'];
   }
 
   String get home {
-    return _localizedValues[locale.languageCode]['home'];
+    return _localize['home'];
   }
 
   String get settings {
-    return _localizedValues[locale.languageCode]['settings'];
+    return _localize['settings'];
   }
 
   String get darkTheme {
-    return _localizedValues[locale.languageCode]['darkTheme'];
+    return _localize['darkTheme'];
   }
 
   String get auto {
-    return _localizedValues[locale.languageCode]['auto'];
+    return _localize['auto'];
   }
 
   String get about {
-    return _localizedValues[locale.languageCode]['about'];
+    return _localize['about'];
   }
 
   String get language {
-    return _localizedValues[locale.languageCode]['language'];
+    return _localize['language'];
   }
 
   String get sure {
-    return _localizedValues[locale.languageCode]['sure'];
+    return _localize['sure'];
   }
 
   String get cancel {
-    return _localizedValues[locale.languageCode]['cancel'];
+    return _localize['cancel'];
   }
 
   String get version {
-    return _localizedValues[locale.languageCode]['version'];
+    return _localize['version'];
   }
 
   String get framework {
-    return _localizedValues[locale.languageCode]['framework'];
+    return _localize['framework'];
   }
 
   String get profile {
-    return _localizedValues[locale.languageCode]['profile'];
+    return _localize['profile'];
   }
 
   String get source {
-    return _localizedValues[locale.languageCode]['source'];
+    return _localize['source'];
   }
 
   String get copy {
-    return _localizedValues[locale.languageCode]['copy'];
+    return _localize['copy'];
   }
 
   String get paste {
-    return _localizedValues[locale.languageCode]['paste'];
+    return _localize['paste'];
+  }
+
+  String get skill {
+    return _localize['skill'];
+  }
+
+  String get background {
+    return _localize['background'];
+  }
+
+  String get more {
+    return _localize['more'];
+  }
+
+  String get other {
+    return _localize['other'];
+  }
+
+  String get visit {
+    return _localize['visit'];
+  }
+
+  String get toVisitOtherWebsite {
+    return _localize['toVisitOtherWebsite'];
   }
 }
 

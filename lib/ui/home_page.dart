@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:sliver_tools/sliver_tools.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '.lib.dart';
 import 'package:my_web/core/.lib.dart';
 
 class HomePage extends StatefulWidget {
-  static _HomePage of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_HomePage>();
-  }
-
   const HomePage({Key key}) : super(key: key);
 
   @override
@@ -49,66 +44,135 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return _HomePage(
-      state: this,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Focus(
-            focusNode: focusScopeNode,
-            child: Material(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: SizeTransition(
-                  axis: Axis.horizontal,
-                  sizeFactor: _controller,
-                  child: const SizedBox(
-                    width: _settingsPageWidth,
-                    child: SettingsPage(),
-                  ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Focus(
+          focusNode: focusScopeNode,
+          child: Material(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: SizeTransition(
+                axis: Axis.horizontal,
+                sizeFactor: _controller,
+                child: const SizedBox(
+                  width: _settingsPageWidth,
+                  child: SettingsPage(),
                 ),
               ),
             ),
           ),
-          ValueListenableBuilder(
-            valueListenable: _controller,
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(-_settingsPageWidth * _controller.value, 0),
-                child: _RouteBarrier(
-                  shouldBarrier: isOpened,
-                  child: child,
+        ),
+        ValueListenableBuilder(
+          valueListenable: _controller,
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: Offset(-_settingsPageWidth * _controller.value, 0),
+              child: _RouteBarrier(shouldBarrier: isOpened, child: child),
+            );
+          },
+          child: Stack(
+            children: [
+              const _ScrollView(),
+              Align(
+                alignment: Alignment.topRight,
+                child: FadeTransition(
+                  opacity: Tween(begin: 1.0, end: 0.0).animate(_controller),
+                  child: Material(
+                    color: Colors.transparent,
+                    elevation: 0.0,
+                    child: ButtonBar(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.settings),
+                          onPressed: open,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              );
-            },
-            child: _Content(animation: _controller),
+              ),
+            ],
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ScrollView extends StatefulWidget {
+  static _ScrollViewInheritedWidget of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_ScrollViewInheritedWidget>();
+  }
+
+  const _ScrollView({Key key}) : super(key: key);
+
+  @override
+  __ScrollViewState createState() => __ScrollViewState();
+}
+
+class __ScrollViewState extends State<_ScrollView> {
+  PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 16.0,
+      child: _ScrollViewInheritedWidget(
+        state: this,
+        child: PageView(
+          scrollDirection: Axis.vertical,
+          controller: _pageController,
+          children: const <Widget>[
+            const _Content(),
+            const BackgroundPage(),
+            const SkillPage(),
+            const OtherPage(),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _HomePage extends InheritedWidget {
-  const _HomePage({Key key, Widget child, this.state})
-      : super(key: key, child: child);
+class _ScrollViewInheritedWidget extends InheritedWidget {
+  const _ScrollViewInheritedWidget({
+    Key key,
+    Widget child,
+    this.state,
+  }) : super(key: key, child: child);
 
-  @visibleForTesting
-  final _HomePageState state;
+  final __ScrollViewState state;
 
-  pushSettingsPage() {
-    return state.open();
+  scrollTo(int page) {
+    return state._pageController.animateToPage(
+      page,
+      curve: Curves.fastOutSlowIn,
+      duration: const Duration(seconds: 1),
+    );
   }
 
   @override
-  bool updateShouldNotify(covariant _HomePage oldWidget) {
-    return oldWidget.state != state;
+  bool updateShouldNotify(covariant _ScrollViewInheritedWidget oldWidget) {
+    return state != oldWidget.state;
   }
 }
 
 class _Content extends StatefulWidget {
-  const _Content({Key key, this.animation}) : super(key: key);
-  final Animation<double> animation;
+  const _Content({Key key}) : super(key: key);
 
   @override
   __ContentState createState() => __ContentState();
@@ -146,6 +210,13 @@ class __ContentState extends State<_Content>
     );
   }
 
+  Animation<double> get _mainIndexAnimation {
+    return CurvedAnimation(
+      curve: const Interval(0.6, 1),
+      parent: _controller,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -166,75 +237,67 @@ class __ContentState extends State<_Content>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Material(
-      elevation: 16.0,
+    final spring = SpringProvideService.of(context);
+    return ScopeNavigator(
+      spring: spring,
       child: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
-            textTheme: theme.textTheme,
-            iconTheme: theme.iconTheme,
-            actions: [
-              IconButton(
-                onPressed: HomePage.of(context).pushSettingsPage,
-                icon: FadeTransition(
-                  opacity: Tween(
-                    begin: 1.0,
-                    end: 0.0,
-                  ).animate(widget.animation),
-                  child: const Icon(Icons.settings),
+          SliverPinnedHeader(
+            child: Material(
+              color: theme.canvasColor,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 72),
+                child: SizedBox(
+                  height: 200,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ScaleTransition(
+                        scale: _personLogoAnimation,
+                        alignment: Alignment.center,
+                        child: const _Logo(),
+                      ),
+                      const SizedBox(width: 48),
+                      SizeTransition(
+                        axis: Axis.horizontal,
+                        sizeFactor: _titleAnimation,
+                        child: FadeTransition(
+                          opacity: _titleAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  StandardLocalizations.of(context).profile,
+                                  style: theme.textTheme.headline1,
+                                ),
+                              ),
+                              SizeTransition(
+                                sizeFactor: _linksSizeAnimation,
+                                child: FadeTransition(
+                                  opacity: _linksOpacityAnimation,
+                                  child: Row(
+                                    children: const [
+                                      const _GithubButton(),
+                                      const SizedBox(width: 8),
+                                      const _MailButton(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-          SliverPinnedHeader(
-            child: SizedBox(
-              height: 200,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ScaleTransition(
-                    scale: _personLogoAnimation,
-                    alignment: Alignment.center,
-                    child: const _Logo(),
-                  ),
-                  const SizedBox(width: 48),
-                  SizeTransition(
-                    axis: Axis.horizontal,
-                    sizeFactor: _titleAnimation,
-                    child: FadeTransition(
-                      opacity: _titleAnimation,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              StandardLocalizations.of(context).profile,
-                              style: theme.textTheme.headline1,
-                            ),
-                          ),
-                          SizeTransition(
-                            sizeFactor: _linksSizeAnimation,
-                            child: FadeTransition(
-                              opacity: _linksOpacityAnimation,
-                              child: Row(
-                                children: const [
-                                  const _GithubButton(),
-                                  const SizedBox(width: 8),
-                                  const _MailButton(),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
+          ),
+          SliverToBoxAdapter(
+            child: _MainIndex(animation: _mainIndexAnimation),
           ),
         ],
       ),
@@ -248,18 +311,21 @@ class _GithubButton extends StatelessWidget {
   const _GithubButton({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return DetailButton(
-      simple: const Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Image(
-          image: Constants.githubLogoImage,
-          height: 32,
+    return Tooltip(
+      message: StandardLocalizations.of(context).visit,
+      child: DetailButton(
+        simple: const Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Image(
+            image: Constants.githubLogoImage,
+            height: 32,
+          ),
         ),
+        detail: const Text(_url),
+        onTap: () {
+          return showVisitWebsiteDialog(context, _url);
+        },
       ),
-      detail: const Text(_url),
-      onTap: () async {
-        if (await canLaunch(_url)) launch(_url);
-      },
     );
   }
 }
@@ -276,13 +342,13 @@ class _MailButton extends StatelessWidget {
         simple: const Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Image(
-            image: Constants.gmailLogoImage,
+            image: Constants.mailLogoImage,
             height: 32,
           ),
         ),
         detail: const SelectableText(_address),
         onTap: () {
-          return Clipboard.setData(ClipboardData(text: _address));
+          return Clipboard.setData(const ClipboardData(text: _address));
         },
       ),
     );
@@ -391,6 +457,125 @@ class _RouteBarrier extends StatelessWidget {
           color: shouldBarrier ? Colors.black38 : Colors.transparent,
         ),
         child: child,
+      ),
+    );
+  }
+}
+
+class _MainIndex extends StatelessWidget {
+  const _MainIndex({Key key, this.animation}) : super(key: key);
+  final Animation<double> animation;
+
+  Animation<double> get _animation0 {
+    return CurvedAnimation(
+        curve: Interval(0, 0.7, curve: Curves.fastOutSlowIn),
+        parent: animation);
+  }
+
+  Animation<double> get _animation1 {
+    return CurvedAnimation(
+        curve: Interval(0.2, 0.9, curve: Curves.fastOutSlowIn),
+        parent: animation);
+  }
+
+  Animation<double> get _animation2 {
+    return CurvedAnimation(
+        curve: Interval(0.3, 1.0, curve: Curves.fastOutSlowIn),
+        parent: animation);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorTween = ColorTween(
+      begin: theme.primaryColor.withOpacity(0.0),
+      end: theme.primaryColor,
+    );
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(72.0),
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return Material(
+                shape: theme.cardTheme.shape,
+                color: colorTween.evaluate(animation),
+                child: child);
+          },
+          child: SizedBox(
+            height: 250,
+            child: IconTheme(
+              data: theme.iconTheme
+                  .copyWith(color: Colors.white70.withOpacity(0.8)),
+              child: Row(
+                children: [
+                  _itemBuilder(
+                      theme,
+                      _animation0,
+                      const Icon(Icons.assignment_ind, size: 72),
+                      StandardLocalizations.of(context).background, () {
+                    _ScrollView.of(context).scrollTo(1);
+                  }),
+                  VerticalDivider(),
+                  _itemBuilder(
+                      theme,
+                      _animation1,
+                      const Icon(Icons.build, size: 72),
+                      StandardLocalizations.of(context).skill, () {
+                    _ScrollView.of(context).scrollTo(2);
+                  }),
+                  VerticalDivider(),
+                  _itemBuilder(
+                      theme,
+                      _animation2,
+                      const Icon(Icons.scatter_plot, size: 72),
+                      StandardLocalizations.of(context).other, () {
+                    _ScrollView.of(context).scrollTo(3);
+                  })
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static final _offsetTween =
+      Tween(begin: const Offset(0, 1), end: const Offset(0, 0));
+
+  Widget _itemBuilder(ThemeData theme, Animation<double> animation, Widget icon,
+      String title, Function() onTap) {
+    return Expanded(
+      child: SlideTransition(
+        position: _offsetTween.animate(animation),
+        child: FadeTransition(
+          opacity: animation,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Material(
+              shape: theme.cardTheme.shape,
+              clipBehavior: Clip.hardEdge,
+              color: Colors.transparent,
+              child: AnimatedInkWell(
+                onTap: onTap,
+                builder: (context, animation, child) {
+                  return child;
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(padding: const EdgeInsets.all(16.0), child: icon),
+                    Text(title,
+                        style: theme.textTheme.headline3
+                            .copyWith(color: Colors.white.withOpacity(0.8))),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

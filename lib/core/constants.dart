@@ -6,6 +6,5 @@ class Constants {
       AssetImage("assets/images/logo.png");
   static const AssetImage githubLogoImage =
       AssetImage("assets/images/github.png");
-  static const AssetImage gmailLogoImage =
-      AssetImage("assets/images/gmail.png");
+  static const AssetImage mailLogoImage = AssetImage("assets/images/mail.ico");
 }

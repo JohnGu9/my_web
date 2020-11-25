@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+
 import 'package:my_web/core/.lib.dart';
-import 'package:my_web/ui/widgets/scope_navigator.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:my_web/ui/.lib.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key key}) : super(key: key);
@@ -88,7 +88,7 @@ class _LocaleEditTile extends StatelessWidget {
               ).animate(animation),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: const _LanguageBottomSheet(),
+                child: const _LocaleBottomSheet(),
               ),
             );
           },
@@ -98,8 +98,8 @@ class _LocaleEditTile extends StatelessWidget {
   }
 }
 
-class _LanguageBottomSheet extends StatelessWidget {
-  const _LanguageBottomSheet({Key key}) : super(key: key);
+class _LocaleBottomSheet extends StatelessWidget {
+  const _LocaleBottomSheet({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final current = LocaleService.of(context).locale;
@@ -124,11 +124,13 @@ class _LanguageBottomSheet extends StatelessWidget {
                   value: null,
                   groupValue: current,
                   onChanged: (value) {
-                    return LocaleService.of(context).changeLocale(null);
+                    if (current == null) return;
+                    return showChangeLocaleDialog(context, null);
                   },
                 ),
                 onTap: () {
-                  return LocaleService.of(context).changeLocale(null);
+                  if (current == null) return;
+                  return showChangeLocaleDialog(context, null);
                 },
               ),
               for (final locale in LocaleService.supportedLocales)
@@ -139,11 +141,13 @@ class _LanguageBottomSheet extends StatelessWidget {
                     value: locale,
                     groupValue: current,
                     onChanged: (value) {
-                      return LocaleService.of(context).changeLocale(locale);
+                      if (current == locale) return;
+                      return showChangeLocaleDialog(context, locale);
                     },
                   ),
                   onTap: () {
-                    return LocaleService.of(context).changeLocale(locale);
+                    if (current == locale) return;
+                    return showChangeLocaleDialog(context, locale);
                   },
                 ),
             ],
@@ -203,6 +207,7 @@ class _AboutBottomSheet extends StatelessWidget {
   const _AboutBottomSheet({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final localization = StandardLocalizations.of(context);
     final themeService = ThemeService.of(context);
     return ListView(
       shrinkWrap: true,
@@ -215,28 +220,35 @@ class _AboutBottomSheet extends StatelessWidget {
                 textTheme: Theme.of(context).textTheme,
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.transparent,
-                title: Text(StandardLocalizations.of(context).about),
+                title: Text(localization.about),
                 elevation: 0.0,
               ),
               ListTile(
-                title: Text(StandardLocalizations.of(context).version),
+                title: Text(localization.version),
                 trailing: Text(Constants.version),
               ),
-              ListTile(
-                title: Text(StandardLocalizations.of(context).framework),
-                trailing: const FlutterLogo(),
-                onTap: () async {
-                  const url = 'https://flutter.dev';
-                  if (await canLaunch(url)) await launch(url);
-                },
+              Tooltip(
+                message: localization.visit,
+                child: ListTile(
+                  title: Text(localization.framework),
+                  trailing: const FlutterLogo(),
+                  onTap: () {
+                    const url = 'https://flutter.dev';
+                    return showVisitWebsiteDialog(context, url);
+                  },
+                ),
               ),
-              ListTile(
-                title: Text(StandardLocalizations.of(context).source),
-                trailing: SelectableText('https://github.com/JohnGu9/my_web'),
-                onTap: () async {
-                  const url = 'https://github.com/JohnGu9/my_web';
-                  if (await canLaunch(url)) await launch(url);
-                },
+              Tooltip(
+                message: localization.visit,
+                child: ListTile(
+                  title: Text(localization.source),
+                  trailing:
+                      const SelectableText('https://github.com/JohnGu9/my_web'),
+                  onTap: () {
+                    const url = 'https://github.com/JohnGu9/my_web';
+                    return showVisitWebsiteDialog(context, url);
+                  },
+                ),
               ),
             ],
           ),
@@ -248,7 +260,7 @@ class _AboutBottomSheet extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  StandardLocalizations.of(context).cancel,
+                  localization.cancel,
                   style: themeService.textButtonStyle,
                 ),
               ),

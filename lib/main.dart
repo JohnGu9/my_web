@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_web/core/services/spring_provide_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'package:my_web/ui/.lib.dart';
 import 'package:my_web/core/.lib.dart';
 
@@ -38,7 +39,7 @@ class _MainActivityState extends State<MainActivity>
       await Future.wait([
         precacheImage(Constants.personLogoImage, context),
         precacheImage(Constants.githubLogoImage, context),
-        precacheImage(Constants.gmailLogoImage, context),
+        precacheImage(Constants.mailLogoImage, context),
       ]);
     }()
       ..then((value) async {
