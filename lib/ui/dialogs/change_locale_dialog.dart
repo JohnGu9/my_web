@@ -24,6 +24,7 @@ class _Page extends StatefulWidget {
 class __PageState extends State<_Page>
     with SingleTickerProviderStateMixin<_Page> {
   AnimationController _controller;
+  CurvedAnimation _curvedAnimation;
 
   @override
   void initState() {
@@ -31,6 +32,10 @@ class __PageState extends State<_Page>
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
     _controller.animateTo(1.0).then(_changeLocal);
+    _curvedAnimation = CurvedAnimation(
+        curve: Curves.fastOutSlowIn,
+        reverseCurve: Curves.fastOutSlowIn,
+        parent: _controller);
   }
 
   @override
@@ -53,11 +58,15 @@ class __PageState extends State<_Page>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _controller,
-      child: const Material(
+      child: Material(
         child: Center(
-          child: const Icon(
-            Icons.translate,
-            size: 108,
+          child: ScaleTransition(
+            alignment: Alignment.center,
+            scale: Tween(begin: 1.5, end: 1.0).animate(_curvedAnimation),
+            child: const Icon(
+              Icons.translate,
+              size: 108,
+            ),
           ),
         ),
       ),
