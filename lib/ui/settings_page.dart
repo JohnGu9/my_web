@@ -9,6 +9,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final spring = SpringProvideService.of(context);
     final themeService = ThemeService.of(context);
     return ScopeNavigator(
@@ -17,8 +18,9 @@ class SettingsPage extends StatelessWidget {
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
+              backgroundColor: theme.canvasColor,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
+                icon: const Icon(Icons.close),
                 onPressed: () {
                   final navigator = Navigator.of(context);
                   if (navigator.canPop()) navigator.pop();

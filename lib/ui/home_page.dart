@@ -211,7 +211,7 @@ class _Header extends StatefulWidget {
 class __HeaderState extends State<_Header>
     with TickerProviderStateMixin<_Header> {
   AnimationController _controller;
-  AnimationController _animationController;
+  AnimationController _heroController;
 
   Animation<double> get _personLogoAnimation {
     return CurvedAnimation(
@@ -248,13 +248,11 @@ class __HeaderState extends State<_Header>
   ValueListenable<int> _onPageChanged;
   _onPageChangedListener() {
     final shouldExpanded = _onPageChanged.value == 0;
-    _animationController.animateWith(SpringSimulation(
+    _heroController.animateWith(SpringSimulation(
       _spring,
-      _animationController.value,
-      shouldExpanded
-          ? _animationController.lowerBound
-          : _animationController.upperBound,
-      _animationController.velocity,
+      _heroController.value,
+      shouldExpanded ? _heroController.lowerBound : _heroController.upperBound,
+      _heroController.velocity,
     ));
   }
 
@@ -265,10 +263,10 @@ class __HeaderState extends State<_Header>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
-    _animationController = AnimationController(vsync: this);
-    _titleSize = Tween(begin: 1.0, end: 0.0).animate(_animationController);
+    _heroController = AnimationController(vsync: this);
+    _titleSize = Tween(begin: 1.0, end: 0.0).animate(_heroController);
     _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: _heroController,
       curve: const Interval(0.0, 0.3),
     ));
     Future.delayed(const Duration(milliseconds: 25), () async {
@@ -303,7 +301,7 @@ class __HeaderState extends State<_Header>
 
     final homePage = HomePage.of(context);
     final headerHeightTween =
-        Tween<double>(begin: 200, end: homePage.headerMinHeight);
+        Tween<double>(begin: 220, end: homePage.headerMinHeight);
     final buttonBurHeightTween = EdgeInsetsTween(
         begin: EdgeInsets.only(top: homePage.headerMinHeight),
         end: EdgeInsets.zero);
@@ -318,46 +316,59 @@ class __HeaderState extends State<_Header>
             : theme.iconTheme.color,
         end: iconTheme.color);
 
+    final borderRadius = (theme.cardTheme.shape as RoundedRectangleBorder)
+        .borderRadius as BorderRadius;
+    final borderRadiusTween = Tween<BorderRadius>(
+        begin: BorderRadius.only(bottomLeft: Radius.zero),
+        end: BorderRadius.only(bottomLeft: borderRadius.bottomRight));
+
+    final paddingTween = Tween<EdgeInsets>(
+        begin: EdgeInsets.zero, end: EdgeInsets.only(left: homePage.padding));
+
     return AnimatedBuilder(
-      animation: _animationController,
+      animation: _heroController,
       builder: (context, child) {
-        return Material(
-          animationDuration: Duration.zero,
-          color: colorTween.evaluate(_animationController),
-          elevation: elevationTween.evaluate(_animationController),
-          child: Stack(
-            alignment: Alignment.topRight,
-            children: [
-              Padding(
-                padding: buttonBurHeightTween.evaluate(_animationController),
-                child: SizedBox(
-                  height: headerHeightTween.evaluate(_animationController),
-                  child: Align(
-                    alignment:
-                        _headerAlignmentTween.evaluate(_animationController),
-                    child: child,
+        return Padding(
+          padding: paddingTween.evaluate(_heroController),
+          child: Material(
+            animationDuration: Duration.zero,
+            color: colorTween.evaluate(_heroController),
+            elevation: elevationTween.evaluate(_heroController),
+            borderRadius: borderRadiusTween.evaluate(_heroController),
+            child: Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Padding(
+                  padding: buttonBurHeightTween.evaluate(_heroController),
+                  child: SizedBox(
+                    height: headerHeightTween.evaluate(_heroController),
+                    child: Align(
+                      alignment:
+                          _headerAlignmentTween.evaluate(_heroController),
+                      child: child,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 100,
-                child: FadeTransition(
-                  opacity: settingsButtonOpacity,
-                  child: ButtonBar(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.settings,
-                          color: settingsButtonColorTween
-                              .evaluate(_animationController),
+                SizedBox(
+                  width: 100,
+                  child: FadeTransition(
+                    opacity: settingsButtonOpacity,
+                    child: ButtonBar(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.settings,
+                            color: settingsButtonColorTween
+                                .evaluate(_heroController),
+                          ),
+                          onPressed: homePage.open,
                         ),
-                        onPressed: homePage.open,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -378,41 +389,43 @@ class __HeaderState extends State<_Header>
             sizeFactor: _titleAnimation,
             child: FadeTransition(
               opacity: _titleAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizeTransition(
-                    axis: Axis.vertical,
-                    sizeFactor: _titleSize,
-                    child: SizeTransition(
-                      axis: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizeTransition(
+                      axis: Axis.vertical,
                       sizeFactor: _titleSize,
+                      child: SizeTransition(
+                        axis: Axis.horizontal,
+                        sizeFactor: _titleSize,
+                        child: FadeTransition(
+                          opacity: _titleOpacity,
+                          child: Text(
+                            StandardLocalizations.of(context).profile,
+                            style: theme.textTheme.headline1,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizeTransition(
+                      sizeFactor: _linksSizeAnimation,
                       child: FadeTransition(
-                        opacity: _titleOpacity,
-                        child: Text(
-                          StandardLocalizations.of(context).profile,
-                          style: theme.textTheme.headline1,
+                        opacity: _linksOpacityAnimation,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: const [
+                              const _GithubButton(),
+                              const SizedBox(width: 8),
+                              const _MailButton(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizeTransition(
-                    sizeFactor: _linksSizeAnimation,
-                    child: FadeTransition(
-                      opacity: _linksOpacityAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: const [
-                            const _GithubButton(),
-                            const SizedBox(width: 8),
-                            const _MailButton(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -1014,7 +1027,7 @@ class _BackgroundCard extends StatelessWidget {
         ),
       ),
       background: Image(
-        image: Constants.educationImage,
+        image: Constants.backgroundImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,
       ),
@@ -1048,7 +1061,7 @@ class _SkillCard extends StatelessWidget {
         child: Text(localization.skillDescription),
       ),
       background: Image(
-        image: Constants.programmingImage,
+        image: Constants.skillImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,
       ),
@@ -1082,7 +1095,7 @@ class _OtherCard extends StatelessWidget {
         child: Text(localization.otherDescription),
       ),
       background: Image(
-        image: Constants.playgroundImage,
+        image: Constants.otherImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,
       ),

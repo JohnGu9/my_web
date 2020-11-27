@@ -34,12 +34,22 @@ class ScopePageRoute {
       Region region) {
     final color = ColorTween(begin: Colors.transparent, end: Colors.black38)
         .animate(animation);
+    final routeStatus =
+        context.dependOnInheritedWidgetOfExactType<_RouteStatus>();
+
     return IgnorePointer(
-      child: AnimatedBuilder(
-        animation: color,
-        builder: (context, child) {
-          return Container(color: color.value);
+      ignoring: routeStatus.isPopped,
+      child: GestureDetector(
+        onTap: () {
+          final navigator = ScopeNavigator.of(context);
+          if (navigator.canPop()) navigator.pop();
         },
+        child: AnimatedBuilder(
+          animation: color,
+          builder: (context, child) {
+            return Container(color: color.value);
+          },
+        ),
       ),
     );
   }
@@ -58,10 +68,13 @@ class _ScopeNavigator {
     final secondaryAnimation = context
         .dependOnInheritedWidgetOfExactType<_SecondaryAnimationController>()
         ?.controller;
-    return _ScopeNavigator._internal(navigator.state, secondaryAnimation);
+    return _ScopeNavigator._internal(
+        context, navigator.state, secondaryAnimation);
   }
 
-  _ScopeNavigator._internal(this._state, this._secondaryAnimation);
+  _ScopeNavigator._internal(
+      this._context, this._state, this._secondaryAnimation);
+  final BuildContext _context;
   final _ScopeNavigatorState _state;
   final AnimationController _secondaryAnimation;
 
@@ -69,6 +82,16 @@ class _ScopeNavigator {
     final newLayer = _Layer(route, _secondaryAnimation, Completer());
     _state._layers.add(newLayer);
     return newLayer.completer.future;
+  }
+
+  bool canPop() {
+    final routeStatus =
+        _context.dependOnInheritedWidgetOfExactType<_RouteStatus>();
+    return routeStatus?.isPushed ?? false;
+  }
+
+  pop<T extends Object>([value]) {
+    return Navigator.of(_context).pop<T>(value);
   }
 }
 
@@ -372,11 +395,15 @@ class _RouteLayerState extends State<_RouteLayer>
           child: Stack(
             fit: StackFit.expand,
             children: [
-              _layer.route.backgroundBuilder(
-                context,
-                _controller,
-                _secondaryAnimation,
-                widget.region,
+              Builder(
+                builder: (context) {
+                  return _layer.route.backgroundBuilder(
+                    context,
+                    _controller,
+                    _secondaryAnimation,
+                    widget.region,
+                  );
+                },
               ),
               AnimationControllerBuilder(builder: _builder),
             ],

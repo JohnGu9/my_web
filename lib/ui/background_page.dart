@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/core/services/locale_service.dart';
+import 'package:my_web/ui/widgets/delay_show.dart';
 
 import 'home_page.dart';
 
@@ -15,25 +16,25 @@ class BackgroundPage extends StatelessWidget {
       builder: (context, constraints) {
         return Padding(
           padding: EdgeInsets.only(
-            left: constraints.maxWidth * homePage.indexSpaceRate,
-            top: homePage.padding + homePage.headerMinHeight,
-            bottom: homePage.padding,
-          ),
+              left: constraints.maxWidth * homePage.indexSpaceRate,
+              top: homePage.padding + homePage.headerMinHeight,
+              bottom: homePage.padding),
           child: Material(
             elevation: homePage.elevation,
             color: theme.primaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
-                topLeft: borderRadius.topLeft,
-                bottomLeft: borderRadius.bottomLeft,
-              ),
+                  topLeft: borderRadius.topLeft,
+                  bottomLeft: borderRadius.bottomLeft),
             ),
             child: ValueListenableBuilder<int>(
               valueListenable: homePage.onPageChanged,
               builder: (context, value, child) {
-                return value == 1
-                    ? const _Content(show: true)
-                    : const _Content(show: false);
+                return DelayShow(
+                  show: value == 1,
+                  child: const _Content(),
+                  delay: const Duration(milliseconds: 500),
+                );
               },
             ),
           ),
@@ -44,8 +45,7 @@ class BackgroundPage extends StatelessWidget {
 }
 
 class _Content extends StatefulWidget {
-  const _Content({Key key, this.show}) : super(key: key);
-  final bool show;
+  const _Content({Key key}) : super(key: key);
 
   @override
   __ContentState createState() => __ContentState();
@@ -54,19 +54,12 @@ class _Content extends StatefulWidget {
 class __ContentState extends State<_Content>
     with SingleTickerProviderStateMixin<_Content> {
   AnimationController _controller;
-  Widget child = const SizedBox();
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
-    _delayShow();
-  }
-
-  @override
-  void didUpdateWidget(covariant _Content oldWidget) {
-    if (widget.show && widget.show) _delayShow();
-    super.didUpdateWidget(oldWidget);
+    _controller = AnimationController(vsync: this)
+      ..animateTo(1.0, duration: const Duration(seconds: 1));
   }
 
   @override
@@ -75,25 +68,14 @@ class __ContentState extends State<_Content>
     super.dispose();
   }
 
-  void _delayShow() {
-    Future.delayed(const Duration(milliseconds: 350), () async {
-      if (mounted && widget.show)
-        setState(() {
-          child = _Cards(animation: _controller);
-          _controller.animateTo(1.0, duration: const Duration(seconds: 1));
-        });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return child;
+    return _Cards(animation: _controller);
   }
 }
 
 class _Cards extends StatelessWidget {
   const _Cards({Key key, this.animation}) : super(key: key);
-
   final Animation<double> animation;
 
   @override

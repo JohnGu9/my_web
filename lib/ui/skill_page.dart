@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/ui/home_page.dart';
+import 'package:my_web/ui/widgets/delay_show.dart';
 
 class SkillPage extends StatelessWidget {
   const SkillPage({Key key}) : super(key: key);
@@ -26,10 +27,28 @@ class SkillPage extends StatelessWidget {
                 bottomLeft: borderRadius.bottomLeft,
               ),
             ),
-            child: const SizedBox(),
+            child: ValueListenableBuilder<int>(
+              valueListenable: homePage.onPageChanged,
+              builder: (context, value, child) {
+                return DelayShow(
+                  show: value == 1,
+                  child: const _Content(),
+                  delay: const Duration(milliseconds: 500),
+                );
+              },
+            ),
           ),
         );
       },
     );
+  }
+}
+
+class _Content extends StatelessWidget {
+  const _Content({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
   }
 }

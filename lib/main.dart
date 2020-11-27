@@ -40,9 +40,9 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.personLogoImage, context),
         precacheImage(Constants.githubLogoImage, context),
         precacheImage(Constants.mailLogoImage, context),
-        precacheImage(Constants.educationImage, context),
-        precacheImage(Constants.playgroundImage, context),
-        precacheImage(Constants.programmingImage, context),
+        precacheImage(Constants.backgroundImage, context),
+        precacheImage(Constants.otherImage, context),
+        precacheImage(Constants.skillImage, context),
       ]);
     }()
       ..then((value) async {

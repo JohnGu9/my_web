@@ -103,6 +103,7 @@ class StandardLocalizations {
       "toVisitOtherWebsite": "To visit other website",
       "education": "Education",
       "experiment": "Experiment",
+      "tapAndExplore": "Tap and explore",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -131,6 +132,7 @@ class StandardLocalizations {
       "toVisitOtherWebsite": "准备跳转其他网站",
       "education": "教育",
       "experiment": "履历",
+      "tapAndExplore": "点击查看",
     },
   };
 
@@ -236,6 +238,10 @@ class StandardLocalizations {
 
   String get otherDescription {
     return _localize['@otherDescription'];
+  }
+
+  String get tapAndExplore {
+    return _localize['tapAndExplore'];
   }
 }
 
