@@ -9,10 +9,13 @@ mixin RouteControllerMixin<T extends StatefulWidget> on State<T> {
   @protected
   FocusScopeNode get focusScopeNode;
 
+  ValueNotifier<bool> onRouteChanged;
+
   double _targetValue;
   LocalHistoryEntry _historyEntry;
 
   void _ensureHistoryEntry() {
+    onRouteChanged.value = true;
     if (_historyEntry == null) {
       final ModalRoute<dynamic> route = ModalRoute.of(context);
       if (route != null) {
@@ -24,6 +27,7 @@ mixin RouteControllerMixin<T extends StatefulWidget> on State<T> {
   }
 
   void _handleHistoryEntryRemoved() {
+    onRouteChanged.value = false;
     _historyEntry = null;
     close();
   }
@@ -64,5 +68,17 @@ mixin RouteControllerMixin<T extends StatefulWidget> on State<T> {
       case AnimationStatus.completed:
         break;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    onRouteChanged = ValueNotifier(false);
+  }
+
+  @override
+  void dispose() {
+    onRouteChanged.dispose();
+    super.dispose();
   }
 }

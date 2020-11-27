@@ -94,11 +94,15 @@ class StandardLocalizations {
       "background": "Background",
       "skill": "Skill",
       "other": "Other",
-      "@backgroundDescription": "",
-      "@skillDescription": "",
-      "@otherDescription": "",
+      "@backgroundDescription":
+          "About my education and experiment?\nWhere did I graduate from?\nWhat's my major?\nWhat have I done?",
+      "@skillDescription":
+          "About my skills and ability\nWhat can I do?\nWhat's my tech stack?\nWhere's my focus?",
+      "@otherDescription": "About my other stuff\nWhat's my hobby?",
       "visit": "Visit",
       "toVisitOtherWebsite": "To visit other website",
+      "education": "Education",
+      "experiment": "Experiment",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -120,11 +124,13 @@ class StandardLocalizations {
       "background": "背景",
       "more": "更多",
       "other": "其他",
-      "@backgroundDescription": "",
-      "@skillDescription": "",
-      "@otherDescription": "",
+      "@backgroundDescription": "关于我的教育与项目经验\n我的大学？\n我的专业？",
+      "@skillDescription": "关于我的技术与能力\n我能做什么？\n我的技术栈有什么？\n我想专注的方向？",
+      "@otherDescription": "有关我的其他方面\n我的爱好？",
       "visit": "访问",
       "toVisitOtherWebsite": "准备跳转其他网站",
+      "education": "教育",
+      "experiment": "履历",
     },
   };
 
@@ -210,6 +216,26 @@ class StandardLocalizations {
 
   String get toVisitOtherWebsite {
     return _localize['toVisitOtherWebsite'];
+  }
+
+  String get education {
+    return _localize['education'];
+  }
+
+  String get experiment {
+    return _localize['experiment'];
+  }
+
+  String get backgroundDescription {
+    return _localize['@backgroundDescription'];
+  }
+
+  String get skillDescription {
+    return _localize['@skillDescription'];
+  }
+
+  String get otherDescription {
+    return _localize['@otherDescription'];
   }
 }
 

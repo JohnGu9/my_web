@@ -24,6 +24,7 @@ showVisitWebsiteDialog(BuildContext context, String url) async {
                   AppBar(
                     automaticallyImplyLeading: false,
                     elevation: 0.0,
+                    textTheme: theme.textTheme,
                     title: Text(
                         StandardLocalizations.of(context).toVisitOtherWebsite),
                     backgroundColor: theme.cardColor,

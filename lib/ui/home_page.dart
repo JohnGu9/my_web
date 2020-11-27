@@ -35,6 +35,27 @@ class _HomePageState extends State<HomePage>
   @override
   SpringDescription get spring => SpringProvideService.of(context);
 
+  bool _lock = false;
+  _scrollTo(int page) async {
+    if (!mounted) return;
+    if (_currentPage.value == 0) return _pageController.jumpToPage(page);
+
+    _lock = true;
+    _currentPage.value = page;
+    await _pageController.animateToPage(
+      page,
+      curve: Curves.fastOutSlowIn,
+      duration: const Duration(seconds: 1),
+    );
+    _currentPage.value = _pageController.page.round();
+    _lock = false;
+  }
+
+  _updatePage(int page) {
+    if (_lock) return;
+    _currentPage.value = page;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,73 +94,112 @@ class _HomePageState extends State<HomePage>
             ),
           ),
         ),
-        ValueListenableBuilder(
-          valueListenable: _controller,
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(-_settingsPageWidth * _controller.value, 0),
-              child: _RouteBarrier(shouldBarrier: isOpened, child: child),
-            );
-          },
-          child: ScopeNavigator(
-            spring: SpringProvideService.of(context),
-            child: Material(
-              elevation: 16.0,
-              child: _HomePage(
-                state: this,
-                child: Stack(
-                  children: [
-                    PageView(
-                      scrollDirection: Axis.vertical,
-                      controller: _pageController,
-                      onPageChanged: (value) {
-                        _currentPage.value = value;
-                      },
-                      children: const [
-                        const SizedBox(),
-                        const BackgroundPage(),
-                        const SkillPage(),
-                        const OtherPage(),
-                      ],
-                    ),
-                    const _FloatIndex(),
-                    const _Header(),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 100,
-                        child: FadeTransition(
-                          opacity: Tween(
-                            begin: 1.0,
-                            end: 0.0,
-                          ).animate(_controller),
-                          child: ButtonBar(
-                            children: [
-                              IconButton(
-                                  icon: const Icon(Icons.settings),
-                                  onPressed: open)
-                            ],
-                          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return SlideTransition(
+              position: Tween(
+                begin: Offset.zero,
+                end: Offset(-(_settingsPageWidth / constraints.maxWidth), 0),
+              ).animate(_controller),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: onRouteChanged,
+                builder: _barrierBuilder,
+                child: ScopeNavigator(
+                  spring: SpringProvideService.of(context),
+                  child: Material(
+                    elevation: 16.0,
+                    child: RepaintBoundary(
+                      child: _HomePage(
+                        state: this,
+                        child: Stack(
+                          children: [
+                            RepaintBoundary(
+                              child: PageView(
+                                scrollDirection: Axis.vertical,
+                                controller: _pageController,
+                                onPageChanged: _updatePage,
+                                children: const [
+                                  const SizedBox(),
+                                  const BackgroundPage(),
+                                  const SkillPage(),
+                                  const OtherPage(),
+                                ],
+                              ),
+                            ),
+                            const _FloatIndex(),
+                            const _Header(),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
   }
+
+  static Widget _barrierBuilder(
+      BuildContext context, bool value, Widget child) {
+    return _RouteBarrier(
+      shouldBarrier: value,
+      child: child,
+    );
+  }
 }
 
-final _headerHeightTween = Tween<double>(begin: 200, end: 72);
-final _buttonBurHeightTween = EdgeInsetsTween(
-    begin: const EdgeInsets.only(top: 72), end: EdgeInsets.zero);
+class _HomePage extends InheritedWidget {
+  const _HomePage({
+    Key key,
+    Widget child,
+    this.state,
+  }) : super(key: key, child: child);
+
+  final _HomePageState state;
+
+  Animation<double> get animation {
+    return state._controller;
+  }
+
+  scrollTo(int page) {
+    return state._scrollTo(page);
+  }
+
+  ValueListenable<int> get onPageChanged {
+    return state._currentPage;
+  }
+
+  open() {
+    return state.open();
+  }
+
+  double get padding {
+    return 16;
+  }
+
+  double get indexSpaceRate {
+    return 1.0 / 5.0;
+  }
+
+  double get headerMinHeight {
+    return 72.0;
+  }
+
+  double get elevation {
+    return 4.0;
+  }
+
+  @override
+  bool updateShouldNotify(covariant _HomePage oldWidget) {
+    return state != oldWidget.state;
+  }
+}
+
 final _headerAlignmentTween =
     Tween<Alignment>(begin: Alignment.center, end: Alignment(-0.9, 0));
-final _elevationTween = Tween<double>(begin: 0, end: 4.0);
 
 class _Header extends StatefulWidget {
   const _Header({Key key}) : super(key: key);
@@ -230,6 +290,7 @@ class __HeaderState extends State<_Header>
 
   @override
   void dispose() {
+    _onPageChanged?.removeListener(_onPageChangedListener);
     _controller.dispose();
     super.dispose();
   }
@@ -237,24 +298,66 @@ class __HeaderState extends State<_Header>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorTween = ColorTween(
-        begin: theme.canvasColor.withOpacity(0.0), end: theme.primaryColor);
+    final colorTween =
+        ColorTween(begin: theme.canvasColor, end: theme.primaryColor);
+
+    final homePage = HomePage.of(context);
+    final headerHeightTween =
+        Tween<double>(begin: 200, end: homePage.headerMinHeight);
+    final buttonBurHeightTween = EdgeInsetsTween(
+        begin: EdgeInsets.only(top: homePage.headerMinHeight),
+        end: EdgeInsets.zero);
+    final elevationTween = Tween<double>(begin: 0, end: homePage.elevation);
+
+    final iconTheme = ThemeService.of(context).appBarIconTheme;
+    final settingsButtonOpacity =
+        Tween(begin: 1.0, end: 0.0).animate(homePage.animation);
+    final settingsButtonColorTween = ColorTween(
+        begin: theme.brightness == Brightness.dark
+            ? iconTheme.color
+            : theme.iconTheme.color,
+        end: iconTheme.color);
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
         return Material(
-          color: colorTween.evaluate(_animationController),
-          elevation: _elevationTween.evaluate(_animationController),
           animationDuration: Duration.zero,
-          child: Padding(
-            padding: _buttonBurHeightTween.evaluate(_animationController),
-            child: SizedBox(
-              height: _headerHeightTween.evaluate(_animationController),
-              child: Align(
-                alignment: _headerAlignmentTween.evaluate(_animationController),
-                child: child,
+          color: colorTween.evaluate(_animationController),
+          elevation: elevationTween.evaluate(_animationController),
+          child: Stack(
+            alignment: Alignment.topRight,
+            children: [
+              Padding(
+                padding: buttonBurHeightTween.evaluate(_animationController),
+                child: SizedBox(
+                  height: headerHeightTween.evaluate(_animationController),
+                  child: Align(
+                    alignment:
+                        _headerAlignmentTween.evaluate(_animationController),
+                    child: child,
+                  ),
+                ),
               ),
-            ),
+              SizedBox(
+                width: 100,
+                child: FadeTransition(
+                  opacity: settingsButtonOpacity,
+                  child: ButtonBar(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.settings,
+                          color: settingsButtonColorTween
+                              .evaluate(_animationController),
+                        ),
+                        onPressed: homePage.open,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -286,12 +389,9 @@ class __HeaderState extends State<_Header>
                       sizeFactor: _titleSize,
                       child: FadeTransition(
                         opacity: _titleOpacity,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            StandardLocalizations.of(context).profile,
-                            style: theme.textTheme.headline1,
-                          ),
+                        child: Text(
+                          StandardLocalizations.of(context).profile,
+                          style: theme.textTheme.headline1,
                         ),
                       ),
                     ),
@@ -300,12 +400,15 @@ class __HeaderState extends State<_Header>
                     sizeFactor: _linksSizeAnimation,
                     child: FadeTransition(
                       opacity: _linksOpacityAnimation,
-                      child: Row(
-                        children: const [
-                          const _GithubButton(),
-                          const SizedBox(width: 8),
-                          const _MailButton(),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: const [
+                            const _GithubButton(),
+                            const SizedBox(width: 8),
+                            const _MailButton(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -319,46 +422,17 @@ class __HeaderState extends State<_Header>
   }
 }
 
-class _HomePage extends InheritedWidget {
-  const _HomePage({
-    Key key,
-    Widget child,
-    this.state,
-  }) : super(key: key, child: child);
-
-  final _HomePageState state;
-
-  scrollTo(int page) {
-    return state._pageController.animateToPage(
-      page,
-      curve: Curves.fastOutSlowIn,
-      duration: const Duration(seconds: 1),
-    );
-  }
-
-  ValueListenable<int> get onPageChanged {
-    return state._currentPage;
-  }
-
-  open() {
-    return state.open();
-  }
-
-  @override
-  bool updateShouldNotify(covariant _HomePage oldWidget) {
-    return state != oldWidget.state;
-  }
-}
-
 class _GithubButton extends StatelessWidget {
   static const _url = 'https://github.com/JohnGu9';
-
   const _GithubButton({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final elevation = HomePage.of(context).elevation;
     return Tooltip(
       message: StandardLocalizations.of(context).visit,
       child: DetailButton(
+        elevation: elevation,
         simple: const Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Image(
@@ -381,9 +455,11 @@ class _MailButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final elevation = HomePage.of(context).elevation;
     return Tooltip(
       message: StandardLocalizations.of(context).copy,
       child: DetailButton(
+        elevation: elevation,
         simple: const Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Image(
@@ -434,7 +510,7 @@ class __LogoState extends State<_Logo>
     super.dispose();
   }
 
-  _onHover(bool value) {
+  void _onHover(bool value) {
     if (!mounted) return;
     _controller.animateWith(SpringSimulation(
       _spring,
@@ -442,6 +518,10 @@ class __LogoState extends State<_Logo>
       value ? 1.0 : 0.0,
       _controller.velocity,
     ));
+  }
+
+  void _onTap() {
+    return HomePage.of(context).scrollTo(0);
   }
 
   @override
@@ -463,9 +543,8 @@ class __LogoState extends State<_Logo>
               shape: RoundedRectangleBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(200)),
                 side: BorderSide(
-                  color: theme.accentColor,
-                  width: _borderSideWidth.value,
-                ),
+                    color: theme.toggleableActiveColor,
+                    width: _borderSideWidth.value),
               ),
               child: child,
             );
@@ -473,9 +552,7 @@ class __LogoState extends State<_Logo>
           child: Ink.image(
             image: Constants.personLogoImage,
             child: InkWell(
-              onTap: () {
-                return HomePage.of(context).scrollTo(0);
-              },
+              onTap: _onTap,
               onHover: _onHover,
             ),
           ),
@@ -502,8 +579,7 @@ class _RouteBarrier extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         foregroundDecoration: BoxDecoration(
-          color: shouldBarrier ? Colors.black38 : Colors.transparent,
-        ),
+            color: shouldBarrier ? Colors.black38 : Colors.transparent),
         child: child,
       ),
     );
@@ -511,6 +587,11 @@ class _RouteBarrier extends StatelessWidget {
 }
 
 class _FloatIndex extends StatefulWidget {
+  static _FloatIndexInheritedWidget of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_FloatIndexInheritedWidget>();
+  }
+
   const _FloatIndex({Key key}) : super(key: key);
 
   @override
@@ -519,13 +600,13 @@ class _FloatIndex extends StatefulWidget {
 
 class _FloatIndexState extends State<_FloatIndex>
     with TickerProviderStateMixin<_FloatIndex> {
-  AnimationController _controller;
+  AnimationController _introController;
   AnimationController _animationController;
 
   Animation<double> get _mainIndexAnimation {
     return CurvedAnimation(
       curve: const Interval(0.6, 1),
-      parent: _controller,
+      parent: _introController,
     );
   }
 
@@ -549,11 +630,11 @@ class _FloatIndexState extends State<_FloatIndex>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
+    _introController = AnimationController(vsync: this);
     _animationController = AnimationController(vsync: this, value: 1.0);
     Future.delayed(const Duration(seconds: 1), () async {
       if (mounted) {
-        _controller.animateTo(1.0, duration: const Duration(seconds: 3));
+        _introController.animateTo(1.0, duration: const Duration(seconds: 3));
       }
     });
   }
@@ -564,86 +645,106 @@ class _FloatIndexState extends State<_FloatIndex>
     _onPageChanged = HomePage.of(context).onPageChanged;
     _onPageChanged.addListener(_onPageChangedListener);
     _onPageChangedListener();
-
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
+    _onPageChanged?.removeListener(_onPageChangedListener);
     _animationController.dispose();
-    _controller.dispose();
+    _introController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorTween =
-        ColorTween(begin: theme.primaryColor, end: theme.canvasColor);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: _buttonBurHeightTween.begin,
-          child: SizeTransition(
-            axis: Axis.vertical,
-            sizeFactor: _animationController,
-            child: SizedBox(height: _headerHeightTween.begin),
+    final colorTween = ColorTween(
+        begin: theme.primaryColor,
+        end: theme.brightness == Brightness.dark
+            ? theme.canvasColor
+            : theme.primaryColor);
+    final homePage = HomePage.of(context);
+    final headerHeightTween =
+        Tween<double>(begin: 200, end: homePage.headerMinHeight);
+    final buttonBurHeightTween = EdgeInsetsTween(
+        begin: EdgeInsets.only(top: homePage.headerMinHeight),
+        end: EdgeInsets.zero);
+    final elevationTween = Tween(begin: homePage.elevation, end: 0.0);
+
+    return _FloatIndexInheritedWidget(
+      state: this,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: buttonBurHeightTween.begin,
+            child: SizeTransition(
+              axis: Axis.vertical,
+              sizeFactor: _animationController,
+              child: SizedBox(height: headerHeightTween.begin),
+            ),
           ),
-        ),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final rightPadding = Tween<double>(
-                      begin: constraints.maxWidth * 4.0 / 5.0, end: 0.0)
-                  .animate(_animationController);
-              final roundPadding = EdgeInsetsTween(
-                      begin: const EdgeInsets.all(16), end: EdgeInsets.zero)
-                  .animate(_animationController);
-              return AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: rightPadding.value),
-                    child: Padding(
-                      padding: roundPadding.value,
-                      child: Material(
-                        shape: theme.cardTheme.shape,
-                        clipBehavior: Clip.hardEdge,
-                        color: colorTween.evaluate(_animationController),
-                        child: child,
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final rightPadding = Tween<double>(
+                        begin: constraints.maxWidth *
+                            (1 - homePage.indexSpaceRate),
+                        end: 0.0)
+                    .animate(_animationController);
+                final roundPadding = EdgeInsetsTween(
+                        begin: EdgeInsets.all(homePage.padding),
+                        end: EdgeInsets.zero)
+                    .animate(_animationController);
+                return AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Padding(
+                      padding: EdgeInsets.only(right: rightPadding.value),
+                      child: Padding(
+                        padding: roundPadding.value,
+                        child: Material(
+                          animationDuration: Duration.zero,
+                          elevation:
+                              elevationTween.evaluate(_animationController),
+                          shape: theme.cardTheme.shape,
+                          clipBehavior: Clip.hardEdge,
+                          color: colorTween.evaluate(_animationController),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: FadeTransition(
+                    opacity: _mainIndexAnimation,
+                    child: GroupAnimationService.passiveHost(
+                      animation: _mainIndexAnimation,
+                      child: _HeroGrid(
+                        animation: _animationController,
+                        children: const [
+                          GroupAnimationService.client(
+                            builder: _animatedItemBuilder,
+                            child: _BackgroundCard(),
+                          ),
+                          GroupAnimationService.client(
+                            builder: _animatedItemBuilder,
+                            child: _SkillCard(),
+                          ),
+                          GroupAnimationService.client(
+                            builder: _animatedItemBuilder,
+                            child: _OtherCard(),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
-                child: FadeTransition(
-                  opacity: _mainIndexAnimation,
-                  child: GroupAnimationService.passiveHost(
-                    animation: _mainIndexAnimation,
-                    child: _HeroGrid(
-                      animation: _animationController,
-                      children: const [
-                        GroupAnimationService.client(
-                          builder: _animatedItemBuilder,
-                          child: _BackgroundCard(),
-                        ),
-                        GroupAnimationService.client(
-                          builder: _animatedItemBuilder,
-                          child: _SkillCard(),
-                        ),
-                        GroupAnimationService.client(
-                          builder: _animatedItemBuilder,
-                          child: _OtherCard(),
-                        ),
-                      ],
-                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        )
-      ],
+                );
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -657,6 +758,26 @@ class _FloatIndexState extends State<_FloatIndex>
       ),
       child: child,
     );
+  }
+}
+
+class _FloatIndexInheritedWidget extends InheritedWidget {
+  const _FloatIndexInheritedWidget({
+    Key key,
+    Widget child,
+    this.state,
+  }) : super(key: key, child: child);
+
+  @visibleForTesting
+  final _FloatIndexState state;
+
+  Animation<double> get animation {
+    return state._animationController;
+  }
+
+  @override
+  bool updateShouldNotify(covariant _FloatIndexInheritedWidget oldWidget) {
+    return state != oldWidget.state;
   }
 }
 
@@ -704,27 +825,198 @@ class _HeroGrid extends StatelessWidget {
   }
 }
 
+class _CardDecoratedBox extends StatefulWidget {
+  const _CardDecoratedBox({
+    Key key,
+    @required this.child,
+    @required this.pageIndex,
+    @required this.description,
+    @required this.background,
+  }) : super(key: key);
+
+  final Widget child;
+  final Widget description;
+  final int pageIndex;
+  final Widget background;
+
+  @override
+  __CardDecoratedBoxState createState() => __CardDecoratedBoxState();
+}
+
+class __CardDecoratedBoxState extends State<_CardDecoratedBox>
+    with TickerProviderStateMixin<_CardDecoratedBox> {
+  AnimationController _controller;
+  AnimationController _onHoverController;
+  SpringDescription get _spring {
+    return SpringProvideService.of(context);
+  }
+
+  ValueListenable<int> _onPageChanged;
+  _onPageChangedListener() {
+    final shouldExpand = _onPageChanged.value == widget.pageIndex;
+    _controller.animateWith(SpringSimulation(
+      _spring,
+      _controller.value,
+      shouldExpand ? _controller.upperBound : _controller.lowerBound,
+      _controller.velocity,
+    ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    _onHoverController = AnimationController(vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    _onPageChanged?.removeListener(_onPageChangedListener);
+    _onPageChanged = HomePage.of(context).onPageChanged;
+    _onPageChanged.addListener(_onPageChangedListener);
+    _onPageChangedListener();
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _onPageChanged?.removeListener(_onPageChangedListener);
+    _onHoverController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap() {
+    return HomePage.of(context).scrollTo(widget.pageIndex);
+  }
+
+  void _onHover(bool value) {
+    _onHoverController.animateWith(SpringSimulation(_spring,
+        _onHoverController.value, value ? 1 : 0, _onHoverController.velocity));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final activeColor = theme.toggleableActiveColor;
+    final colorTween = ColorTween(
+        begin: theme.selectedRowColor.withOpacity(0.0),
+        end: theme.selectedRowColor.withOpacity(0.12));
+    final floatIndex = _FloatIndex.of(context);
+    final themeService = ThemeService.of(context);
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FadeTransition(
+          opacity: Tween(begin: 0.1, end: 0.2).animate(_onHoverController),
+          child: widget.background,
+        ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Align(
+              alignment: Alignment.centerRight,
+              child: FadeTransition(
+                opacity: _controller,
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Container(
+                      color: activeColor,
+                      width: constraints.maxWidth * _controller.value,
+                      height: constraints.maxHeight,
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        AnimatedBuilder(
+          animation: _onHoverController,
+          builder: (context, child) {
+            return Container(
+              color: colorTween.evaluate(_onHoverController),
+              child: child,
+            );
+          },
+          child: InkWell(
+            onTap: _onTap,
+            onHover: _onHover,
+            hoverColor: Colors.transparent,
+            child: IconTheme(
+              data: themeService.appBarIconTheme,
+              child: DefaultTextStyle(
+                style: themeService.sideStyle,
+                child: SlideTransition(
+                  position: Tween(
+                    begin: Offset.zero,
+                    end: const Offset(0, -0.06),
+                  ).animate(_onHoverController),
+                  child: Column(
+                    children: [
+                      Expanded(child: widget.child),
+                      FadeTransition(
+                        opacity: Tween(begin: 0.3, end: 0.9)
+                            .animate(_onHoverController),
+                        child: ScaleTransition(
+                          alignment: Alignment.topCenter,
+                          scale: Tween(begin: 1.0, end: 1.2)
+                              .animate(_onHoverController),
+                          child: CustomSizeTransition(
+                            crossAxisAlignment: 0.0,
+                            axis: Axis.vertical,
+                            sizeFactor: floatIndex.animation,
+                            child: FadeTransition(
+                              opacity: floatIndex.animation,
+                              child: widget.description,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BackgroundCard extends StatelessWidget {
   const _BackgroundCard({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        return HomePage.of(context).scrollTo(1);
-      },
+    final localization = StandardLocalizations.of(context);
+    return _CardDecoratedBox(
+      pageIndex: 1,
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.only(top: 32, bottom: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.assignment_ind),
-              Text(StandardLocalizations.of(context).background),
+              Text(localization.background),
             ],
           ),
         ),
+      ),
+      description: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: Text(
+          localization.backgroundDescription,
+        ),
+      ),
+      background: Image(
+        image: Constants.educationImage,
+        filterQuality: FilterQuality.none,
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -735,22 +1027,30 @@ class _SkillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        return HomePage.of(context).scrollTo(2);
-      },
+    final localization = StandardLocalizations.of(context);
+    return _CardDecoratedBox(
+      pageIndex: 2,
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.only(top: 32, bottom: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.build),
-              Text(StandardLocalizations.of(context).skill),
+              Text(localization.skill),
             ],
           ),
         ),
+      ),
+      description: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: Text(localization.skillDescription),
+      ),
+      background: Image(
+        image: Constants.programmingImage,
+        filterQuality: FilterQuality.none,
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -761,22 +1061,30 @@ class _OtherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        return HomePage.of(context).scrollTo(3);
-      },
+    final localization = StandardLocalizations.of(context);
+    return _CardDecoratedBox(
+      pageIndex: 3,
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.only(top: 32, bottom: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.scatter_plot),
-              Text(StandardLocalizations.of(context).other),
+              Text(localization.other),
             ],
           ),
         ),
+      ),
+      description: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: Text(localization.otherDescription),
+      ),
+      background: Image(
+        image: Constants.playgroundImage,
+        filterQuality: FilterQuality.none,
+        fit: BoxFit.cover,
       ),
     );
   }

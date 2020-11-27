@@ -15,7 +15,8 @@ class ThemeService extends StatefulWidget {
   static final lightTheme = ThemeData(
       primarySwatch: Colors.blue,
       cardTheme: _cardTheme,
-      selectedRowColor: Colors.black12);
+      selectedRowColor: Colors.black12,
+      toggleableActiveColor: Colors.cyanAccent);
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     cardTheme: _cardTheme,
@@ -86,22 +87,18 @@ class _ThemeService extends InheritedWidget {
     return theme.textTheme;
   }
 
-  TextTheme get titleTextTheme {
-    return textTheme.copyWith(
-      headline1: textTheme.headline1.copyWith(color: Colors.white),
-      headline2: textTheme.headline2.copyWith(color: Colors.white),
-      headline3: textTheme.headline3.copyWith(color: Colors.white),
-      headline4: textTheme.headline4.copyWith(color: Colors.white),
-      headline5: textTheme.headline5.copyWith(color: Colors.white),
-      headline6: textTheme.headline6.copyWith(color: Colors.white),
-      subtitle1: textTheme.subtitle1.copyWith(color: Colors.white),
-      subtitle2: textTheme.subtitle2.copyWith(color: Colors.white),
-      bodyText1: textTheme.bodyText1.copyWith(color: Colors.white),
-      bodyText2: textTheme.bodyText2.copyWith(color: Colors.white),
-      caption: textTheme.caption.copyWith(color: Colors.white),
-      button: textTheme.button.copyWith(color: Colors.white),
-      overline: textTheme.overline.copyWith(color: Colors.white),
-    );
+  IconThemeData get appBarIconTheme {
+    return theme.appBarTheme.iconTheme ?? theme.primaryIconTheme;
+  }
+
+  TextStyle get centerStyle {
+    return theme.appBarTheme.textTheme?.headline6 ??
+        theme.primaryTextTheme.headline6;
+  }
+
+  TextStyle get sideStyle {
+    return theme.appBarTheme.textTheme?.bodyText2 ??
+        theme.primaryTextTheme.bodyText2;
   }
 
   @override
