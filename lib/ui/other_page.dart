@@ -33,7 +33,7 @@ class OtherPage extends StatelessWidget {
               valueListenable: homePage.onPageChanged,
               builder: (context, value, child) {
                 return DelayShow(
-                  show: value == 1,
+                  show: value == 3,
                   child: const _Content(),
                   delay: const Duration(milliseconds: 500),
                 );

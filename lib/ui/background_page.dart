@@ -3,7 +3,7 @@ import 'package:flutter/physics.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
-import 'package:my_web/ui/widgets/delay_show.dart';
+import 'package:my_web/ui/widgets/transition_barrier.dart';
 
 import 'home_page.dart';
 
@@ -31,16 +31,7 @@ class BackgroundPage extends StatelessWidget {
                   topLeft: borderRadius.topLeft,
                   bottomLeft: borderRadius.bottomLeft),
             ),
-            child: ValueListenableBuilder<int>(
-              valueListenable: homePage.onPageChanged,
-              builder: (context, value, child) {
-                return DelayShow(
-                  show: value == 1,
-                  child: const _Content(),
-                  delay: const Duration(milliseconds: 500),
-                );
-              },
-            ),
+            child: HomePage.scrollBarrier(page: 1, child: const _Content()),
           ),
         );
       },
@@ -77,34 +68,37 @@ class __ContentState extends State<_Content>
     final localization = StandardLocalizations.of(context);
     final titleStyle =
         Theme.of(context).textTheme.headline4.copyWith(color: Colors.white);
-    return GroupAnimationService.passiveHost(
+    return TransitionBarrier(
       animation: _controller,
-      child: FadeTransition(
-        opacity: _controller,
-        child: Row(
-          children: [
-            Expanded(
-              child: GroupAnimationService.client(
-                builder: (context, animation, child) {
-                  return _Education(animation: animation);
-                },
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () {},
+      child: GroupAnimationService.passiveHost(
+        animation: _controller,
+        child: FadeTransition(
+          opacity: _controller,
+          child: Row(
+            children: [
+              Expanded(
                 child: GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
-                  child: Center(
-                    child: Text(
-                      localization.experiment,
-                      style: titleStyle,
+                  builder: (context, animation, child) {
+                    return _Education(animation: animation);
+                  },
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {},
+                  child: GroupAnimationService.client(
+                    builder: _animatedItemBuilder,
+                    child: Center(
+                      child: Text(
+                        localization.experiment,
+                        style: titleStyle,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -179,8 +173,7 @@ class __EducationState extends State<_Education>
         animation: _controller,
         builder: (context, child) {
           return Container(
-            foregroundDecoration:
-                BoxDecoration(color: colorTween.evaluate(_controller)),
+            decoration: BoxDecoration(color: colorTween.evaluate(_controller)),
             child: FractionallySizedBox(
               widthFactor: Tween(
                 begin: 2.0 / 3.0,
@@ -261,7 +254,7 @@ class __UniversityState extends State<_University>
       child: Column(
         children: [
           ListTile(
-            title: Text(localization.JNU),
+            title: Text(localization.jnu),
             subtitle: Text(localization.university),
             trailing: const Icon(Icons.school),
             onTap: _onTap,
@@ -269,10 +262,7 @@ class __UniversityState extends State<_University>
           SizeTransition(
             axis: Axis.vertical,
             sizeFactor: _controller,
-            child: SizedBox(
-              height: 100,
-              child: Placeholder(),
-            ),
+            child: SizedBox(height: 100),
           ),
         ],
       ),
@@ -327,10 +317,7 @@ class __MajorState extends State<_Major>
           SizeTransition(
             axis: Axis.vertical,
             sizeFactor: _controller,
-            child: SizedBox(
-              height: 100,
-              child: Placeholder(),
-            ),
+            child: SizedBox(height: 100),
           ),
         ],
       ),

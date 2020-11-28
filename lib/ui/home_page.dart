@@ -11,6 +11,14 @@ class HomePage extends StatefulWidget {
     return context.dependOnInheritedWidgetOfExactType<_HomePage>();
   }
 
+  static Widget scrollBarrier({Key key, int page, Widget child}) {
+    return _ScrollBarrier(
+      key: key,
+      page: page,
+      child: child,
+    );
+  }
+
   const HomePage({Key key}) : super(key: key);
 
   @override
@@ -19,10 +27,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with
-        SingleTickerProviderStateMixin<HomePage>,
-        RouteControllerMixin<HomePage> {
+        TickerProviderStateMixin<HomePage>,
+        RouteControllerMixin<HomePage>,
+        SpringProvideStateMixin {
   static const _settingsPageWidth = 400.0;
   AnimationController _controller;
+  AnimationController _heroController;
+
   PageController _pageController;
   ValueNotifier<int> _currentPage;
 
@@ -35,20 +46,20 @@ class _HomePageState extends State<HomePage>
   @override
   SpringDescription get spring => SpringProvideService.of(context);
 
-  bool _lock = false;
+  bool get _lock {
+    return _pageController.position.isScrollingNotifier.value;
+  }
+
   _scrollTo(int page) async {
     if (!mounted) return;
     if (_currentPage.value == 0) return _pageController.jumpToPage(page);
-
-    _lock = true;
     _currentPage.value = page;
     await _pageController.animateToPage(
       page,
       curve: Curves.fastOutSlowIn,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 800),
     );
     _currentPage.value = _pageController.page.round();
-    _lock = false;
   }
 
   _updatePage(int page) {
@@ -61,8 +72,16 @@ class _HomePageState extends State<HomePage>
     super.initState();
     _controller = AnimationController(vsync: this)
       ..addStatusListener(routeListener);
+    _heroController = AnimationController(vsync: this);
     _pageController = PageController();
-    _currentPage = ValueNotifier(0);
+    _currentPage = ValueNotifier(0)
+      ..addListener(() {
+        _heroController.animateWith(SpringSimulation(
+            spring,
+            _heroController.value,
+            _currentPage.value == 0 ? 0.0 : 1.0,
+            _heroController.velocity));
+      });
   }
 
   @override
@@ -164,12 +183,20 @@ class _HomePage extends InheritedWidget {
     return state._controller;
   }
 
+  Animation<double> get heroAnimation {
+    return state._heroController;
+  }
+
   scrollTo(int page) {
     return state._scrollTo(page);
   }
 
   ValueListenable<int> get onPageChanged {
     return state._currentPage;
+  }
+
+  ValueListenable<bool> get isScrollingNotifier {
+    return state._pageController.position.isScrollingNotifier;
   }
 
   open() {
@@ -209,47 +236,35 @@ class _Header extends StatefulWidget {
 }
 
 class __HeaderState extends State<_Header>
-    with TickerProviderStateMixin, SpringProvideStateMixin {
-  AnimationController _controller;
-  AnimationController _heroController;
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
+  AnimationController _introController;
 
   Animation<double> get _personLogoAnimation {
     return CurvedAnimation(
       curve: const Interval(0.1, 0.4, curve: Curves.fastOutSlowIn),
-      parent: _controller,
+      parent: _introController,
     );
   }
 
   Animation<double> get _titleAnimation {
     return CurvedAnimation(
       curve: const Interval(0.35, 0.7, curve: Curves.fastOutSlowIn),
-      parent: _controller,
+      parent: _introController,
     );
   }
 
   Animation<double> get _linksSizeAnimation {
     return CurvedAnimation(
       curve: const Interval(0.6, 0.75, curve: Curves.fastOutSlowIn),
-      parent: _controller,
+      parent: _introController,
     );
   }
 
   Animation<double> get _linksOpacityAnimation {
     return CurvedAnimation(
       curve: const Interval(0.7, 0.85, curve: Curves.fastOutSlowIn),
-      parent: _controller,
+      parent: _introController,
     );
-  }
-
-  ValueListenable<int> _onPageChanged;
-  _onPageChangedListener() {
-    final shouldExpanded = _onPageChanged.value == 0;
-    _heroController.animateWith(SpringSimulation(
-      spring,
-      _heroController.value,
-      shouldExpanded ? _heroController.lowerBound : _heroController.upperBound,
-      _heroController.velocity,
-    ));
   }
 
   Animation<double> _titleSize;
@@ -258,34 +273,29 @@ class __HeaderState extends State<_Header>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
-    _heroController = AnimationController(vsync: this);
-    _titleSize = Tween(begin: 1.0, end: 0.0).animate(_heroController);
-    _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _heroController,
-      curve: const Interval(0.0, 0.3),
-    ));
+    _introController = AnimationController(vsync: this);
+
     Future.delayed(const Duration(milliseconds: 25), () async {
       if (mounted) {
-        _controller.animateTo(1.0, duration: const Duration(seconds: 3));
+        _introController.animateTo(1.0, duration: const Duration(seconds: 3));
       }
     });
   }
 
   @override
   void didChangeDependencies() {
-    _onPageChanged?.removeListener(_onPageChangedListener);
     final homePage = HomePage.of(context);
-    _onPageChanged = homePage.onPageChanged;
-    _onPageChanged.addListener(_onPageChangedListener);
-    _onPageChangedListener();
+    _titleSize = Tween(begin: 1.0, end: 0.0).animate(homePage.heroAnimation);
+    _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: homePage.heroAnimation,
+      curve: const Interval(0.0, 0.3),
+    ));
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _onPageChanged?.removeListener(_onPageChangedListener);
-    _controller.dispose();
+    _introController.dispose();
     super.dispose();
   }
 
@@ -296,6 +306,7 @@ class __HeaderState extends State<_Header>
         ColorTween(begin: theme.canvasColor, end: theme.primaryColor);
 
     final homePage = HomePage.of(context);
+    final heroAnimation = homePage.heroAnimation;
     final headerHeightTween =
         Tween<double>(begin: 220, end: homePage.headerMinHeight);
     final buttonBurHeightTween = EdgeInsetsTween(
@@ -322,25 +333,24 @@ class __HeaderState extends State<_Header>
         begin: EdgeInsets.zero, end: EdgeInsets.only(left: homePage.padding));
 
     return AnimatedBuilder(
-      animation: _heroController,
+      animation: heroAnimation,
       builder: (context, child) {
         return Padding(
-          padding: paddingTween.evaluate(_heroController),
+          padding: paddingTween.evaluate(heroAnimation),
           child: Material(
             animationDuration: Duration.zero,
-            color: colorTween.evaluate(_heroController),
-            elevation: elevationTween.evaluate(_heroController),
-            borderRadius: borderRadiusTween.evaluate(_heroController),
+            color: colorTween.evaluate(heroAnimation),
+            elevation: elevationTween.evaluate(heroAnimation),
+            borderRadius: borderRadiusTween.evaluate(heroAnimation),
             child: Stack(
               alignment: Alignment.topRight,
               children: [
                 Padding(
-                  padding: buttonBurHeightTween.evaluate(_heroController),
+                  padding: buttonBurHeightTween.evaluate(heroAnimation),
                   child: SizedBox(
-                    height: headerHeightTween.evaluate(_heroController),
+                    height: headerHeightTween.evaluate(heroAnimation),
                     child: Align(
-                      alignment:
-                          _headerAlignmentTween.evaluate(_heroController),
+                      alignment: _headerAlignmentTween.evaluate(heroAnimation),
                       child: child,
                     ),
                   ),
@@ -352,10 +362,11 @@ class __HeaderState extends State<_Header>
                     child: ButtonBar(
                       children: [
                         IconButton(
+                          tooltip: StandardLocalizations.of(context).settings,
                           icon: Icon(
                             Icons.settings,
                             color: settingsButtonColorTween
-                                .evaluate(_heroController),
+                                .evaluate(heroAnimation),
                           ),
                           onPressed: homePage.open,
                         ),
@@ -594,11 +605,6 @@ class _RouteBarrier extends StatelessWidget {
 }
 
 class _FloatIndex extends StatefulWidget {
-  static _FloatIndexInheritedWidget of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_FloatIndexInheritedWidget>();
-  }
-
   const _FloatIndex({Key key}) : super(key: key);
 
   @override
@@ -606,9 +612,8 @@ class _FloatIndex extends StatefulWidget {
 }
 
 class _FloatIndexState extends State<_FloatIndex>
-    with TickerProviderStateMixin, SpringProvideStateMixin {
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
   AnimationController _introController;
-  AnimationController _animationController;
 
   Animation<double> get _mainIndexAnimation {
     return CurvedAnimation(
@@ -617,24 +622,10 @@ class _FloatIndexState extends State<_FloatIndex>
     );
   }
 
-  ValueListenable<int> _onPageChanged;
-  _onPageChangedListener() {
-    final shouldExpand = _onPageChanged.value == 0;
-    _animationController.animateWith(SpringSimulation(
-      spring,
-      _animationController.value,
-      shouldExpand
-          ? _animationController.upperBound
-          : _animationController.lowerBound,
-      _animationController.velocity,
-    ));
-  }
-
   @override
   void initState() {
     super.initState();
     _introController = AnimationController(vsync: this);
-    _animationController = AnimationController(vsync: this, value: 1.0);
     Future.delayed(const Duration(seconds: 1), () async {
       if (mounted) {
         _introController.animateTo(1.0, duration: const Duration(seconds: 3));
@@ -643,18 +634,7 @@ class _FloatIndexState extends State<_FloatIndex>
   }
 
   @override
-  void didChangeDependencies() {
-    _onPageChanged?.removeListener(_onPageChangedListener);
-    _onPageChanged = HomePage.of(context).onPageChanged;
-    _onPageChanged.addListener(_onPageChangedListener);
-    _onPageChangedListener();
-    super.didChangeDependencies();
-  }
-
-  @override
   void dispose() {
-    _onPageChanged?.removeListener(_onPageChangedListener);
-    _animationController.dispose();
     _introController.dispose();
     super.dispose();
   }
@@ -668,6 +648,8 @@ class _FloatIndexState extends State<_FloatIndex>
             ? theme.canvasColor
             : theme.primaryColor);
     final homePage = HomePage.of(context);
+    final heroAnimation =
+        Tween(begin: 1.0, end: 0.0).animate(homePage.heroAnimation);
     final headerHeightTween =
         Tween<double>(begin: 200, end: homePage.headerMinHeight);
     final buttonBurHeightTween = EdgeInsetsTween(
@@ -675,8 +657,8 @@ class _FloatIndexState extends State<_FloatIndex>
         end: EdgeInsets.zero);
     final elevationTween = Tween(begin: homePage.elevation, end: 0.0);
 
-    return _FloatIndexInheritedWidget(
-      state: this,
+    return TransitionBarrier(
+      animation: heroAnimation,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -684,7 +666,7 @@ class _FloatIndexState extends State<_FloatIndex>
             padding: buttonBurHeightTween.begin,
             child: SizeTransition(
               axis: Axis.vertical,
-              sizeFactor: _animationController,
+              sizeFactor: heroAnimation,
               child: SizedBox(height: headerHeightTween.begin),
             ),
           ),
@@ -695,13 +677,13 @@ class _FloatIndexState extends State<_FloatIndex>
                         begin: constraints.maxWidth *
                             (1 - homePage.indexSpaceRate),
                         end: 0.0)
-                    .animate(_animationController);
+                    .animate(heroAnimation);
                 final roundPadding = EdgeInsetsTween(
                         begin: EdgeInsets.all(homePage.padding),
                         end: EdgeInsets.zero)
-                    .animate(_animationController);
+                    .animate(heroAnimation);
                 return AnimatedBuilder(
-                  animation: _animationController,
+                  animation: heroAnimation,
                   builder: (context, child) {
                     return Padding(
                       padding: EdgeInsets.only(right: rightPadding.value),
@@ -709,11 +691,10 @@ class _FloatIndexState extends State<_FloatIndex>
                         padding: roundPadding.value,
                         child: Material(
                           animationDuration: Duration.zero,
-                          elevation:
-                              elevationTween.evaluate(_animationController),
+                          elevation: elevationTween.evaluate(heroAnimation),
                           shape: theme.cardTheme.shape,
                           clipBehavior: Clip.hardEdge,
-                          color: colorTween.evaluate(_animationController),
+                          color: colorTween.evaluate(heroAnimation),
                           child: child,
                         ),
                       ),
@@ -724,7 +705,7 @@ class _FloatIndexState extends State<_FloatIndex>
                     child: GroupAnimationService.passiveHost(
                       animation: _mainIndexAnimation,
                       child: _HeroGrid(
-                        animation: _animationController,
+                        animation: heroAnimation,
                         children: const [
                           GroupAnimationService.client(
                             builder: _animatedItemBuilder,
@@ -761,26 +742,6 @@ class _FloatIndexState extends State<_FloatIndex>
       ),
       child: child,
     );
-  }
-}
-
-class _FloatIndexInheritedWidget extends InheritedWidget {
-  const _FloatIndexInheritedWidget({
-    Key key,
-    Widget child,
-    this.state,
-  }) : super(key: key, child: child);
-
-  @visibleForTesting
-  final _FloatIndexState state;
-
-  Animation<double> get animation {
-    return state._animationController;
-  }
-
-  @override
-  bool updateShouldNotify(covariant _FloatIndexInheritedWidget oldWidget) {
-    return state != oldWidget.state;
   }
 }
 
@@ -902,7 +863,9 @@ class __CardDecoratedBoxState extends State<_CardDecoratedBox>
     final colorTween = ColorTween(
         begin: theme.selectedRowColor.withOpacity(0.0),
         end: theme.selectedRowColor.withOpacity(0.12));
-    final floatIndex = _FloatIndex.of(context);
+    final homePage = HomePage.of(context);
+    final heroAnimation =
+        Tween(begin: 1.0, end: 0.0).animate(homePage.heroAnimation);
     final themeService = ThemeService.of(context);
 
     return Stack(
@@ -966,9 +929,9 @@ class __CardDecoratedBoxState extends State<_CardDecoratedBox>
                           child: CustomSizeTransition(
                             crossAxisAlignment: 0.0,
                             axis: Axis.vertical,
-                            sizeFactor: floatIndex.animation,
+                            sizeFactor: heroAnimation,
                             child: FadeTransition(
-                              opacity: floatIndex.animation,
+                              opacity: heroAnimation,
                               child: widget.description,
                             ),
                           ),
@@ -1087,5 +1050,58 @@ class _OtherCard extends StatelessWidget {
         fit: BoxFit.cover,
       ),
     );
+  }
+}
+
+class _ScrollBarrier extends StatefulWidget {
+  const _ScrollBarrier({Key key, this.child, this.page}) : super(key: key);
+  final Widget child;
+  final int page;
+
+  @override
+  __ScrollBarrierState createState() => __ScrollBarrierState();
+}
+
+class __ScrollBarrierState extends State<_ScrollBarrier> {
+  ValueListenable<bool> _isScrollingNotifier;
+  ValueListenable<int> _onPageChanged;
+  Animation<double> _heroAnimation;
+  bool _show = false;
+  _listener([value]) {
+    setState(() {
+      _show = _show ||
+          (!_isScrollingNotifier.value &&
+              _onPageChanged.value == widget.page &&
+              _heroAnimation.status == AnimationStatus.completed);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    _isScrollingNotifier?.removeListener(_listener);
+    _onPageChanged?.removeListener(_listener);
+    _heroAnimation?.removeStatusListener(_listener);
+    final homePage = HomePage.of(context);
+    _isScrollingNotifier = homePage.isScrollingNotifier;
+    _onPageChanged = homePage.onPageChanged;
+    _heroAnimation = homePage.heroAnimation;
+    _listener();
+    _isScrollingNotifier.addListener(_listener);
+    _onPageChanged.addListener(_listener);
+    _heroAnimation.addStatusListener(_listener);
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _isScrollingNotifier?.removeListener(_listener);
+    _onPageChanged?.removeListener(_listener);
+    _heroAnimation?.removeStatusListener(_listener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _show ? widget.child : const SizedBox();
   }
 }

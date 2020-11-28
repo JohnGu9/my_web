@@ -105,10 +105,35 @@ class StandardLocalizations {
       "education": "Education",
       "experiment": "Experiment",
       "tapAndExplore": "Tap and explore",
+      // background page
       "university": "University",
       "JNU": "JNU University",
       "fourYearFullTime": "four-year full-time",
       "internetOfThings": "Internet of Things",
+      // skill page
+      "techniqueStack": "Technique Stack",
+      "programmingLanguage": "Programming Language",
+      "supportedPlatform": "Supported Platform",
+      "otherRelatedStuff": "Other Related Stuff",
+
+      "signalProcessing": "Signal Processing",
+      "digitalSignalProcessing": "Digital Signal Processing",
+      "digitalImageProcessing": "Digital Image Processing",
+      "circuits": "Circuits",
+      "analogCircuits": "Analog Circuits",
+      "digitalCircuits": "Digital Circuits",
+      "programming": "Programming",
+      "hardwareLanguage": "Hardware Language",
+      "softwareLanguage": "Software Language",
+      "computerNetwork": "Computer Network",
+      "embeddedSystem": "Embedded System",
+      "desktop": "Desktop",
+      "mobile": "Mobile",
+      "usedFramework": "Used Framework",
+      "whatIsMyAdvantage": "What is my advantage?",
+      "@myAdvantageDescription": _myAdvantageDescriptionEN,
+      "learning": "Learning",
+      "interest": "interest",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -139,10 +164,34 @@ class StandardLocalizations {
       "education": "教育",
       "experiment": "履历",
       "tapAndExplore": "点击查看",
+      // background page
       "university": "大学",
       "JNU": "暨南大学",
       "fourYearFullTime": "四年全日制",
       "internetOfThings": "物联网工程",
+      // skill page
+      "techniqueStack": "技术栈",
+      "programmingLanguage": "编程语言",
+      "supportedPlatform": "支持平台",
+      "otherRelatedStuff": "其他相关内容",
+      "signalProcessing": "信号处理",
+      "digitalSignalProcessing": "数字信号处理",
+      "digitalImageProcessing": "数字图像处理",
+      "circuits": "电路",
+      "analogCircuits": "模拟电路",
+      "digitalCircuits": "数字信号",
+      "programming": "编程",
+      "hardwareLanguage": "硬件语言",
+      "softwareLanguage": "软件语言",
+      "computerNetwork": "计算机网络",
+      "embeddedSystem": "嵌入式系统",
+      "desktop": "桌面系统",
+      "mobile": "移动系统",
+      "usedFramework": "使用过的框架",
+      "whatIsMyAdvantage": "我的优势是什么？",
+      "@myAdvantageDescription": _myAdvantageDescriptionZH,
+      "learning": "学习中",
+      "interest": "感兴趣",
     },
   };
 
@@ -262,7 +311,7 @@ class StandardLocalizations {
     return _localize['university'];
   }
 
-  String get JNU {
+  String get jnu {
     return _localize['JNU'];
   }
 
@@ -272,6 +321,94 @@ class StandardLocalizations {
 
   String get internetOfThings {
     return _localize['internetOfThings'];
+  }
+
+  String get techniqueStack {
+    return _localize['techniqueStack'];
+  }
+
+  String get programmingLanguage {
+    return _localize['programmingLanguage'];
+  }
+
+  String get supportedPlatform {
+    return _localize['supportedPlatform'];
+  }
+
+  String get otherRelatedStuff {
+    return _localize['otherRelatedStuff'];
+  }
+
+  String get signalProcessing {
+    return _localize['signalProcessing'];
+  }
+
+  String get digitalSignalProcessing {
+    return _localize['digitalSignalProcessing'];
+  }
+
+  String get digitalImageProcessing {
+    return _localize['digitalImageProcessing'];
+  }
+
+  String get circuits {
+    return _localize['circuits'];
+  }
+
+  String get analogCircuits {
+    return _localize['analogCircuits'];
+  }
+
+  String get digitalCircuits {
+    return _localize['digitalCircuits'];
+  }
+
+  String get programming {
+    return _localize['programming'];
+  }
+
+  String get hardwareLanguage {
+    return _localize['hardwareLanguage'];
+  }
+
+  String get softwareLanguage {
+    return _localize['softwareLanguage'];
+  }
+
+  String get computerNetwork {
+    return _localize['computerNetwork'];
+  }
+
+  String get embeddedSystem {
+    return _localize['embeddedSystem'];
+  }
+
+  String get desktop {
+    return _localize['desktop'];
+  }
+
+  String get mobile {
+    return _localize['mobile'];
+  }
+
+  String get usedFramework {
+    return _localize['usedFramework'];
+  }
+
+  String get whatIsMyAdvantage {
+    return _localize['whatIsMyAdvantage'];
+  }
+
+  String get myAdvantageDescription {
+    return _localize['@myAdvantageDescription'];
+  }
+
+  String get learning {
+    return _localize['learning'];
+  }
+
+  String get interest {
+    return _localize['interest'];
   }
 }
 
@@ -298,3 +435,16 @@ class StandardLocalizationsDelegate
     return true;
   }
 }
+
+const _myAdvantageDescriptionEN = '''Wide techniques support. 
+
+  I can offer multi techniques support and technology integration. In a most common situation, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
+  Although I can use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. 
+  But that is not meaning I can't develop independently. I can develop as normal developer alone, bundle all the stuff together and distribute a full production. 
+''';
+const _myAdvantageDescriptionZH = '''广泛的技术支持。
+
+  我可以提供多层次技术和技术整合。一个常见的情况，来自不同的部门的技术人员常常因为缺乏对方专业的知识背景而彼此之间缺乏有效的沟通。
+  尽管我无法像那些专攻某项技术的人那样马上熟练运用各个专门的技术，但我可以在这些技术之间自由切换和融入其中。
+  但这并不意味着我无法独立完成开发，我完全可以像普通的开发者完成开发任务，打包全部的内容做成一个独立完整的产品。
+''';
