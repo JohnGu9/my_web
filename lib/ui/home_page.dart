@@ -209,7 +209,7 @@ class _Header extends StatefulWidget {
 }
 
 class __HeaderState extends State<_Header>
-    with TickerProviderStateMixin<_Header> {
+    with TickerProviderStateMixin, SpringProvideStateMixin {
   AnimationController _controller;
   AnimationController _heroController;
 
@@ -241,15 +241,11 @@ class __HeaderState extends State<_Header>
     );
   }
 
-  SpringDescription get _spring {
-    return SpringProvideService.of(context);
-  }
-
   ValueListenable<int> _onPageChanged;
   _onPageChangedListener() {
     final shouldExpanded = _onPageChanged.value == 0;
     _heroController.animateWith(SpringSimulation(
-      _spring,
+      spring,
       _heroController.value,
       shouldExpanded ? _heroController.lowerBound : _heroController.upperBound,
       _heroController.velocity,
@@ -448,7 +444,7 @@ class _GithubButton extends StatelessWidget {
         elevation: elevation,
         simple: const Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Image(
+          child: const Image(
             image: Constants.githubLogoImage,
             height: 32,
           ),
@@ -475,7 +471,7 @@ class _MailButton extends StatelessWidget {
         elevation: elevation,
         simple: const Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Image(
+          child: const Image(
             image: Constants.mailLogoImage,
             height: 32,
           ),
@@ -497,12 +493,8 @@ class _Logo extends StatefulWidget {
 }
 
 class __LogoState extends State<_Logo>
-    with SingleTickerProviderStateMixin<_Logo> {
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
   AnimationController _controller;
-
-  SpringDescription get _spring {
-    return SpringProvideService.of(context);
-  }
 
   Animation<double> get _scale {
     return Tween(begin: 1.0, end: 0.9).animate(_controller);
@@ -526,7 +518,7 @@ class __LogoState extends State<_Logo>
   void _onHover(bool value) {
     if (!mounted) return;
     _controller.animateWith(SpringSimulation(
-      _spring,
+      spring,
       _controller.value,
       value ? 1.0 : 0.0,
       _controller.velocity,
@@ -612,26 +604,22 @@ class _FloatIndex extends StatefulWidget {
 }
 
 class _FloatIndexState extends State<_FloatIndex>
-    with TickerProviderStateMixin<_FloatIndex> {
+    with TickerProviderStateMixin, SpringProvideStateMixin {
   AnimationController _introController;
   AnimationController _animationController;
 
   Animation<double> get _mainIndexAnimation {
     return CurvedAnimation(
-      curve: const Interval(0.6, 1),
+      curve: const Interval(0.4, 1),
       parent: _introController,
     );
-  }
-
-  SpringDescription get _spring {
-    return SpringProvideService.of(context);
   }
 
   ValueListenable<int> _onPageChanged;
   _onPageChangedListener() {
     final shouldExpand = _onPageChanged.value == 0;
     _animationController.animateWith(SpringSimulation(
-      _spring,
+      spring,
       _animationController.value,
       shouldExpand
           ? _animationController.upperBound
@@ -857,18 +845,15 @@ class _CardDecoratedBox extends StatefulWidget {
 }
 
 class __CardDecoratedBoxState extends State<_CardDecoratedBox>
-    with TickerProviderStateMixin<_CardDecoratedBox> {
+    with TickerProviderStateMixin, SpringProvideStateMixin {
   AnimationController _controller;
   AnimationController _onHoverController;
-  SpringDescription get _spring {
-    return SpringProvideService.of(context);
-  }
 
   ValueListenable<int> _onPageChanged;
   _onPageChangedListener() {
     final shouldExpand = _onPageChanged.value == widget.pageIndex;
     _controller.animateWith(SpringSimulation(
-      _spring,
+      spring,
       _controller.value,
       shouldExpand ? _controller.upperBound : _controller.lowerBound,
       _controller.velocity,
@@ -904,7 +889,7 @@ class __CardDecoratedBoxState extends State<_CardDecoratedBox>
   }
 
   void _onHover(bool value) {
-    _onHoverController.animateWith(SpringSimulation(_spring,
+    _onHoverController.animateWith(SpringSimulation(spring,
         _onHoverController.value, value ? 1 : 0, _onHoverController.velocity));
   }
 
@@ -1026,7 +1011,7 @@ class _BackgroundCard extends StatelessWidget {
           localization.backgroundDescription,
         ),
       ),
-      background: Image(
+      background: const Image(
         image: Constants.backgroundImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,
@@ -1060,7 +1045,7 @@ class _SkillCard extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         child: Text(localization.skillDescription),
       ),
-      background: Image(
+      background: const Image(
         image: Constants.skillImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,
@@ -1094,7 +1079,7 @@ class _OtherCard extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         child: Text(localization.otherDescription),
       ),
-      background: Image(
+      background: const Image(
         image: Constants.otherImage,
         filterQuality: FilterQuality.none,
         fit: BoxFit.cover,

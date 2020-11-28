@@ -240,6 +240,11 @@ class _AboutBottomSheet extends StatelessWidget {
                   },
                 ),
               ),
+              ListTile(
+                title: Text(localization.distTechnique),
+                trailing: const SizedBox(
+                    width: 32, child: const Image(image: Constants.pwaImage)),
+              ),
               Tooltip(
                 message: localization.visit,
                 child: ListTile(

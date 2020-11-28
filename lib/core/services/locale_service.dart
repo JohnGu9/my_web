@@ -86,6 +86,7 @@ class StandardLocalizations {
       "language": "Language",
       "version": "Version",
       "framework": "Framework",
+      "distTechnique": "Dist Technique",
       "profile": "Profile",
       "source": "Source",
       "copy": "Copy",
@@ -104,6 +105,10 @@ class StandardLocalizations {
       "education": "Education",
       "experiment": "Experiment",
       "tapAndExplore": "Tap and explore",
+      "university": "University",
+      "JNU": "JNU University",
+      "fourYearFullTime": "four-year full-time",
+      "internetOfThings": "Internet of Things",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -117,6 +122,7 @@ class StandardLocalizations {
       "language": "语言",
       "version": "版本",
       "framework": "框架",
+      "distTechnique": "应用分发技术",
       "profile": "个人资料",
       "source": "源代码",
       "copy": "复制",
@@ -133,6 +139,10 @@ class StandardLocalizations {
       "education": "教育",
       "experiment": "履历",
       "tapAndExplore": "点击查看",
+      "university": "大学",
+      "JNU": "暨南大学",
+      "fourYearFullTime": "四年全日制",
+      "internetOfThings": "物联网工程",
     },
   };
 
@@ -178,6 +188,10 @@ class StandardLocalizations {
 
   String get framework {
     return _localize['framework'];
+  }
+
+  String get distTechnique {
+    return _localize['distTechnique'];
   }
 
   String get profile {
@@ -242,6 +256,22 @@ class StandardLocalizations {
 
   String get tapAndExplore {
     return _localize['tapAndExplore'];
+  }
+
+  String get university {
+    return _localize['university'];
+  }
+
+  String get JNU {
+    return _localize['JNU'];
+  }
+
+  String get fourYearFullTime {
+    return _localize['fourYearFullTime'];
+  }
+
+  String get internetOfThings {
+    return _localize['internetOfThings'];
   }
 }
 

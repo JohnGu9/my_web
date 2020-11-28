@@ -19,12 +19,10 @@ class AnimatedInkWell extends StatefulWidget {
 }
 
 class _AnimatedInkWellState extends State<AnimatedInkWell>
-    with SingleTickerProviderStateMixin<AnimatedInkWell> {
+    with
+        SingleTickerProviderStateMixin<AnimatedInkWell>,
+        SpringProvideStateMixin<AnimatedInkWell> {
   AnimationController _controller;
-
-  SpringDescription get _spring {
-    return SpringProvideService.of(context);
-  }
 
   ColorTween _colorTween;
 
@@ -50,7 +48,7 @@ class _AnimatedInkWellState extends State<AnimatedInkWell>
 
   void _onHover(bool value) {
     _controller.animateWith(SpringSimulation(
-      _spring,
+      spring,
       _controller.value,
       value ? 1.0 : 0.0,
       _controller.velocity,

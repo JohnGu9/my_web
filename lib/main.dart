@@ -40,6 +40,7 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.personLogoImage, context),
         precacheImage(Constants.githubLogoImage, context),
         precacheImage(Constants.mailLogoImage, context),
+        precacheImage(Constants.pwaImage, context),
         precacheImage(Constants.backgroundImage, context),
         precacheImage(Constants.otherImage, context),
         precacheImage(Constants.skillImage, context),

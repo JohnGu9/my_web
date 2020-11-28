@@ -20,6 +20,7 @@ class OtherPage extends StatelessWidget {
             bottom: homePage.padding,
           ),
           child: Material(
+            clipBehavior: Clip.hardEdge,
             elevation: homePage.elevation,
             color: theme.primaryColor,
             shape: RoundedRectangleBorder(

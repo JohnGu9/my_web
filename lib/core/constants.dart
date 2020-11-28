@@ -7,6 +7,7 @@ class Constants {
   static const AssetImage githubLogoImage =
       AssetImage("assets/images/github.png");
   static const AssetImage mailLogoImage = AssetImage("assets/images/mail.ico");
+  static const AssetImage pwaImage = AssetImage("assets/images/pwa.png");
 
   static const AssetImage backgroundImage =
       AssetImage("assets/images/background.jpg");

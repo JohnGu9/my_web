@@ -27,3 +27,9 @@ class SpringProvideService extends InheritedWidget {
     return spring != oldWidget.spring;
   }
 }
+
+mixin SpringProvideStateMixin<T extends StatefulWidget> on State<T> {
+  SpringDescription get spring {
+    return SpringProvideService.of(context);
+  }
+}
