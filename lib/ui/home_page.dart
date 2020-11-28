@@ -385,42 +385,44 @@ class __HeaderState extends State<_Header>
             sizeFactor: _titleAnimation,
             child: FadeTransition(
               opacity: _titleAnimation,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizeTransition(
-                      axis: Axis.vertical,
-                      sizeFactor: _titleSize,
-                      child: SizeTransition(
-                        axis: Axis.horizontal,
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizeTransition(
+                        axis: Axis.vertical,
                         sizeFactor: _titleSize,
+                        child: SizeTransition(
+                          axis: Axis.horizontal,
+                          sizeFactor: _titleSize,
+                          child: FadeTransition(
+                            opacity: _titleOpacity,
+                            child: Text(
+                              StandardLocalizations.of(context).profile,
+                              style: theme.textTheme.headline1,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizeTransition(
+                        sizeFactor: _linksSizeAnimation,
                         child: FadeTransition(
-                          opacity: _titleOpacity,
-                          child: Text(
-                            StandardLocalizations.of(context).profile,
-                            style: theme.textTheme.headline1,
+                          opacity: _linksOpacityAnimation,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: const [
+                                const _GithubButton(),
+                                const SizedBox(width: 8),
+                                const _MailButton(),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizeTransition(
-                      sizeFactor: _linksSizeAnimation,
-                      child: FadeTransition(
-                        opacity: _linksOpacityAnimation,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: const [
-                              const _GithubButton(),
-                              const SizedBox(width: 8),
-                              const _MailButton(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

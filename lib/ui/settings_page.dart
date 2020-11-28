@@ -18,6 +18,8 @@ class SettingsPage extends StatelessWidget {
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
+              iconTheme: theme.iconTheme,
+              textTheme: theme.textTheme,
               backgroundColor: theme.canvasColor,
               leading: IconButton(
                 icon: const Icon(Icons.close),
@@ -28,7 +30,10 @@ class SettingsPage extends StatelessWidget {
               ),
               expandedHeight: themeService.expandedHeight,
               flexibleSpace: FlexibleSpaceBar(
-                title: Text(StandardLocalizations.of(context).settings),
+                title: Text(
+                  StandardLocalizations.of(context).settings,
+                  style: theme.textTheme.headline6,
+                ),
               ),
             ),
             const SliverToBoxAdapter(child: _ThemeEditTile()),
