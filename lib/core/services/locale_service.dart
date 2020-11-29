@@ -111,7 +111,7 @@ class StandardLocalizations {
       "fourYearFullTime": "four-year full-time",
       "internetOfThings": "Internet of Things",
       // skill page
-      "techniqueStack": "Technique Stack",
+      "technologyStack": "Technology Stack",
       "programmingLanguage": "Programming Language",
       "supportedPlatform": "Supported Platform",
       "otherRelatedStuff": "Other Related Stuff",
@@ -134,6 +134,22 @@ class StandardLocalizations {
       "@myAdvantageDescription": _myAdvantageDescriptionEN,
       "learning": "Learning",
       "interest": "interest",
+      "database": "Database",
+      "@databaseDescription": _databaseDescriptionEN,
+      "machineLearning": "Machine Learning",
+      "@machineLearningAndAIDescription": _machineLearningAndAIDescriptionEN,
+      "coverage": "Coverage",
+      "signalAndCommunication": "Signal and Communication",
+      "electronicCircuit": "Electronic Circuit",
+      "computerScience": "Computer Science",
+      "embeddedEngineer": "Embedded Engineer",
+      "communicationsEngineer": "Communications Engineer",
+      "practice": "Practice",
+      "myHobbies": "My Hobbies",
+      "myExpectation": "My Expectation",
+      "@myExpectationDescription": _myExpectationDescriptionEN,
+      "game": "Game",
+      "electronicProduction": "Electronic Production",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -170,7 +186,7 @@ class StandardLocalizations {
       "fourYearFullTime": "四年全日制",
       "internetOfThings": "物联网工程",
       // skill page
-      "techniqueStack": "技术栈",
+      "technologyStack": "技术栈",
       "programmingLanguage": "编程语言",
       "supportedPlatform": "支持平台",
       "otherRelatedStuff": "其他相关内容",
@@ -192,6 +208,22 @@ class StandardLocalizations {
       "@myAdvantageDescription": _myAdvantageDescriptionZH,
       "learning": "学习中",
       "interest": "感兴趣",
+      "database": "数据库",
+      "@databaseDescription": _databaseDescriptionZH,
+      "machineLearning": "机器学习",
+      "@machineLearningAndAIDescription": _machineLearningAndAIDescriptionZH,
+      "coverage": "涵盖范围",
+      "signalAndCommunication": "信号与通信",
+      "electronicCircuit": "电子电路",
+      "computerScience": "计算机科学",
+      "embeddedEngineer": "嵌入式工程师",
+      "communicationsEngineer": "通信工程师",
+      "practice": "实习",
+      "myHobbies": "我的爱好",
+      "myExpectation": "我的期望",
+      "@myExpectationDescription": _myExpectationDescriptionZH,
+      "game": "游戏",
+      "electronicProduction": "电子产品",
     },
   };
 
@@ -323,8 +355,8 @@ class StandardLocalizations {
     return _localize['internetOfThings'];
   }
 
-  String get techniqueStack {
-    return _localize['techniqueStack'];
+  String get technologyStack {
+    return _localize['technologyStack'];
   }
 
   String get programmingLanguage {
@@ -410,6 +442,70 @@ class StandardLocalizations {
   String get interest {
     return _localize['interest'];
   }
+
+  String get database {
+    return _localize['database'];
+  }
+
+  String get databaseDescription {
+    return _localize['@databaseDescription'];
+  }
+
+  String get machineLearning {
+    return _localize['machineLearning'];
+  }
+
+  String get machineLearningAndAIDescription {
+    return _localize['@machineLearningAndAIDescription'];
+  }
+
+  String get coverage {
+    return _localize['coverage'];
+  }
+
+  String get signalAndCommunication {
+    return _localize['signalAndCommunication'];
+  }
+
+  String get electronicCircuit {
+    return _localize['electronicCircuit'];
+  }
+
+  String get computerScience {
+    return _localize['computerScience'];
+  }
+
+  String get embeddedEngineer {
+    return _localize['embeddedEngineer'];
+  }
+
+  String get communicationsEngineer {
+    return _localize['communicationsEngineer'];
+  }
+
+  String get practice {
+    return _localize['practice'];
+  }
+
+  String get myHobbies {
+    return _localize['myHobbies'];
+  }
+
+  String get myExpectation {
+    return _localize['myExpectation'];
+  }
+
+  String get myExpectationDescription {
+    return _localize['@myExpectationDescription'];
+  }
+
+  String get game {
+    return _localize['game'];
+  }
+
+  String get electronicProduction {
+    return _localize['electronicProduction'];
+  }
 }
 
 class StandardLocalizationsDelegate
@@ -436,15 +532,45 @@ class StandardLocalizationsDelegate
   }
 }
 
-const _myAdvantageDescriptionEN = '''Wide techniques support. 
+const _myAdvantageDescriptionEN = '''Wide technology support. 
 
-  I can offer multi techniques support and technology integration. In a most common situation, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
+  I can offer multi techniques support and technology integration. In a most common problem, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
   Although I can use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. 
   But that is not meaning I can't develop independently. I can develop as normal developer alone, bundle all the stuff together and distribute a full production. 
 ''';
 const _myAdvantageDescriptionZH = '''广泛的技术支持。
 
-  我可以提供多层次技术和技术整合。一个常见的情况，来自不同的部门的技术人员常常因为缺乏对方专业的知识背景而彼此之间缺乏有效的沟通。
+  我可以提供多层次技术和技术整合。一个常见的问题，来自不同的部门的技术人员常常因为缺乏对方专业的知识背景而彼此之间缺乏有效的沟通。
   尽管我无法像那些专攻某项技术的人那样马上熟练运用各个专门的技术，但我可以在这些技术之间自由切换和融入其中。
   但这并不意味着我无法独立完成开发，我完全可以像普通的开发者完成开发任务，打包全部的内容做成一个独立完整的产品。
 ''';
+
+const _databaseDescriptionEN =
+    '''This question just like asking me: "Did you save money in certain bank?". 
+  "I have not done. " as my answer. 
+  Different situations need different type databases. Even same type databases have their own implements with different apis or SQL language. 
+  Map / Tree / Relational database is the most common type database. And each type have several famous productions in the market. I have not used them all in my short life. 
+  Or I just don't care database. It's just a simple tool to save my data and should be like that. ''';
+const _databaseDescriptionZH = '''这个问题仿佛就像我”是否去过某个银行存过钱？“
+  我的回答是我还没有没有
+  不同的应用场景需要不同类型的数据库。即使同类的数据库也有自己的实现，便会有与之对应的API或者SQL语言。
+  表型/树形/关系型数据库是最常见的数据库类型，而其中每种在市面上都有数个有名的产品。在我短暂的生涯里我还没用过它们全部。
+  或者说我并不关心数据库究竟是怎样的，它仅仅是一个简单的用于存储数据的工具，而且本应该是这样。''';
+
+const _machineLearningAndAIDescriptionEN = '''I know a bit. 
+  When I was in the university, I was very interesting about this and learning a lot of relative theories. I have write a native c program "Image recognize based on machine learning" that ran on a STM32M3 development board. 
+  But I wish you clam down. ML is not magic and it consume a lot of computer resource, time and people resource that only can reach the business production level. 
+  If your company don't focus on it but want integrate it into own production, I recommend you try Google's ML Kit. 
+  Of course, I'm glad to join your AI team and receive more salary. I  need more pay to appease myself while I want to develop some unique production but be requested to some repetitive work like a test engineer and try hard to optimize production like a framework developer. ''';
+const _machineLearningAndAIDescriptionZH = '''我了解一点点。
+  当我在大学的时候，对其非常感兴趣，在网上搜索和学习很多相关的原理，在一次嵌入式课程作业我以自己对其理解编写了一个最简易的基于机器学习的图像识别的C程序并在STM32M3上运行。
+  但是我还是希望你可以冷静，机器学习不是魔法，同时它需要大量的运算资源和时间人力资源的投入才能产出一些能达到商业级别的产品。
+  如果贵公司的主业不是这方面，又希望自己产品有相关属性，我推荐你们还是使用Google的ML Kit实现相关功能。
+  当然我不介意你支付更高的薪金让我加入到你们的AI团队，毕竟让一个满脑子都想做一些独特产品的人，去像测试工程师那样无休止的重复一些简单工作又要像框架师那样绞尽脑汁的优化产品，是需要更多的安慰费的。''';
+
+const _myExpectationDescriptionEN =
+    ''' I don't want to be only certain developer. I want to try and deep dive into every direction technology. And bundle them together. The road is more suitable for my style and my major. 
+  And image processing is my most interesting felid. I'm glad to join into the felid and offer my ability. ''';
+const _myExpectationDescriptionZH =
+    ''' 我不希望仅仅只从事某一方面的开发。我希望可以尝试和深入每个方面的技术，并整合它们到一起。这样的方向才更符合我的风格和我的专业方向。
+  当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';

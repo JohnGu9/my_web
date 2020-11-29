@@ -5,9 +5,14 @@ import 'package:my_web/core/services/spring_provide_service.dart';
 typedef AnimatedInkWellBuilder = Widget Function(
     BuildContext context, Animation<double> animation, Widget child);
 
+Widget _builder(
+    BuildContext context, Animation<double> animation, Widget child) {
+  return child;
+}
+
 class AnimatedInkWell extends StatefulWidget {
   const AnimatedInkWell(
-      {Key key, @required this.builder, this.onTap, this.child})
+      {Key key, this.builder = _builder, this.onTap, this.child})
       : super(key: key);
 
   final AnimatedInkWellBuilder builder;

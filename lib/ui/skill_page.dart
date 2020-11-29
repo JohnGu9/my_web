@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -8,7 +6,6 @@ import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
 import 'package:my_web/ui/home_page.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
-import 'package:my_web/ui/widgets/transition_barrier.dart';
 
 class SkillPage extends StatelessWidget {
   const SkillPage({Key key}) : super(key: key);
@@ -59,7 +56,7 @@ class __ContentState extends State<_Content>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: const Duration(seconds: 3));
+      ..animateTo(1.0, duration: const Duration(milliseconds: 2400));
   }
 
   @override
@@ -70,40 +67,37 @@ class __ContentState extends State<_Content>
 
   @override
   Widget build(BuildContext context) {
-    return TransitionBarrier(
-      animation: _controller,
-      child: ScopeNavigator(
-        spring: spring,
-        child: GroupAnimationService.passiveHost(
-          animation: _controller,
-          child: Row(
-            children: [
-              const Expanded(
-                child: GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
-                  child: _TechniqueStackCard(),
-                ),
+    return ScopeNavigator(
+      spring: spring,
+      child: GroupAnimationService.passiveHost(
+        animation: _controller,
+        child: Row(
+          children: [
+            const Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _TechnologyStackCard(),
               ),
-              const Expanded(
-                child: GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
-                  child: _ProgrammingLanguage(),
-                ),
+            ),
+            const Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _ProgrammingLanguage(),
               ),
-              const Expanded(
-                child: GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
-                  child: _SupportPlatform(),
-                ),
+            ),
+            const Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _SupportPlatform(),
               ),
-              const Expanded(
-                child: GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
-                  child: _OtherStuff(),
-                ),
+            ),
+            const Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _OtherStuff(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -190,8 +184,8 @@ class __CardWrapperState extends State<_CardWrapper>
   }
 }
 
-class _TechniqueStackCard extends StatelessWidget {
-  const _TechniqueStackCard({Key key}) : super(key: key);
+class _TechnologyStackCard extends StatelessWidget {
+  const _TechnologyStackCard({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +197,7 @@ class _TechniqueStackCard extends StatelessWidget {
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
             elevation: 0.0,
-            title: Text(localization.techniqueStack),
+            title: Text(localization.technologyStack),
           ),
           Expanded(
             child: ListView(
@@ -268,20 +262,11 @@ class _TechniqueStackCard extends StatelessWidget {
 }
 
 class _ProgrammingLanguage extends StatelessWidget {
-  static const _languages = [
-    'C/C++',
-    'Java',
-    'Kotlin',
-    'Python',
-    'Dart',
-    'JavaScript',
-    'VHDL',
-  ];
-
   const _ProgrammingLanguage({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
+    final languages = _content.keys.toList();
     return _CardWrapper(
       child: Column(
         children: [
@@ -293,11 +278,19 @@ class _ProgrammingLanguage extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _languages.length,
+              itemCount: languages.length,
               itemBuilder: (BuildContext context, int index) {
-                final language = _languages[index];
-                return Card(
-                  child: ListTile(title: Text(language)),
+                final language = languages[index];
+                return Tooltip(
+                  message: localization.tapAndExplore,
+                  child: Card(
+                    child: ListTile(
+                      title: Text(language),
+                      onTap: () {
+                        return _showProgramLanguagePage(context, language);
+                      },
+                    ),
+                  ),
                 );
               },
             ),
@@ -494,15 +487,16 @@ class _OtherStuff extends StatelessWidget {
                   child: Column(
                     children: [
                       ListTile(
-                          title: RichText(
-                        text: TextSpan(
-                            style: theme.textTheme.bodyText1,
-                            children: [
-                              TextSpan(text: localization.learning),
-                              const TextSpan(text: ' / '),
-                              TextSpan(text: localization.interest),
-                            ]),
-                      )),
+                        title: RichText(
+                          text: TextSpan(
+                              style: theme.textTheme.bodyText1,
+                              children: [
+                                TextSpan(text: localization.learning),
+                                const TextSpan(text: ' / '),
+                                TextSpan(text: localization.interest),
+                              ]),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Wrap(
@@ -531,6 +525,36 @@ class _OtherStuff extends StatelessWidget {
                     ],
                   ),
                 ),
+                Card(
+                  child: ListTile(
+                    title: Text(localization.database),
+                    subtitle: Card(
+                      color: Colors.black12,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          localization.databaseDescription,
+                          style: theme.textTheme.caption,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Card(
+                  child: ListTile(
+                    title: Text(localization.machineLearning),
+                    subtitle: Card(
+                      color: Colors.black12,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          localization.machineLearningAndAIDescription,
+                          style: theme.textTheme.caption,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -539,3 +563,342 @@ class _OtherStuff extends StatelessWidget {
     );
   }
 }
+
+_showProgramLanguagePage(BuildContext context, String language) {
+  final borderRadius =
+      ((Theme.of(context).cardTheme.shape as RoundedRectangleBorder)
+          .borderRadius as BorderRadius);
+  final data = _content[language];
+  return ScopeNavigator.of(context).push(ScopePageRoute(
+    builder: (context, animation, secondaryAnimation, size) {
+      return SlideTransition(
+        position: Tween(
+          begin: const Offset(1, 0),
+          end: const Offset(0, 0),
+        ).animate(animation),
+        child: FractionallySizedBox(
+          alignment: Alignment.topRight,
+          widthFactor: 6.0 / 7.0,
+          child: Material(
+            elevation: 8.0,
+            borderRadius: BorderRadius.only(
+                topLeft: borderRadius.topLeft,
+                bottomLeft: borderRadius.bottomLeft),
+            clipBehavior: Clip.hardEdge,
+            child: _ProgramLanguagePage(data: data),
+          ),
+        ),
+      );
+    },
+  ));
+}
+
+class _ProgramLanguagePage extends StatelessWidget {
+  const _ProgramLanguagePage({Key key, @required this.data}) : super(key: key);
+  final _Data data;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          pinned: true,
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              final navigator = ScopeNavigator.of(context);
+              if (navigator.canPop()) navigator.pop();
+            },
+          ),
+          expandedHeight: 200,
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(data.name),
+            centerTitle: false,
+            background: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: data.logo,
+            ),
+          ),
+        ),
+        SliverAppBar(
+          textTheme: theme.textTheme,
+          title: Text('Relative'),
+          centerTitle: false,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              spacing: 4.0,
+              runSpacing: 4.0,
+              children: data.chips,
+            ),
+          ),
+        ),
+        SliverAppBar(
+          textTheme: theme.textTheme,
+          title: Text('Description'),
+          centerTitle: false,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(data.description),
+            )),
+          ),
+        ),
+        SliverAppBar(
+          textTheme: theme.textTheme,
+          title: Text('Addition'),
+          centerTitle: false,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(data.addition),
+            )),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 50))
+      ],
+    );
+  }
+}
+
+class _Data {
+  final String name;
+  final Widget logo;
+  final String description;
+  final String addition;
+  final List<Widget> chips;
+
+  const _Data(
+      {this.name,
+      this.logo = const FlutterLogo(),
+      this.description,
+      this.addition,
+      this.chips});
+}
+
+const _content = {
+  'C/C++': _c,
+  'Java': _java,
+  'Kotlin': _kotlin,
+  'Python': _python,
+  'Dart': _dart,
+  'JavaScript': _javascript,
+  'VHDL': _vhdl,
+};
+
+const _c = _Data(
+  name: 'C/C++',
+  chips: [
+    Chip(label: Text('C++11')),
+    Chip(label: Text('C++14')),
+    Chip(
+      avatar: const Icon(Icons.desktop_windows),
+      label: Text('Desktop'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.developer_board),
+      label: Text('Embedded System'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('OpenCV'),
+    ),
+  ],
+  description: '''The motherboard of most OOP language. 
+With ability of control memory directly and natively. 
+It's position can't be replaced for widely use. 
+''',
+  addition: '''My most familiar language with my most disgust. 
+Some syntax and mechanism doesn't make sense at all 😡 but it will focus you to agree with it. 
+But it have widely support and high performance. I forgive it.
+''',
+);
+
+const _java = _Data(
+  name: 'JAVA',
+  chips: [
+    Chip(label: Text('JAVA 1.8.0')),
+    Chip(
+      avatar: const Icon(Icons.android),
+      label: Text('Android'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.desktop_windows),
+      label: Text('Desktop'),
+    ),
+  ],
+  description: '''The most famous OOP language. 
+It was official language for android in the past. 
+''',
+  addition:
+      '''@Deprecated( "My second programming language learnt in university. My familiar OOP language in the past. But I discard it now. It is out of data because it never include important high-level operations. No null safety, No coroutine. Some syntax is really redundant. Not a good choose for a big project. " )
+class JAVA extends ProgrammingLanguage {}
+''',
+);
+
+const _kotlin = _Data(
+  name: 'Kotlin',
+  chips: [
+    Chip(label: Text('Kotlin 1.4^')),
+    Chip(
+      avatar: const Icon(Icons.android),
+      label: Text('Android'),
+    ),
+  ],
+  description:
+      '''The well replacement of JAVA that offer rich and useful features such as null safety and ease syntax. 
+And it's recommended by Google to implement feature while product Android program. 
+''',
+  addition:
+      '''Kotlin offer more appealing features than JAVA that make me transform to it. 
+Null safety, Coroutine, Lighting syntax. Well training, seems to be well prepared. 
+But sometimes I'm still not satisfy with it. 
+''',
+);
+
+const _python = _Data(
+  name: 'Python',
+  chips: [
+    Chip(label: Text('Python3')),
+    Chip(
+      avatar: const Icon(Icons.desktop_windows),
+      label: Text('Desktop'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('PyQt5'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('OpenCV'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('Tensorflow'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('Flask'),
+    ),
+  ],
+  description: '''A ease language for programer or normal people. 
+Huge community offering rich package. 
+''',
+  addition:
+      '''Because Matlab is not free, it's the best replacement that can easily handle work for a student of signal relative major. 
+And nowadays most common data progressing and scientific research built on it that I need to learn and use it. 
+Also it make me get rid of shell. Just use Python make every things ease. Performance? Who care?
+''',
+);
+
+const _dart = _Data(
+  name: 'Dart',
+  chips: [
+    Chip(label: Text('Dart2.5^')),
+    Chip(
+      avatar: const Icon(Icons.android),
+      label: Text('Android'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.phone_iphone),
+      label: Text('IOS'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.web),
+      label: Text('Web'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.desktop_mac),
+      label: Text('macOS'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.design_services),
+      label: Text('Frontend design'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('Flutter'),
+    ),
+  ],
+  description: '''The cross-platform OOP language made by Google's team. 
+It absorb all other OOP language advantages and abandon all disadvantage. 
+Flutter is Dart's most famous package that commonly used for Android and IOS frontend programming. 
+''',
+  addition:
+      '''The most suitable language for programer to use that it become my favorite programming language. 🥰
+Everything just make such sense in it. Awesome syntax assistance out of the box. Awesome package management out of the box. 
+But it still is a young language. Not everything is perfect. 
+''',
+);
+
+const _javascript = _Data(
+  name: 'JavaScript',
+  chips: [
+    Chip(label: Text('ES')),
+    Chip(
+      avatar: const Icon(Icons.web),
+      label: Text('Web'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.open_in_browser),
+      label: Text('NodeJS'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('Electron'),
+    ),
+    Chip(
+      avatar: const FlutterLogo(),
+      label: Text('TypeScript'),
+    ),
+  ],
+  description: '''The currency of world of web. 
+Web application can never get rid of it (WebAssembly say: "Not that true. "). 
+''',
+  addition:
+      '''A flexible language that ease to use. V8 engine JIT make it performance ridiculous. 
+But it's too flex that also ease to make mistake or make program vulnerability. 
+''',
+);
+
+const _vhdl = _Data(
+  name: 'VHDL',
+  chips: [
+    Chip(
+      avatar: const Icon(Icons.developer_board),
+      label: Text('Hardware language'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.developer_board),
+      label: Text('EDA'),
+    ),
+    Chip(
+      avatar: const Icon(Icons.developer_board),
+      label: Text('FPGA'),
+    ),
+  ],
+  description: '''Hardware language that different from software language. 
+Everything run parallel, just like OpenGL or CUDA, but without memory. 
+''',
+  addition: '''State machine. State machine. State machine. 
+Rising edge or falling edge. 
+ieee.*
+''',
+);

@@ -96,6 +96,7 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
+      clipBehavior: Clip.hardEdge,
       children: [
         Focus(
           focusNode: focusScopeNode,

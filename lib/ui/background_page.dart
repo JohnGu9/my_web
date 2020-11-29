@@ -65,40 +65,25 @@ class __ContentState extends State<_Content>
 
   @override
   Widget build(BuildContext context) {
-    final localization = StandardLocalizations.of(context);
-    final titleStyle =
-        Theme.of(context).textTheme.headline4.copyWith(color: Colors.white);
-    return TransitionBarrier(
+    return GroupAnimationService.passiveHost(
       animation: _controller,
-      child: GroupAnimationService.passiveHost(
-        animation: _controller,
-        child: FadeTransition(
-          opacity: _controller,
-          child: Row(
-            children: [
-              Expanded(
-                child: GroupAnimationService.client(
-                  builder: (context, animation, child) {
-                    return _Education(animation: animation);
-                  },
-                ),
+      child: FadeTransition(
+        opacity: _controller,
+        child: Row(
+          children: const [
+            Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: const _Education(),
               ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {},
-                  child: GroupAnimationService.client(
-                    builder: _animatedItemBuilder,
-                    child: Center(
-                      child: Text(
-                        localization.experiment,
-                        style: titleStyle,
-                      ),
-                    ),
-                  ),
-                ),
+            ),
+            Expanded(
+              child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: const _Experiment(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -121,9 +106,7 @@ class __ContentState extends State<_Content>
 }
 
 class _Education extends StatefulWidget {
-  const _Education({Key key, this.animation}) : super(key: key);
-
-  final Animation<double> animation;
+  const _Education({Key key}) : super(key: key);
 
   @override
   __EducationState createState() => __EducationState();
@@ -160,10 +143,6 @@ class __EducationState extends State<_Education>
         end: theme.selectedRowColor.withOpacity(0.12));
     final localization = StandardLocalizations.of(context);
     final titleStyle = theme.textTheme.headline4.copyWith(color: Colors.white);
-    final curvedAnimation =
-        CurvedAnimation(parent: widget.animation, curve: Curves.fastOutSlowIn);
-    final position = Tween(begin: const Offset(0, 1), end: Offset.zero)
-        .animate(curvedAnimation);
 
     return InkWell(
       onTap: _onTap,
@@ -173,7 +152,7 @@ class __EducationState extends State<_Education>
         animation: _controller,
         builder: (context, child) {
           return Container(
-            decoration: BoxDecoration(color: colorTween.evaluate(_controller)),
+            color: colorTween.evaluate(_controller),
             child: FractionallySizedBox(
               widthFactor: Tween(
                 begin: 2.0 / 3.0,
@@ -183,31 +162,26 @@ class __EducationState extends State<_Education>
             ),
           );
         },
-        child: SlideTransition(
-          position: position,
-          child: FadeTransition(
-            opacity: widget.animation,
-            child: Center(
-              child: CustomScrollView(
-                shrinkWrap: true,
-                slivers: [
-                  SliverAppBar(
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0.0,
-                    expandedHeight: 120,
-                    flexibleSpace: FlexibleSpaceBar(
-                      title: Text(
-                        localization.education,
-                        style: titleStyle,
-                      ),
-                    ),
+        child: Center(
+          child: CustomScrollView(
+            shrinkWrap: true,
+            slivers: [
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                elevation: 0.0,
+                expandedHeight: 120,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    localization.education,
+                    style: titleStyle,
                   ),
-                  const SliverToBoxAdapter(child: _University()),
-                  const SliverToBoxAdapter(child: _Major()),
-                ],
+                ),
               ),
-            ),
+              const SliverToBoxAdapter(child: _University()),
+              const SliverToBoxAdapter(child: _Major()),
+              const SliverToBoxAdapter(child: SizedBox(height: 100))
+            ],
           ),
         ),
       ),
@@ -304,6 +278,7 @@ class __MajorState extends State<_Major>
   @override
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
+    final theme = Theme.of(context);
     return Card(
       clipBehavior: Clip.hardEdge,
       child: Column(
@@ -317,9 +292,143 @@ class __MajorState extends State<_Major>
           SizeTransition(
             axis: Axis.vertical,
             sizeFactor: _controller,
-            child: SizedBox(height: 100),
+            child: FadeTransition(
+              opacity: _controller,
+              child: Column(
+                children: [
+                  AppBar(
+                    textTheme: theme.textTheme,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0.0,
+                    title: Text(localization.coverage),
+                  ),
+                  ListTile(
+                    title: Text(localization.signalAndCommunication),
+                  ),
+                  ListTile(
+                    title: Text(localization.electronicCircuit),
+                  ),
+                  ListTile(
+                    title: Text(localization.computerScience),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _Experiment extends StatefulWidget {
+  const _Experiment({Key key}) : super(key: key);
+
+  @override
+  __ExperimentState createState() => __ExperimentState();
+}
+
+class __ExperimentState extends State<_Experiment>
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap() {}
+  void _onHover(bool value) {
+    if (!mounted) return;
+    _controller.animateWith(SpringSimulation(
+        spring, _controller.value, value ? 1.0 : 0.0, _controller.velocity));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final localization = StandardLocalizations.of(context);
+    final titleStyle = theme.textTheme.headline4.copyWith(color: Colors.white);
+    final colorTween = ColorTween(
+        begin: theme.selectedRowColor.withOpacity(0.0),
+        end: theme.selectedRowColor.withOpacity(0.12));
+    return InkWell(
+      onTap: _onTap,
+      onHover: _onHover,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Container(
+            color: colorTween.evaluate(_controller),
+            child: FractionallySizedBox(
+              widthFactor: Tween(
+                begin: 2.0 / 3.0,
+                end: 4.0 / 5.0,
+              ).evaluate(_controller),
+              child: child,
+            ),
+          );
+        },
+        child: Center(
+          child: CustomScrollView(
+            shrinkWrap: true,
+            slivers: [
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                elevation: 0.0,
+                expandedHeight: 120,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    localization.experiment,
+                    style: titleStyle,
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: _EmbeddedEngineer(),
+              ),
+              const SliverToBoxAdapter(
+                child: _CommunicationsEngineer(),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 100))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmbeddedEngineer extends StatelessWidget {
+  const _EmbeddedEngineer({Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final localization = StandardLocalizations.of(context);
+    return Card(
+      child: ListTile(
+        title: Text(localization.embeddedEngineer),
+        trailing: Chip(label: Text(localization.practice)),
+      ),
+    );
+  }
+}
+
+class _CommunicationsEngineer extends StatelessWidget {
+  const _CommunicationsEngineer({Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final localization = StandardLocalizations.of(context);
+    return Card(
+      child: ListTile(
+        title: Text(localization.communicationsEngineer),
       ),
     );
   }
