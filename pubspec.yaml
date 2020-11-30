@@ -30,6 +30,7 @@ dependencies:
   flutter_platform_widgets:
   listenable_list:
   sliver_tools:
+  google_fonts:
 
   url_launcher:
   url_launcher_web:
@@ -69,18 +70,18 @@ flutter:
   fonts:
     - family: NotoSansSC
       fonts:
-        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Thin.otf
-        #   weight: 100
-        - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf
-          weight: 300
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Thin.otf
+  #         weight: 100
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf
+  #         weight: 300
         - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf
-          weight: 400
-        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Medium.otf
-        #   weight: 500    
-        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Bold.otf
-        #   weight: 700
-        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Black.otf
-        #   weight: 900  
+  #         weight: 400
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Medium.otf
+  #         weight: 500    
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Bold.otf
+  #         weight: 700
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Black.otf
+  #         weight: 900  
 
     # - family: Roboto
     #   fonts:

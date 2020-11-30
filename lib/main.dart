@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:my_web/ui/.lib.dart';
 import 'package:my_web/core/.lib.dart';
@@ -45,23 +46,24 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.otherImage, context),
         precacheImage(Constants.skillImage, context),
         precacheImage(Constants.jinanLogoImage, context),
-        precacheImage(Constants.dartLogoImage, context),
-        precacheImage(Constants.tensorflowLogoImage, context),
-        precacheImage(Constants.opencvLogoImage, context),
-        precacheImage(Constants.pythonLogoImage, context),
-        precacheImage(Constants.javaLogoImage, context),
-        precacheImage(Constants.kotlinLogoImage, context),
-        precacheImage(Constants.javascriptLogoImage, context),
-        precacheImage(Constants.cppLogoImage, context),
-        precacheImage(Constants.swiftLogoImage, context),
-        precacheImage(Constants.rustLogoImage, context),
-        precacheImage(Constants.goLogoImage, context),
-        precacheImage(Constants.k8sLogoImage, context),
-        precacheImage(Constants.qtLogoImage, context),
-        precacheImage(Constants.flaskLogoImage, context),
-        precacheImage(Constants.electronLogoImage, context),
-        precacheImage(Constants.nodejsLogoImage, context),
-        precacheImage(Constants.typescriptLogoImage, context),
+        //
+        // precacheImage(Constants.dartLogoImage, context),
+        // precacheImage(Constants.tensorflowLogoImage, context),
+        // precacheImage(Constants.opencvLogoImage, context),
+        // precacheImage(Constants.pythonLogoImage, context),
+        // precacheImage(Constants.javaLogoImage, context),
+        // precacheImage(Constants.kotlinLogoImage, context),
+        // precacheImage(Constants.javascriptLogoImage, context),
+        // precacheImage(Constants.cppLogoImage, context),
+        // precacheImage(Constants.swiftLogoImage, context),
+        // precacheImage(Constants.rustLogoImage, context),
+        // precacheImage(Constants.goLogoImage, context),
+        // precacheImage(Constants.k8sLogoImage, context),
+        // precacheImage(Constants.qtLogoImage, context),
+        // precacheImage(Constants.flaskLogoImage, context),
+        // precacheImage(Constants.electronLogoImage, context),
+        // precacheImage(Constants.nodejsLogoImage, context),
+        // precacheImage(Constants.typescriptLogoImage, context),
       ]);
     }()
       ..then((value) async {
