@@ -895,8 +895,8 @@ const _vhdl = _Data(
   description: '''Hardware language that different from software language. 
 Everything run parallel, just like OpenGL or CUDA, but without memory. 
 ''',
-  addition: '''State machine. State machine. State machine. 
+  addition: '''State machine. State machine. State switch. 
 Rising edge or falling edge. 
-ieee.*
+library ieee;
 ''',
 );
