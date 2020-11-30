@@ -96,11 +96,14 @@ class __ContentState extends State<_Content>
         CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
     final position = Tween(begin: const Offset(0, 1), end: Offset.zero)
         .animate(curvedAnimation);
-    return SlideTransition(
-      position: position,
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
+    return GroupAnimationService.passiveHost(
+      animation: animation,
+      child: SlideTransition(
+        position: position,
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
       ),
     );
   }
@@ -179,8 +182,16 @@ class __EducationState extends State<_Education>
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: _University()),
-              const SliverToBoxAdapter(child: _Major()),
+              const SliverToBoxAdapter(
+                  child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _University(),
+              )),
+              const SliverToBoxAdapter(
+                  child: GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Major(),
+              )),
               const SliverToBoxAdapter(child: SizedBox(height: 100))
             ],
           ),
@@ -451,10 +462,16 @@ class __ExperimentState extends State<_Experiment>
                 ),
               ),
               const SliverToBoxAdapter(
-                child: _EmbeddedEngineer(),
+                child: GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: _EmbeddedEngineer(),
+                ),
               ),
               const SliverToBoxAdapter(
-                child: _CommunicationsEngineer(),
+                child: GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: _CommunicationsEngineer(),
+                ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 100))
             ],
@@ -490,4 +507,20 @@ class _CommunicationsEngineer extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _animatedItemBuilder(
+    BuildContext context, Animation<double> animation, Widget child) {
+  final curvedAnimation =
+      CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
+  return SlideTransition(
+    position: Tween(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(curvedAnimation),
+    child: FadeTransition(
+      opacity: animation,
+      child: child,
+    ),
+  );
 }
