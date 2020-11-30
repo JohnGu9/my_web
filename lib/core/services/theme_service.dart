@@ -17,10 +17,12 @@ class ThemeService extends StatefulWidget {
     cardTheme: _cardTheme,
     selectedRowColor: Colors.black12,
     toggleableActiveColor: Colors.cyanAccent,
+    fontFamily: 'Noto Sans SC',
   );
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     cardTheme: _cardTheme,
+    fontFamily: 'Noto Sans SC',
   );
   static final List<ThemeData> supportedThemes = [lightTheme, darkTheme];
 
