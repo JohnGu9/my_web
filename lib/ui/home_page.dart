@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage>
     await _pageController.animateToPage(
       page,
       curve: Curves.fastOutSlowIn,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 650),
     );
     _currentPage.value = _pageController.page.round();
   }

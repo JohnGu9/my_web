@@ -13,6 +13,7 @@ class Constants {
       AssetImage("assets/images/background.jpg");
   static const AssetImage skillImage = AssetImage("assets/images/skill.jpg");
   static const AssetImage otherImage = AssetImage("assets/images/other.jpg");
+
   static const AssetImage jinanLogoImage =
       AssetImage("assets/images/jinan.png");
 

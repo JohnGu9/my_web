@@ -286,11 +286,6 @@ class _ProgrammingLanguage extends StatelessWidget {
                   message: localization.tapAndExplore,
                   child: Card(
                     child: ListTile(
-                      trailing: SizedBox(
-                        height: 32,
-                        width: 32,
-                        child: _content[language].logo,
-                      ),
                       title: Text(language),
                       onTap: () {
                         return _showProgramLanguagePage(context, language);
@@ -335,28 +330,21 @@ class _SupportPlatform extends StatelessWidget {
                           runSpacing: 4,
                           children: [
                             const Chip(
-                              avatar: const FlutterLogo(),
                               label: const Text('Flutter'),
                             ),
                             const Chip(
-                              avatar: Image(image: Constants.qtLogoImage),
                               label: const Text('PyQt5'),
                             ),
                             const Chip(
-                              avatar: Image(image: Constants.opencvLogoImage),
                               label: const Text('OpenCV'),
                             ),
                             const Chip(
-                              avatar:
-                                  Image(image: Constants.tensorflowLogoImage),
                               label: const Text('Tensorflow'),
                             ),
                             const Chip(
-                              avatar: Image(image: Constants.flaskLogoImage),
                               label: const Text('Flask'),
                             ),
                             const Chip(
-                              avatar: Image(image: Constants.electronLogoImage),
                               label: const Text('Electron'),
                             ),
                           ],
@@ -511,27 +499,15 @@ class _OtherStuff extends StatelessWidget {
                           runSpacing: 4,
                           children: [
                             const Chip(
-                              avatar: Image(
-                                image: Constants.swiftLogoImage,
-                              ),
                               label: const Text('Swift'),
                             ),
                             const Chip(
-                              avatar: Image(
-                                image: Constants.rustLogoImage,
-                              ),
                               label: const Text('Rust'),
                             ),
                             const Chip(
-                              avatar: Image(
-                                image: Constants.goLogoImage,
-                              ),
                               label: const Text('Go'),
                             ),
                             const Chip(
-                              avatar: Image(
-                                image: Constants.k8sLogoImage,
-                              ),
                               label: const Text('Kubernetes'),
                             ),
                           ],

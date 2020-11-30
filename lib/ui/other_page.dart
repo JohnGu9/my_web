@@ -93,12 +93,15 @@ class __ContentState extends State<_Content>
 
   static Widget _animatedItemBuilder(
       BuildContext context, Animation<double> animation, Widget child) {
-    return ScaleTransition(
-      scale: Tween(begin: 0.85, end: 1.0).animate(
-          CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
+    return GroupAnimationService.passiveHost(
+      animation: animation,
+      child: ScaleTransition(
+        scale: Tween(begin: 0.85, end: 1.0).animate(
+            CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
       ),
     );
   }
@@ -121,43 +124,49 @@ class _MyHobbies extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(title: Text(localization.game)),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: [
-                            Chip(label: Text('GTA5')),
-                            Chip(label: Text('The Division')),
-                            Chip(label: Text('BattleFelid 1')),
-                          ],
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: Card(
+                    child: Column(
+                      children: [
+                        ListTile(title: Text(localization.game)),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: const [
+                              Chip(label: Text('GTA5')),
+                              Chip(label: Text('The Division')),
+                              Chip(label: Text('BattleFelid 1')),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text(localization.electronicProduction),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: [
-                            Chip(label: Text('Computer')),
-                            Chip(label: Text('Phone')),
-                          ],
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: Card(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(localization.electronicProduction),
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: const [
+                              Chip(label: Text('Computer')),
+                              Chip(label: Text('Phone')),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               ],
@@ -186,10 +195,13 @@ class _MyExpectation extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(localization.myExpectationDescription),
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(localization.myExpectationDescription),
+                    ),
                   ),
                 )
               ],
@@ -215,4 +227,20 @@ class _More extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _animatedItemBuilder(
+    BuildContext context, Animation<double> animation, Widget child) {
+  final curvedAnimation =
+      CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
+  return SlideTransition(
+    position: Tween(
+      begin: Offset(0, 1),
+      end: Offset.zero,
+    ).animate(curvedAnimation),
+    child: FadeTransition(
+      opacity: animation,
+      child: child,
+    ),
+  );
 }
