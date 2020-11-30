@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_web/core/services/storage_service.dart';
 
 typedef ThemeServiceBuilder = Widget Function(
     BuildContext context, ThemeData theme);
@@ -41,13 +42,28 @@ class ThemeService extends StatefulWidget {
 }
 
 class _ThemeServiceState extends State<ThemeService> {
-  ThemeData _theme = ThemeService.supportedThemes.last;
+  static const _darkModeKey = 'ThemeService#DarkMode';
 
-  _changeTheme(ThemeData theme) {
+  ThemeData _theme;
+
+  _changeTheme(ThemeData theme) async {
     assert(ThemeService.supportedThemes.contains(theme));
+    final storage = StorageService.of(context);
+    await storage.setBool(_darkModeKey, theme.brightness == Brightness.dark);
     return setState(() {
       return _theme = theme;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    final storage = StorageService.of(context);
+    try {
+      final isDark = storage.getBool(_darkModeKey) ?? true;
+      _theme = isDark ? ThemeService.darkTheme : ThemeService.lightTheme;
+    } catch (error) {}
+    assert(_theme != null);
+    super.didChangeDependencies();
   }
 
   @override

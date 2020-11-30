@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:my_web/ui/.lib.dart';
 import 'package:my_web/core/.lib.dart';
@@ -80,40 +79,42 @@ class _MainActivityState extends State<MainActivity>
 
   @override
   Widget build(BuildContext context) {
-    return SpringProvideService(
-      child: LocaleService(
-        builder: (context, locale) {
-          return ThemeService(
-            builder: (context, theme) {
-              return MaterialApp(
-                title: 'My Web',
-                theme: theme,
-                locale: locale,
-                supportedLocales: LocaleService.supportedLocales,
-                localeResolutionCallback: _localeResolutionCallback,
-                localizationsDelegates: [
-                  // ... app-specific localization delegate[s] here
-                  StandardLocalizationsDelegate(locale),
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                debugShowCheckedModeBanner: false,
-                home: FutureBuilder(
-                  future: _init,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done)
-                      return const SizedBox();
-                    return FadeTransition(
-                      opacity: _controller,
-                      child: const HomePage(),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
+    return StorageService(
+      child: SpringProvideService(
+        child: LocaleService(
+          builder: (context, locale) {
+            return ThemeService(
+              builder: (context, theme) {
+                return MaterialApp(
+                  title: 'My Web',
+                  theme: theme,
+                  locale: locale,
+                  supportedLocales: LocaleService.supportedLocales,
+                  localeResolutionCallback: _localeResolutionCallback,
+                  localizationsDelegates: [
+                    // ... app-specific localization delegate[s] here
+                    StandardLocalizationsDelegate(locale),
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  debugShowCheckedModeBanner: false,
+                  home: FutureBuilder(
+                    future: _init,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done)
+                        return const SizedBox();
+                      return FadeTransition(
+                        opacity: _controller,
+                        child: const HomePage(),
+                      );
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

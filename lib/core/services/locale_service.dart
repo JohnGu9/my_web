@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_web/core/services/storage_service.dart';
 
 typedef LocaleServiceBuilder = Widget Function(
     BuildContext context, Locale locale);
@@ -9,6 +10,10 @@ class LocaleService extends StatefulWidget {
     return context.dependOnInheritedWidgetOfExactType<_LocaleService>();
   }
 
+  static const _map = {
+    'en': en,
+    'zh': zh,
+  };
   static const en = Locale('en', ''); // English, no country code
   static const zh =
       Locale.fromSubtags(languageCode: 'zh'); // Chinese, no country code
@@ -22,13 +27,26 @@ class LocaleService extends StatefulWidget {
 }
 
 class _LocaleServiceState extends State<LocaleService> {
+  static const _key = 'LocaleService';
   Locale _locale;
 
-  _changeLocale(Locale locale) {
+  _changeLocale(Locale locale) async {
     assert(LocaleService.supportedLocales.contains(locale) || locale == null);
-    return setState(() {
-      return _locale = locale;
-    });
+    final storage = StorageService.of(context);
+    await storage.setString(_key, locale.languageCode);
+    if (mounted)
+      setState(() {
+        return _locale = locale;
+      });
+  }
+
+  @override
+  void didChangeDependencies() {
+    final storage = StorageService.of(context);
+    try {
+      _locale = LocaleService._map[storage.getString(_key)];
+    } catch (error) {}
+    super.didChangeDependencies();
   }
 
   @override
