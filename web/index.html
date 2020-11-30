@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -22,14 +23,66 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="my_web">
   <link rel="apple-touch-icon" href="favicon.png">
-  
+
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>My Web</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    .center {
+      width: 100%;
+      height: 100%;
+      padding: 70px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 8px solid #2196F3;
+      width: 60px;
+      height: 60px;
+      -webkit-animation: spin 1s linear infinite;
+      /* Safari */
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+  </style>
 </head>
+
 <body>
+  <div class="center">
+    <div>
+      <div class="center">
+        <div class="loader"></div>
+      </div>
+      <div style="font-family:verdana; color:#2196F3">* Need more time to load page at first time</div>
+    </div>
+  </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
@@ -42,4 +95,5 @@
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
+
 </html>
