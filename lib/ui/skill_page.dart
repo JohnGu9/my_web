@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:my_web/core/constants.dart';
 
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
@@ -285,6 +286,11 @@ class _ProgrammingLanguage extends StatelessWidget {
                   message: localization.tapAndExplore,
                   child: Card(
                     child: ListTile(
+                      trailing: SizedBox(
+                        height: 32,
+                        width: 32,
+                        child: _content[language].logo,
+                      ),
                       title: Text(language),
                       onTap: () {
                         return _showProgramLanguagePage(context, language);
@@ -333,23 +339,24 @@ class _SupportPlatform extends StatelessWidget {
                               label: const Text('Flutter'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(image: Constants.qtLogoImage),
                               label: const Text('PyQt5'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(image: Constants.opencvLogoImage),
                               label: const Text('OpenCV'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar:
+                                  Image(image: Constants.tensorflowLogoImage),
                               label: const Text('Tensorflow'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(image: Constants.flaskLogoImage),
                               label: const Text('Flask'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(image: Constants.electronLogoImage),
                               label: const Text('Electron'),
                             ),
                           ],
@@ -504,19 +511,27 @@ class _OtherStuff extends StatelessWidget {
                           runSpacing: 4,
                           children: [
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(
+                                image: Constants.swiftLogoImage,
+                              ),
                               label: const Text('Swift'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(
+                                image: Constants.rustLogoImage,
+                              ),
                               label: const Text('Rust'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(
+                                image: Constants.goLogoImage,
+                              ),
                               label: const Text('Go'),
                             ),
                             const Chip(
-                              avatar: const FlutterLogo(),
+                              avatar: Image(
+                                image: Constants.k8sLogoImage,
+                              ),
                               label: const Text('Kubernetes'),
                             ),
                           ],
@@ -705,6 +720,7 @@ const _content = {
 
 const _c = _Data(
   name: 'C/C++',
+  logo: Image(image: Constants.cppLogoImage),
   chips: [
     Chip(label: Text('C++11')),
     Chip(label: Text('C++14')),
@@ -717,7 +733,7 @@ const _c = _Data(
       label: Text('Embedded System'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.opencvLogoImage),
       label: Text('OpenCV'),
     ),
   ],
@@ -733,6 +749,7 @@ But it have widely support and high performance. I forgive it.
 
 const _java = _Data(
   name: 'JAVA',
+  logo: Image(image: Constants.javaLogoImage),
   chips: [
     Chip(label: Text('JAVA 1.8.0')),
     Chip(
@@ -755,6 +772,7 @@ class JAVA extends ProgrammingLanguage {}
 
 const _kotlin = _Data(
   name: 'Kotlin',
+  logo: Image(image: Constants.kotlinLogoImage),
   chips: [
     Chip(label: Text('Kotlin 1.4^')),
     Chip(
@@ -775,6 +793,7 @@ But sometimes I'm still not satisfy with it.
 
 const _python = _Data(
   name: 'Python',
+  logo: Image(image: Constants.pythonLogoImage),
   chips: [
     Chip(label: Text('Python3')),
     Chip(
@@ -782,19 +801,19 @@ const _python = _Data(
       label: Text('Desktop'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.qtLogoImage),
       label: Text('PyQt5'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.opencvLogoImage),
       label: Text('OpenCV'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.tensorflowLogoImage),
       label: Text('Tensorflow'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.flaskLogoImage),
       label: Text('Flask'),
     ),
   ],
@@ -810,6 +829,7 @@ Also it make me get rid of shell. Just use Python make every things ease. Perfor
 
 const _dart = _Data(
   name: 'Dart',
+  logo: Image(image: Constants.dartLogoImage),
   chips: [
     Chip(label: Text('Dart2.5^')),
     Chip(
@@ -850,6 +870,7 @@ But it still is a young language. Not everything is perfect.
 
 const _javascript = _Data(
   name: 'JavaScript',
+  logo: Image(image: Constants.javascriptLogoImage),
   chips: [
     Chip(label: Text('ES')),
     Chip(
@@ -857,15 +878,15 @@ const _javascript = _Data(
       label: Text('Web'),
     ),
     Chip(
-      avatar: const Icon(Icons.open_in_browser),
+      avatar: Image(image: Constants.nodejsLogoImage),
       label: Text('NodeJS'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.electronLogoImage),
       label: Text('Electron'),
     ),
     Chip(
-      avatar: const FlutterLogo(),
+      avatar: Image(image: Constants.typescriptLogoImage),
       label: Text('TypeScript'),
     ),
   ],
@@ -873,13 +894,14 @@ const _javascript = _Data(
 Web application can never get rid of it (WebAssembly say: "Not that true. "). 
 ''',
   addition:
-      '''A flexible language that ease to use. V8 engine JIT make it performance ridiculous. 
-But it's too flex that also ease to make mistake or make program vulnerability. 
+      '''A flexible language that ease to use. V8 engine JIT make its performance ridiculous. 
+But it's too flexible that also ease to make mistake or make program vulnerability. 
 ''',
 );
 
 const _vhdl = _Data(
   name: 'VHDL',
+  logo: SizedBox(),
   chips: [
     Chip(
       avatar: const Icon(Icons.developer_board),

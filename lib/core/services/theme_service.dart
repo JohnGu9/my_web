@@ -13,13 +13,16 @@ class ThemeService extends StatefulWidget {
   static const _cardTheme = CardTheme(shape: _shape);
 
   static final lightTheme = ThemeData(
-      primarySwatch: Colors.blue,
-      cardTheme: _cardTheme,
-      selectedRowColor: Colors.black12,
-      toggleableActiveColor: Colors.cyanAccent);
+    primarySwatch: Colors.blue,
+    cardTheme: _cardTheme,
+    selectedRowColor: Colors.black12,
+    toggleableActiveColor: Colors.cyanAccent,
+    fontFamily: 'NotoSansSC',
+  );
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     cardTheme: _cardTheme,
+    fontFamily: 'NotoSansSC',
   );
   static final List<ThemeData> supportedThemes = [lightTheme, darkTheme];
 

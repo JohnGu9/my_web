@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:my_web/core/constants.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
-import 'package:my_web/ui/widgets/transition_barrier.dart';
+import 'package:my_web/ui/dialogs/visit_website_dialog.dart';
 
 import 'home_page.dart';
 
@@ -236,7 +237,64 @@ class __UniversityState extends State<_University>
           SizeTransition(
             axis: Axis.vertical,
             sizeFactor: _controller,
-            child: SizedBox(height: 100),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: const Image(
+                      image: Constants.jinanLogoImage,
+                      height: 150,
+                      width: 150,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Tooltip(
+                            message: localization.visit,
+                            child: Chip(
+                              label: const Text(
+                                'https://www.jnu.edu.cn',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              useDeleteButtonTooltip: false,
+                              deleteIcon: const Icon(Icons.near_me),
+                              onDeleted: () {
+                                return showVisitWebsiteDialog(
+                                    context, 'https://www.jnu.edu.cn');
+                              },
+                            ),
+                          ),
+                        ),
+                        const Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Chip(
+                              label: Text(
+                            'GuangDong - GuangZhou',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )),
+                        ),
+                        const Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Chip(
+                              label: Text(
+                            '211',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

@@ -99,7 +99,8 @@ class StandardLocalizations {
           "About my education and experiment?\nWhere did I graduate from?\nWhat's my major?\nWhat have I done?",
       "@skillDescription":
           "About my skills and ability\nWhat can I do?\nWhat's my tech stack?\nWhere's my focus?",
-      "@otherDescription": "About my other stuff\nWhat's my hobby?",
+      "@otherDescription":
+          "About my other stuff\nWhat's my hobby?\nOr somethings else?",
       "visit": "Visit",
       "toVisitOtherWebsite": "To visit other website",
       "education": "Education",
@@ -150,6 +151,7 @@ class StandardLocalizations {
       "@myExpectationDescription": _myExpectationDescriptionEN,
       "game": "Game",
       "electronicProduction": "Electronic Production",
+      "preferIde": "Prefer IDE",
     },
     'zh': {
       'helloWorld': '你好👋',
@@ -174,7 +176,7 @@ class StandardLocalizations {
       "other": "其他",
       "@backgroundDescription": "关于我的教育与项目经验\n我的大学？\n我的专业？",
       "@skillDescription": "关于我的技术与能力\n我能做什么？\n我的技术栈有什么？\n我想专注的方向？",
-      "@otherDescription": "有关我的其他方面\n我的爱好？",
+      "@otherDescription": "有关我的其他方面\n我的爱好？\n或者是其他内容",
       "visit": "访问",
       "toVisitOtherWebsite": "准备跳转其他网站",
       "education": "教育",
@@ -224,6 +226,7 @@ class StandardLocalizations {
       "@myExpectationDescription": _myExpectationDescriptionZH,
       "game": "游戏",
       "electronicProduction": "电子产品",
+      "preferIde": "偏好的IDE",
     },
   };
 
