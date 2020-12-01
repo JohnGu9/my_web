@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/ui/widgets/animated_ink_well.dart';
+import 'package:my_web/ui/widgets/context_menu.dart';
 
 import 'home_page.dart';
 
@@ -126,46 +128,54 @@ class _MyHobbies extends StatelessWidget {
               children: [
                 GroupAnimationService.client(
                   builder: _animatedItemBuilder,
-                  child: Card(
-                    child: Column(
-                      children: [
-                        ListTile(title: Text(localization.game)),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
-                            children: const [
-                              Chip(label: Text('GTA5')),
-                              Chip(label: Text('The Division')),
-                              Chip(label: Text('BattleFelid 1')),
-                            ],
-                          ),
+                  child: ContextMenu(
+                    child: Card(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ListTile(title: Text(localization.game)),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: const [
+                                  Chip(label: Text('GTA5')),
+                                  Chip(label: Text('The Division')),
+                                  Chip(label: Text('BattleFelid 1')),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 GroupAnimationService.client(
                   builder: _animatedItemBuilder,
-                  child: Card(
-                    child: Column(
-                      children: [
-                        ListTile(
-                          title: Text(localization.electronicProduction),
+                  child: ContextMenu(
+                    child: Card(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text(localization.electronicProduction),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: const [
+                                  Chip(label: Text('Computer')),
+                                  Chip(label: Text('Phone')),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
-                            children: const [
-                              Chip(label: Text('Computer')),
-                              Chip(label: Text('Phone')),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 )
@@ -197,10 +207,12 @@ class _MyExpectation extends StatelessWidget {
               children: [
                 GroupAnimationService.client(
                   builder: _animatedItemBuilder,
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(localization.myExpectationDescription),
+                  child: ContextMenu(
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(localization.myExpectationDescription),
+                      ),
                     ),
                   ),
                 )
@@ -219,11 +231,41 @@ class _More extends StatelessWidget {
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
     return AnimatedInkWell(
-      child: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 0.0,
-        backgroundColor: Colors.transparent,
-        title: Text(localization.more),
+      child: Column(
+        children: [
+          AppBar(
+            automaticallyImplyLeading: false,
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            title: Text(localization.more),
+          ),
+          Expanded(
+            child: ListView(
+              children: [
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: Card(
+                    child: ListTile(
+                      title: const Text('1996'),
+                      trailing: const Icon(Icons.calendar_today),
+                      subtitle: Text(localization.born),
+                    ),
+                  ),
+                ),
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: Card(
+                    child: ListTile(
+                      title: const Text('Visual Studio Code'),
+                      trailing: const Icon(Icons.developer_mode),
+                      subtitle: Text('${localization.favorite} IDE'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

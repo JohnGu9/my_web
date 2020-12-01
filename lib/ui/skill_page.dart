@@ -6,6 +6,7 @@ import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
 import 'package:my_web/ui/home_page.dart';
+import 'package:my_web/ui/widgets/context_menu.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
 
 class SkillPage extends StatelessWidget {
@@ -491,16 +492,18 @@ class _OtherStuff extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                Card(
-                  child: ListTile(
-                    title: Text(localization.whatIsMyAdvantage),
-                    subtitle: Card(
-                      color: Colors.black12,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          localization.myAdvantageDescription,
-                          style: theme.textTheme.caption,
+                ContextMenu(
+                  child: Card(
+                    child: ListTile(
+                      title: Text(localization.whatIsMyAdvantage),
+                      subtitle: Card(
+                        color: Colors.black12,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text(
+                            localization.myAdvantageDescription,
+                            style: theme.textTheme.caption,
+                          ),
                         ),
                       ),
                     ),
@@ -544,31 +547,35 @@ class _OtherStuff extends StatelessWidget {
                     ],
                   ),
                 ),
-                Card(
-                  child: ListTile(
-                    title: Text(localization.database),
-                    subtitle: Card(
-                      color: Colors.black12,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          localization.databaseDescription,
-                          style: theme.textTheme.caption,
+                ContextMenu(
+                  child: Card(
+                    child: ListTile(
+                      title: Text(localization.database),
+                      subtitle: Card(
+                        color: Colors.black12,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text(
+                            localization.databaseDescription,
+                            style: theme.textTheme.caption,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-                Card(
-                  child: ListTile(
-                    title: Text(localization.machineLearning),
-                    subtitle: Card(
-                      color: Colors.black12,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          localization.machineLearningAndAIDescription,
-                          style: theme.textTheme.caption,
+                ContextMenu(
+                  child: Card(
+                    child: ListTile(
+                      title: Text(localization.machineLearning),
+                      subtitle: Card(
+                        color: Colors.black12,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text(
+                            localization.machineLearningAndAIDescription,
+                            style: theme.textTheme.caption,
+                          ),
                         ),
                       ),
                     ),

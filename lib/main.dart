@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:my_web/core/native/native_channel.dart';
 
+import 'package:my_web/core/native/native_channel.dart';
 import 'package:my_web/ui/.lib.dart';
 import 'package:my_web/core/.lib.dart';
 

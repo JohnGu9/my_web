@@ -227,6 +227,9 @@ class StandardLocalizations {
       "tapAndExplore": "Tap and explore",
       "alert": "Alert",
       "useChromeForBetterExperiment": "Use Chrome for better experiment",
+      "born": "Born",
+      "favorite": "Favorite",
+
       // background page
       "university": "University",
       "JNU": "JNU University",
@@ -305,6 +308,8 @@ class StandardLocalizations {
       "tapAndExplore": "点击查看",
       "alert": "警告",
       "useChromeForBetterExperiment": "使用Chrome获得更好的体验",
+      "born": "出生",
+      "favorite": "最爱",
 
       // background page
       "university": "大学",
@@ -468,6 +473,14 @@ class StandardLocalizations {
 
   String get useChromeForBetterExperiment {
     return _localize['useChromeForBetterExperiment'];
+  }
+
+  String get born {
+    return _localize['born'];
+  }
+
+  String get favorite {
+    return _localize['favorite'];
   }
 
   String get tapAndExplore {

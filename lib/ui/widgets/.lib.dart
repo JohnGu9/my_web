@@ -8,5 +8,6 @@ export 'detail_button.dart';
 export 'animated_ink_well.dart';
 export 'delay_show.dart';
 export 'transition_barrier.dart';
+export 'context_menu.dart';
 
 export 'mixin/.lib.dart';
