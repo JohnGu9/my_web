@@ -39,7 +39,7 @@ class _ContextMenuState extends State<ContextMenu> {
     );
   }
 
-  Widget _flightShuttleBuilder(
+  static Widget _flightShuttleBuilder(
       BuildContext flightContext,
       Animation<double> animation,
       HeroFlightDirection flightDirection,
@@ -49,10 +49,6 @@ class _ContextMenuState extends State<ContextMenu> {
         ? toHeroContext.widget
         : fromHeroContext.widget;
     return widget;
-  }
-
-  Tween<Rect> _createRectTween(Rect begin, Rect end) {
-    return Tween(begin: begin, end: end);
   }
 
   @override
