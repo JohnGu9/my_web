@@ -790,43 +790,33 @@ class _FloatIndexState extends State<_FloatIndex>
 }
 
 class _HeroGrid extends StatelessWidget {
+  static final _kTween = Tween(begin: -1.0, end: 1.0);
+
   const _HeroGrid({Key key, this.children, this.animation}) : super(key: key);
   final List<Widget> children;
   final Animation<double> animation;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final height = constraints.maxHeight / children.length;
-        final width = constraints.maxWidth / children.length;
-        final List<EdgeInsetsTween> paddings = [
-          for (int i = 0; i < children.length; i++)
-            EdgeInsetsTween(
-              begin: EdgeInsets.only(
-                top: i * height,
-                bottom: (children.length - i - 1) * height,
-              ),
-              end: EdgeInsets.only(
-                left: i * width,
-                right: (children.length - i - 1) * width,
-              ),
-            ),
-        ];
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) {
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                for (int i = 0; i < children.length; i++)
-                  Padding(
-                    padding: paddings[i].evaluate(animation),
-                    child: children[i],
-                  ),
-              ],
-            );
-          },
+    final k = children.length - 1;
+    final alignments = List.generate(children.length,
+        (i) => Alignment(_kTween.transform(i / k), _kTween.transform(i / k)));
+    final factor = 1 / children.length;
+    final heightFactorTween = Tween(begin: factor, end: 1.0);
+    final widthFactorTween = Tween(begin: 1.0, end: factor);
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            for (int i = 0; i < children.length; i++)
+              FractionallySizedBox(
+                  alignment: alignments[i],
+                  heightFactor: heightFactorTween.evaluate(animation),
+                  widthFactor: widthFactorTween.evaluate(animation),
+                  child: children[i]),
+          ],
         );
       },
     );
