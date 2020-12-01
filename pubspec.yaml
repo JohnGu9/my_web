@@ -61,6 +61,7 @@ flutter:
   assets:
     - js/
     - assets/images/
+    - assets/fonts/Noto_Sans_SC/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
@@ -70,14 +71,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: Noto Sans SC
-      fonts:
+  # fonts:
+  #   - family: Noto Sans SC
+  #     fonts:
   #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Thin.otf
   #         weight: 100
   #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf
   #         weight: 300
-        - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf
+        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf
   #         weight: 400
   #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Medium.otf
   #         weight: 500    

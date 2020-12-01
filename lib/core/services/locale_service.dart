@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_web/core/services/storage_service.dart';
 
 typedef LocaleServiceBuilder = Widget Function(
@@ -28,16 +32,57 @@ class LocaleService extends StatefulWidget {
 
 class _LocaleServiceState extends State<LocaleService> {
   static const _key = 'LocaleService';
+  static final _availableFont = <String, AsyncFontFile>{
+    'en': AsyncFontFile(), // no need to load additional font file
+    'zh': AsyncFontFile(
+        path: 'assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf',
+        fontFamily: 'Noto Sans SC')
+  };
+
   Locale _locale;
+  Future<bool> _init;
 
   _changeLocale(Locale locale) async {
     assert(LocaleService.supportedLocales.contains(locale) || locale == null);
     final storage = StorageService.of(context);
-    await storage.setString(_key, locale.languageCode);
+    await storage.setString(_key, locale?.languageCode);
     if (mounted)
       setState(() {
         return _locale = locale;
       });
+  }
+
+  FutureOr<bool> _loadFont(Locale locale) {
+    if (locale == null) return true;
+    final asyncFile = _availableFont[locale.languageCode];
+    if (asyncFile == null) return false;
+    if (asyncFile.isLoaded) return true;
+    asyncFile.loadFuture ??= () async {
+      print('Async load font');
+      try {
+        final fontFile = await rootBundle.load(asyncFile.path);
+        await loadFontFromList(fontFile.buffer.asUint8List(),
+            fontFamily: asyncFile.fontFamily);
+      } catch (error) {
+        print(error);
+        return false;
+      }
+      return true;
+    }();
+    return asyncFile.loadFuture;
+  }
+
+  FutureOr<bool> _checkLoadingFont(Locale locale) {
+    if (locale == null) return true;
+    final asyncFile = _availableFont[locale.languageCode];
+    if (asyncFile.isLoaded) return true;
+    return asyncFile.loadFuture;
+  }
+
+  _resetLocale() {
+    final storage = StorageService.of(context);
+    storage.setString(_key, null);
+    _locale = null;
   }
 
   @override
@@ -45,7 +90,14 @@ class _LocaleServiceState extends State<LocaleService> {
     final storage = StorageService.of(context);
     try {
       _locale = LocaleService._map[storage.getString(_key)];
-    } catch (error) {}
+      final load = _loadFont(_locale);
+      if (load is Future<bool>)
+        _init = load;
+      else
+        _init = Future.value(load as bool);
+    } catch (error) {
+      print(error);
+    }
     super.didChangeDependencies();
   }
 
@@ -53,30 +105,79 @@ class _LocaleServiceState extends State<LocaleService> {
   Widget build(BuildContext context) {
     return _LocaleService(
       state: this,
-      child: widget.builder(context, _locale),
+      child: FutureBuilder(
+        future: _init,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done)
+            return const SizedBox();
+          if (snapshot.hasError) _resetLocale();
+          return widget.builder(context, _locale);
+        },
+      ),
     );
   }
 }
 
 class _LocaleService extends InheritedWidget {
-  const _LocaleService({Key key, Widget child, this.state})
-      : super(key: key, child: child);
+  _LocaleService({Key key, Widget child, this.state})
+      : locale = state._locale,
+        super(key: key, child: child);
+
+  final Locale locale;
 
   @visibleForTesting
   final _LocaleServiceState state;
-
-  Locale get locale {
-    return state._locale;
-  }
 
   changeLocale(Locale locale) {
     return state._changeLocale(locale);
   }
 
+  FutureOr<bool> loadFont(Locale locale) {
+    return state._loadFont(locale);
+  }
+
+  FutureOr<bool> checkLoadingFont(Locale locale) {
+    return state._checkLoadingFont(locale);
+  }
+
+  String get fontFamily {
+    if (state._locale == null) return null;
+    return _LocaleServiceState
+        ._availableFont[state._locale.languageCode].fontFamily;
+  }
+
   @override
   bool updateShouldNotify(covariant _LocaleService oldWidget) {
-    return state != oldWidget.state;
+    return state != oldWidget.state || oldWidget.locale != locale;
   }
+}
+
+class AsyncFontFile {
+  final String path;
+  final String fontFamily;
+  Future<bool> _loadFuture;
+  Future<bool> get loadFuture {
+    return _loadFuture;
+  }
+
+  set loadFuture(Future<bool> future) {
+    loading = true;
+    _loadFuture = future
+      ..whenComplete(() {
+        loading = false;
+        isLoaded = true;
+      })
+      ..catchError(() {
+        loading = false;
+        isLoaded = false;
+        _loadFuture = null;
+      });
+  }
+
+  bool loading = false;
+  bool isLoaded;
+
+  AsyncFontFile({this.path, this.fontFamily}) : isLoaded = path == null;
 }
 
 class StandardLocalizations {
@@ -124,6 +225,7 @@ class StandardLocalizations {
       "education": "Education",
       "experiment": "Experiment",
       "tapAndExplore": "Tap and explore",
+      "alert": "Alert",
       // background page
       "university": "University",
       "JNU": "JNU University",
@@ -200,6 +302,8 @@ class StandardLocalizations {
       "education": "教育",
       "experiment": "履历",
       "tapAndExplore": "点击查看",
+      "alert": "警告",
+
       // background page
       "university": "大学",
       "JNU": "暨南大学",
@@ -354,6 +458,10 @@ class StandardLocalizations {
 
   String get otherDescription {
     return _localize['@otherDescription'];
+  }
+
+  String get alert {
+    return _localize['alert'];
   }
 
   String get tapAndExplore {

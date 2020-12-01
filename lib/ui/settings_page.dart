@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'package:my_web/core/.lib.dart';
 import 'package:my_web/ui/.lib.dart';
+import 'package:my_web/ui/dialogs/alert_dialog.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key key}) : super(key: key);
@@ -68,23 +70,33 @@ class _ThemeEditTile extends StatelessWidget {
   }
 }
 
-const _titles = {
-  'en': 'English',
-  'zh': '中文',
-};
-
 class _LocaleEditTile extends StatelessWidget {
   const _LocaleEditTile({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final titles = {
+      'en': const Text('English'),
+      'zh': theme.brightness == Brightness.dark
+          ? const Image(
+              image: Constants.zhWitheImage,
+              alignment: Alignment.centerLeft,
+              height: 21,
+            )
+          : const Image(
+              image: Constants.zhBlackImage,
+              alignment: Alignment.centerLeft,
+              height: 21,
+            ),
+    };
     final current = LocaleService.of(context).locale;
     return ListTile(
       leading: const Icon(Icons.translate),
       title: Text(StandardLocalizations.of(context).language),
-      subtitle: Text(current == null
-          ? StandardLocalizations.of(context).auto
-          : _titles[current.languageCode]),
+      subtitle: current == null
+          ? Text(StandardLocalizations.of(context).auto)
+          : titles[current.languageCode],
       onTap: () {
         return ScopeNavigator.of(context).push(ScopePageRoute(
           builder: (context, animation, secondaryAnimation, size) {
@@ -141,22 +153,7 @@ class _LocaleBottomSheet extends StatelessWidget {
                 },
               ),
               for (final locale in LocaleService.supportedLocales)
-                ListTile(
-                  title: Text(_titles[locale.languageCode]),
-                  subtitle: Text(locale.languageCode),
-                  trailing: Radio<Locale>(
-                    value: locale,
-                    groupValue: current,
-                    onChanged: (value) {
-                      if (current == locale) return;
-                      return showChangeLocaleDialog(context, locale);
-                    },
-                  ),
-                  onTap: () {
-                    if (current == locale) return;
-                    return showChangeLocaleDialog(context, locale);
-                  },
-                ),
+                _Tile(locale: locale),
             ],
           ),
         ),
@@ -178,6 +175,136 @@ class _LocaleBottomSheet extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+}
+
+class _Tile extends StatefulWidget {
+  const _Tile({Key key, this.locale}) : super(key: key);
+
+  final Locale locale;
+
+  @override
+  __TileState createState() => __TileState();
+}
+
+class __TileState extends State<_Tile>
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
+  AnimationController _controller;
+
+  Locale get _current {
+    return LocaleService.of(context).locale;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    final service = LocaleService.of(context);
+    final status = service.checkLoadingFont(widget.locale);
+    if (status is Future<bool>) {
+      _controller.value = 1.0;
+      () async {
+        final load = await status;
+        if (!mounted) return;
+        _controller.animateWith(SpringSimulation(
+            spring, _controller.value, 0.0, _controller.velocity));
+        if (!load) return showAlertDialog(context, 'Load font failed. ');
+      }();
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _onTap([value]) async {
+    if (!mounted) return;
+    final service = LocaleService.of(context);
+    if (service.locale == widget.locale) return;
+    dynamic load = service.loadFont(widget.locale);
+    if (load is Future<bool>) {
+      _controller.animateWith(SpringSimulation(
+          spring, _controller.value, 1.0, _controller.velocity));
+      load = await load;
+      if (!mounted) return;
+      _controller.animateWith(SpringSimulation(
+          spring, _controller.value, 0.0, _controller.velocity));
+    }
+    if (!load) return showAlertDialog(context, 'Load font failed. ');
+    return showChangeLocaleDialog(context, widget.locale);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorTween = ColorTween(
+        begin: theme.selectedRowColor.withOpacity(0.0),
+        end: theme.selectedRowColor.withOpacity(0.12));
+    final titles = {
+      'en': const Text('English'),
+      'zh': theme.brightness == Brightness.dark
+          ? const Image(
+              image: Constants.zhWitheImage,
+              alignment: Alignment.centerLeft,
+              height: 21,
+            )
+          : const Image(
+              image: Constants.zhBlackImage,
+              alignment: Alignment.centerLeft,
+              height: 21,
+            ),
+    };
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          child: child,
+          color: colorTween.evaluate(_controller),
+        );
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: titles[widget.locale.languageCode],
+            subtitle: Text(widget.locale.languageCode),
+            trailing: Radio<Locale>(
+              value: widget.locale,
+              groupValue: _current,
+              onChanged: _onTap,
+            ),
+            onTap: _onTap,
+          ),
+          FadeTransition(
+            opacity: _controller,
+            child: SizeTransition(
+              axis: Axis.vertical,
+              sizeFactor: _controller,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0, vertical: 16.0),
+                    child: Text(
+                      'Downloading necessary font...\nDuration depend on your network (zh and jp need more time)',
+                      style: theme.textTheme.caption,
+                    ),
+                  ),
+                  const LinearProgressIndicator(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

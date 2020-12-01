@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/storage_service.dart';
 
 typedef ThemeServiceBuilder = Widget Function(
@@ -14,16 +17,13 @@ class ThemeService extends StatefulWidget {
   static const _cardTheme = CardTheme(shape: _shape);
 
   static final lightTheme = ThemeData(
-    primarySwatch: Colors.blue,
     cardTheme: _cardTheme,
     selectedRowColor: Colors.black12,
     toggleableActiveColor: Colors.cyanAccent,
-    fontFamily: 'Noto Sans SC',
   );
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     cardTheme: _cardTheme,
-    fontFamily: 'Noto Sans SC',
   );
   static final List<ThemeData> supportedThemes = [lightTheme, darkTheme];
 
@@ -44,15 +44,27 @@ class ThemeService extends StatefulWidget {
 class _ThemeServiceState extends State<ThemeService> {
   static const _darkModeKey = 'ThemeService#DarkMode';
 
-  ThemeData _theme;
+  ThemeData _cache;
+  ThemeData get _theme {
+    return _cache;
+  }
+
+  set _theme(ThemeData theme) {
+    final service = LocaleService.of(context);
+    _cache = ThemeData(
+      cardTheme: theme.cardTheme,
+      selectedRowColor: theme.selectedRowColor,
+      toggleableActiveColor: theme.toggleableActiveColor,
+      brightness: theme.brightness,
+      fontFamily: service.fontFamily,
+    );
+  }
 
   _changeTheme(ThemeData theme) async {
     assert(ThemeService.supportedThemes.contains(theme));
     final storage = StorageService.of(context);
     await storage.setBool(_darkModeKey, theme.brightness == Brightness.dark);
-    return setState(() {
-      return _theme = theme;
-    });
+    if (mounted) setState(() => _theme = theme);
   }
 
   @override
@@ -61,7 +73,9 @@ class _ThemeServiceState extends State<ThemeService> {
     try {
       final isDark = storage.getBool(_darkModeKey) ?? true;
       _theme = isDark ? ThemeService.darkTheme : ThemeService.lightTheme;
-    } catch (error) {}
+    } catch (error) {
+      print(error);
+    }
     assert(_theme != null);
     super.didChangeDependencies();
   }
