@@ -39,6 +39,7 @@ showAlertDialog(BuildContext context, String message) {
                       textTheme: theme.textTheme,
                       title: Text(StandardLocalizations.of(context).alert),
                       backgroundColor: theme.cardColor,
+                      centerTitle: true,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),

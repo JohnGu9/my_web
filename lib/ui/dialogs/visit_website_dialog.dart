@@ -43,6 +43,7 @@ showVisitWebsiteDialog(BuildContext context, String url) async {
                       title: Text(StandardLocalizations.of(context)
                           .toVisitOtherWebsite),
                       backgroundColor: theme.cardColor,
+                      centerTitle: true,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
