@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
+import 'package:my_web/core/native/native_channel.dart';
 
 import '.lib.dart';
 import 'package:my_web/core/.lib.dart';
@@ -344,7 +345,6 @@ class __HeaderState extends State<_Header>
             elevation: elevationTween.evaluate(heroAnimation),
             borderRadius: borderRadiusTween.evaluate(heroAnimation),
             child: Stack(
-              alignment: Alignment.topRight,
               children: [
                 Padding(
                   padding: buttonBurHeightTween.evaluate(heroAnimation),
@@ -356,24 +356,31 @@ class __HeaderState extends State<_Header>
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 100,
-                  child: FadeTransition(
-                    opacity: settingsButtonOpacity,
-                    child: ButtonBar(
-                      children: [
-                        IconButton(
-                          tooltip: StandardLocalizations.of(context).settings,
-                          icon: Icon(
-                            Icons.settings,
-                            color: settingsButtonColorTween
-                                .evaluate(heroAnimation),
-                          ),
-                          onPressed: homePage.open,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const _Hit(),
+                    SizedBox(
+                      width: 72,
+                      child: FadeTransition(
+                        opacity: settingsButtonOpacity,
+                        child: ButtonBar(
+                          children: [
+                            IconButton(
+                              tooltip:
+                                  StandardLocalizations.of(context).settings,
+                              icon: Icon(
+                                Icons.settings,
+                                color: settingsButtonColorTween
+                                    .evaluate(heroAnimation),
+                              ),
+                              onPressed: homePage.open,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -441,6 +448,42 @@ class __HeaderState extends State<_Header>
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Hit extends StatelessWidget {
+  const _Hit({Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final channel = NativeChannel.of(context);
+    final future = channel.getBrowserType();
+    return FutureBuilder(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done)
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: SizedBox(),
+          );
+        final browser = snapshot.data;
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: browser == 'Chrome'
+              ? const SizedBox()
+              : RaisedButton(
+                  onPressed: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        StandardLocalizations.of(context)
+                            .useChromeForBetterExperiment,
+                        style: theme.textTheme.caption),
+                  ),
+                ),
+        );
+      },
     );
   }
 }

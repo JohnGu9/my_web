@@ -55,7 +55,7 @@ class __ContentState extends State<_Content>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: const Duration(seconds: 3));
+      ..animateTo(1.0, duration: const Duration(milliseconds: 2400));
   }
 
   @override
@@ -94,7 +94,7 @@ class __ContentState extends State<_Content>
       BuildContext context, Animation<double> animation, Widget child) {
     final curvedAnimation =
         CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
-    final position = Tween(begin: const Offset(0, 1), end: Offset.zero)
+    final position = Tween(begin: const Offset(0, 0.3), end: Offset.zero)
         .animate(curvedAnimation);
     return GroupAnimationService.passiveHost(
       animation: animation,
@@ -513,11 +513,8 @@ Widget _animatedItemBuilder(
     BuildContext context, Animation<double> animation, Widget child) {
   final curvedAnimation =
       CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
-  return SlideTransition(
-    position: Tween(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(curvedAnimation),
+  return ScaleTransition(
+    scale: curvedAnimation,
     child: FadeTransition(
       opacity: animation,
       child: child,

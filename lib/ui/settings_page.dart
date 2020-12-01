@@ -128,6 +128,7 @@ class _LocaleBottomSheet extends StatelessWidget {
       children: [
         Card(
           margin: themeService.bottomSheetPadding,
+          clipBehavior: Clip.hardEdge,
           child: Column(
             children: [
               AppBar(

@@ -6,7 +6,8 @@ class Constants {
       AssetImage("assets/images/logo.png");
   static const AssetImage githubLogoImage =
       AssetImage("assets/images/github.png");
-  static const AssetImage mailLogoImage = AssetImage("assets/images/mail.ico");
+  static const AssetImage mailLogoImage =
+      AssetImage("assets/images/outlook.png");
   static const AssetImage pwaImage = AssetImage("assets/images/pwa.png");
 
   static const AssetImage backgroundImage =
@@ -24,6 +25,8 @@ class Constants {
   static const AssetImage dartLogoImage = AssetImage("assets/images/dart.png");
   static const AssetImage tensorflowLogoImage =
       AssetImage("assets/images/tensorflow.png");
+  static const AssetImage cmakeLogoImage =
+      AssetImage("assets/images/cmake.png");
   static const AssetImage opencvLogoImage =
       AssetImage("assets/images/opencv.png");
   static const AssetImage pythonLogoImage =

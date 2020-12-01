@@ -226,6 +226,7 @@ class StandardLocalizations {
       "experiment": "Experiment",
       "tapAndExplore": "Tap and explore",
       "alert": "Alert",
+      "useChromeForBetterExperiment": "Use Chrome for better experiment",
       // background page
       "university": "University",
       "JNU": "JNU University",
@@ -303,6 +304,7 @@ class StandardLocalizations {
       "experiment": "履历",
       "tapAndExplore": "点击查看",
       "alert": "警告",
+      "useChromeForBetterExperiment": "使用Chrome获得更好的体验",
 
       // background page
       "university": "大学",
@@ -462,6 +464,10 @@ class StandardLocalizations {
 
   String get alert {
     return _localize['alert'];
+  }
+
+  String get useChromeForBetterExperiment {
+    return _localize['useChromeForBetterExperiment'];
   }
 
   String get tapAndExplore {
@@ -681,7 +687,7 @@ const _databaseDescriptionEN =
   Map / Tree / Relational database is the most common type database. And each type have several famous productions in the market. I have not used them all in my short life. 
   Or I just don't care database. It's just a simple tool to save my data and should be like that. ''';
 const _databaseDescriptionZH = '''这个问题仿佛就像我”是否去过某个银行存过钱？“
-  我的回答是我还没有没有
+  我的回答是我还没有。
   不同的应用场景需要不同类型的数据库。即使同类的数据库也有自己的实现，便会有与之对应的API或者SQL语言。
   表型/树形/关系型数据库是最常见的数据库类型，而其中每种在市面上都有数个有名的产品。在我短暂的生涯里我还没用过它们全部。
   或者说我并不关心数据库究竟是怎样的，它仅仅是一个简单的用于存储数据的工具，而且本应该是这样。''';
@@ -690,12 +696,12 @@ const _machineLearningAndAIDescriptionEN = '''I know a bit.
   When I was in the university, I was very interesting about this and learning a lot of relative theories. I have write a native c program "Image recognize based on machine learning" that ran on a STM32M3 development board. 
   But I wish you clam down. ML is not magic and it consume a lot of computer resource, time and people resource that only can reach the business production level. 
   If your company don't focus on it but want integrate it into own production, I recommend you try Google's ML Kit. 
-  Of course, I'm glad to join your AI team and receive more salary. I  need more pay to appease myself while I want to develop some unique production but be requested to some repetitive work like a test engineer and try hard to optimize production like a framework developer. ''';
+  Of course, I'm glad to join your AI team and receive more salary. Because I need more pay to appease myself while I want to try new stuff but be requested to some repetitive work like a test engineer and try hard to optimize production like a framework developer. ''';
 const _machineLearningAndAIDescriptionZH = '''我了解一点点。
   当我在大学的时候，对其非常感兴趣，在网上搜索和学习很多相关的原理，在一次嵌入式课程作业我以自己对其理解编写了一个最简易的基于机器学习的图像识别的C程序并在STM32M3上运行。
   但是我还是希望你可以冷静，机器学习不是魔法，同时它需要大量的运算资源和时间人力资源的投入才能产出一些能达到商业级别的产品。
   如果贵公司的主业不是这方面，又希望自己产品有相关属性，我推荐你们还是使用Google的ML Kit实现相关功能。
-  当然我不介意你支付更高的薪金让我加入到你们的AI团队，毕竟让一个满脑子都想做一些独特产品的人，去像测试工程师那样无休止的重复一些简单工作又要像框架师那样绞尽脑汁的优化产品，是需要更多的安慰费的。''';
+  当然我不介意你支付更高的薪金让我加入到你们的AI团队，毕竟让一个整天想着尝试新事物的人，去像测试工程师那样无休止的重复一些简单工作又要像框架师那样绞尽脑汁的优化产品，是需要更多的安慰费的。''';
 
 const _myExpectationDescriptionEN =
     ''' I don't want to be only certain developer. I want to try and deep dive into every direction technology. And bundle them together. The road is more suitable for my style and my major. 

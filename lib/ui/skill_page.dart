@@ -66,39 +66,67 @@ class __ContentState extends State<_Content>
     super.dispose();
   }
 
+  static const _width = 320.0;
+  static const _children = [
+    const SizedBox(
+      width: _width,
+      child: GroupAnimationService.client(
+        builder: _animatedItemBuilder,
+        child: _TechnologyStackCard(),
+      ),
+    ),
+    const SizedBox(
+      width: _width,
+      child: GroupAnimationService.client(
+        builder: _animatedItemBuilder,
+        child: _ProgrammingLanguage(),
+      ),
+    ),
+    const SizedBox(
+      width: _width,
+      child: GroupAnimationService.client(
+        builder: _animatedItemBuilder,
+        child: _SupportPlatform(),
+      ),
+    ),
+    const SizedBox(
+      width: _width,
+      child: GroupAnimationService.client(
+        builder: _animatedItemBuilder,
+        child: _OtherStuff(),
+      ),
+    ),
+    const SizedBox(width: 100)
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ScopeNavigator(
       spring: spring,
       child: GroupAnimationService.passiveHost(
         animation: _controller,
-        child: Row(
-          children: [
-            const Expanded(
-              child: GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _TechnologyStackCard(),
-              ),
+        child: Container(
+          foregroundDecoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                theme.primaryColor.withOpacity(0.0),
+                theme.primaryColor.withOpacity(0.0),
+                theme.primaryColor.withOpacity(0.8),
+              ],
+              stops: const [0.0, 0.9, 1.0],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
-            const Expanded(
-              child: GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _ProgrammingLanguage(),
-              ),
-            ),
-            const Expanded(
-              child: GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _SupportPlatform(),
-              ),
-            ),
-            const Expanded(
-              child: GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _OtherStuff(),
-              ),
-            ),
-          ],
+          ),
+          child: ListView.builder(
+            addRepaintBoundaries: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: _children.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _children[index];
+            },
+          ),
         ),
       ),
     );
@@ -709,6 +737,12 @@ const _c = _Data(
       label: Text('Embedded System'),
     ),
     Chip(
+      label: Image(
+          image: Constants.cmakeLogoImage,
+          height: 24,
+          alignment: Alignment.center),
+    ),
+    Chip(
       avatar: Image(image: Constants.opencvLogoImage),
       label: Text('OpenCV'),
     ),
@@ -719,7 +753,8 @@ It's position can't be replaced for widely use.
 ''',
   addition: '''My most familiar language with my most disgust. 
 Some syntax and mechanism doesn't make sense at all 😡 but it will focus you to agree with it. 
-But it have widely support and high performance. I forgive it.
+But it have widely support and high performance. I forgive it. 
+Makefile? No, I'm a CMake boy. 
 ''',
 );
 

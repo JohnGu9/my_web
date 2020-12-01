@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:my_web/core/native/native_channel.dart';
 
 import 'package:my_web/ui/.lib.dart';
 import 'package:my_web/core/.lib.dart';
@@ -42,12 +43,12 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.personLogoImage, context),
         precacheImage(Constants.githubLogoImage, context),
         precacheImage(Constants.mailLogoImage, context),
-        precacheImage(Constants.pwaImage, context),
         precacheImage(Constants.backgroundImage, context),
         precacheImage(Constants.otherImage, context),
         precacheImage(Constants.skillImage, context),
         precacheImage(Constants.jinanLogoImage, context),
         //
+        // precacheImage(Constants.pwaImage, context),
         // precacheImage(Constants.dartLogoImage, context),
         // precacheImage(Constants.tensorflowLogoImage, context),
         // precacheImage(Constants.opencvLogoImage, context),
@@ -81,41 +82,43 @@ class _MainActivityState extends State<MainActivity>
 
   @override
   Widget build(BuildContext context) {
-    return StorageService(
-      child: SpringProvideService(
-        child: LocaleService(
-          builder: (context, locale) {
-            return ThemeService(
-              builder: (context, theme) {
-                return MaterialApp(
-                  title: 'My Web',
-                  theme: theme,
-                  locale: locale,
-                  supportedLocales: LocaleService.supportedLocales,
-                  localeResolutionCallback: _localeResolutionCallback,
-                  localizationsDelegates: [
-                    // ... app-specific localization delegate[s] here
-                    StandardLocalizationsDelegate(locale),
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  debugShowCheckedModeBanner: false,
-                  home: FutureBuilder(
-                    future: _init,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done)
-                        return const SizedBox();
-                      return FadeTransition(
-                        opacity: _controller,
-                        child: const HomePage(),
-                      );
-                    },
-                  ),
-                );
-              },
-            );
-          },
+    return NativeChannel(
+      child: StorageService(
+        child: SpringProvideService(
+          child: LocaleService(
+            builder: (context, locale) {
+              return ThemeService(
+                builder: (context, theme) {
+                  return MaterialApp(
+                    title: 'My Web',
+                    theme: theme,
+                    locale: locale,
+                    supportedLocales: LocaleService.supportedLocales,
+                    localeResolutionCallback: _localeResolutionCallback,
+                    localizationsDelegates: [
+                      // ... app-specific localization delegate[s] here
+                      StandardLocalizationsDelegate(locale),
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    debugShowCheckedModeBanner: false,
+                    home: FutureBuilder(
+                      future: _init,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done)
+                          return const SizedBox();
+                        return FadeTransition(
+                          opacity: _controller,
+                          child: const HomePage(),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

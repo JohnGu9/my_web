@@ -24,6 +24,9 @@ function onInvokeMethod(obj) {
         case 'setLogParseFunction':
             return eval('logParseFunction = ' + obj.arguments);// register function
 
+        case 'getBrowserType':
+            return getBrowserType(obj.arguments);
+
         default:
             return console.log('NoSuchMethod');
     };
@@ -62,6 +65,29 @@ class FileDescriptor {
         this.name = name
         this.data = uint8List
     }
+}
+
+const getBrowserType = (args) => {
+    console.log(`get browser type: ${navigator.userAgent} `);
+    if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1)
+        return args.callback('Opera');
+
+    else if (navigator.userAgent.indexOf("Chrome") != -1)
+        return args.callback('Chrome');
+
+    else if (navigator.userAgent.indexOf("Safari") != -1)
+        return args.callback('Safari');
+
+    else if (navigator.userAgent.indexOf("Firefox") != -1)
+        return args.callback('Firefox');
+
+    else if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)) //IF IE > 10
+
+        return args.callback('IE');
+
+    else
+        return args.callback('unknown');
+
 }
 
 const readFileAsync = (file) => {
