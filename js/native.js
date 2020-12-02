@@ -68,7 +68,6 @@ class FileDescriptor {
 }
 
 const getBrowserType = (args) => {
-    console.log(`get browser type: ${navigator.userAgent} `);
     if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1)
         return args.callback('Opera');
 

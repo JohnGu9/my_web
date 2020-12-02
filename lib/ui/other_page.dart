@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
-import 'package:my_web/ui/widgets/animated_ink_well.dart';
 import 'package:my_web/ui/widgets/context_menu.dart';
 
 import 'home_page.dart';
@@ -68,26 +67,30 @@ class __ContentState extends State<_Content>
   Widget build(BuildContext context) {
     return GroupAnimationService.passiveHost(
       animation: _controller,
-      child: Row(
-        children: [
-          const Expanded(
+      child: ListView(
+        children: const [
+          Padding(
+            padding: EdgeInsets.all(32.0),
             child: GroupAnimationService.client(
               builder: _animatedItemBuilder,
               child: _MyHobbies(),
             ),
           ),
-          const Expanded(
+          Padding(
+            padding: EdgeInsets.all(32.0),
             child: GroupAnimationService.client(
               builder: _animatedItemBuilder,
               child: _MyExpectation(),
             ),
           ),
-          Expanded(
+          Padding(
+            padding: EdgeInsets.all(32.0),
             child: GroupAnimationService.client(
               builder: _animatedItemBuilder,
               child: _More(),
             ),
           ),
+          const SizedBox(height: 72),
         ],
       ),
     );
@@ -114,22 +117,28 @@ class _MyHobbies extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
-    return AnimatedInkWell(
-      child: Column(
-        children: [
-          AppBar(
-            automaticallyImplyLeading: false,
-            title: Text(localization.myHobbies),
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        width: 640,
+        child: Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                  centerTitle: false,
+                  automaticallyImplyLeading: false,
+                  title: Text(localization.myHobbies),
+                  elevation: 0.0,
+                  backgroundColor: Colors.transparent,
+                  textTheme: theme.textTheme),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
                   child: ContextMenu(
                     child: Card(
+                      elevation: 0.0,
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -152,10 +161,13 @@ class _MyHobbies extends StatelessWidget {
                     ),
                   ),
                 ),
-                GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
+              ),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
                   child: ContextMenu(
                     child: Card(
+                      elevation: 0.0,
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -178,11 +190,11 @@ class _MyHobbies extends StatelessWidget {
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
-          )
-        ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -193,33 +205,39 @@ class _MyExpectation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
-    return AnimatedInkWell(
-      child: Column(
-        children: [
-          AppBar(
-            automaticallyImplyLeading: false,
-            title: Text(localization.myExpectation),
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.centerRight,
+      child: SizedBox(
+        width: 640,
+        child: Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                  centerTitle: false,
+                  automaticallyImplyLeading: false,
+                  title: Text(localization.myExpectation),
+                  elevation: 0.0,
+                  backgroundColor: Colors.transparent,
+                  textTheme: theme.textTheme),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
                   child: ContextMenu(
                     child: Card(
+                      elevation: 0.0,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(localization.myExpectationDescription),
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
-          )
-        ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -230,21 +248,28 @@ class _More extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
-    return AnimatedInkWell(
-      child: Column(
-        children: [
-          AppBar(
-            automaticallyImplyLeading: false,
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            title: Text(localization.more),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        width: 640,
+        child: Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                centerTitle: false,
+                automaticallyImplyLeading: false,
+                elevation: 0.0,
+                backgroundColor: Colors.transparent,
+                title: Text(localization.more),
+                textTheme: theme.textTheme,
+              ),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
                   child: Card(
+                    elevation: 0.0,
                     child: ListTile(
                       title: const Text('1996'),
                       trailing: const Icon(Icons.calendar_today),
@@ -252,9 +277,12 @@ class _More extends StatelessWidget {
                     ),
                   ),
                 ),
-                GroupAnimationService.client(
-                  builder: _animatedItemBuilder,
+              ),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
                   child: Card(
+                    elevation: 0.0,
                     child: ListTile(
                       title: const Text('Visual Studio Code'),
                       trailing: const Icon(Icons.developer_mode),
@@ -262,10 +290,24 @@ class _More extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              GroupAnimationService.client(
+                builder: _animatedItemBuilder,
+                child: _Effect(
+                  child: Card(
+                    elevation: 0.0,
+                    child: ListTile(
+                      title: const Text('English'),
+                      trailing: const Chip(
+                        label: Text('CET 4'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -285,4 +327,81 @@ Widget _animatedItemBuilder(
       child: child,
     ),
   );
+}
+
+class _Effect extends StatefulWidget {
+  const _Effect({Key key, this.child}) : super(key: key);
+  final Widget child;
+
+  @override
+  __EffectState createState() => __EffectState();
+}
+
+class __EffectState extends State<_Effect> with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  CurvedAnimation _curvedAnimation;
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    _curvedAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _onTap() {}
+
+  _onHover(bool value) {
+    _controller.animateTo(
+      value ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: _onTap,
+      onHover: _onHover,
+      hoverColor: Colors.transparent,
+      child: FadeTransition(
+        opacity: Tween(begin: 0.5, end: 1.0).animate(_controller),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Material(
+                color: theme.accentColor,
+                child: const SizedBox(
+                  width: 6,
+                  height: 64,
+                ),
+              ),
+            ),
+            Expanded(
+              child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Tween(
+                        begin: Offset.zero,
+                        end: const Offset(16, 0),
+                      ).evaluate(_curvedAnimation),
+                      child: child,
+                    );
+                  },
+                  child: widget.child),
+            ),
+            const SizedBox(width: 32),
+          ],
+        ),
+      ),
+    );
+  }
 }

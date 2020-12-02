@@ -136,7 +136,7 @@ class __ContentState extends State<_Content>
   static Widget _animatedItemBuilder(
       BuildContext context, Animation<double> animation, Widget child) {
     final curvedAnimation =
-        CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn);
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCirc);
     final position =
         Tween(begin: Offset(1, 0), end: Offset.zero).animate(curvedAnimation);
     return SlideTransition(

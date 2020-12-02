@@ -117,6 +117,8 @@ class _HomePageState extends State<HomePage>
         ),
         LayoutBuilder(
           builder: (context, constraints) {
+            final headerMaxHeight =
+                constraints.maxHeight * _headerMaxHeightRatio;
             return SlideTransition(
               position: Tween(
                 begin: Offset.zero,
@@ -147,8 +149,8 @@ class _HomePageState extends State<HomePage>
                                 ],
                               ),
                             ),
-                            const _FloatIndex(),
-                            const _Header(),
+                            _FloatIndex(headerMaxHeight: headerMaxHeight),
+                            _Header(headerMaxHeight: headerMaxHeight),
                           ],
                         ),
                       ),
@@ -228,10 +230,12 @@ class _HomePage extends InheritedWidget {
 }
 
 final _headerAlignmentTween =
-    Tween<Alignment>(begin: Alignment.center, end: Alignment(-0.9, 0));
+    Tween<Alignment>(begin: Alignment.center, end: const Alignment(-0.9, 0));
+const _headerMaxHeightRatio = 0.32;
 
 class _Header extends StatefulWidget {
-  const _Header({Key key}) : super(key: key);
+  const _Header({Key key, this.headerMaxHeight}) : super(key: key);
+  final double headerMaxHeight;
 
   @override
   __HeaderState createState() => __HeaderState();
@@ -309,8 +313,8 @@ class __HeaderState extends State<_Header>
 
     final homePage = HomePage.of(context);
     final heroAnimation = homePage.heroAnimation;
-    final headerHeightTween =
-        Tween<double>(begin: 220, end: homePage.headerMinHeight);
+    final headerHeightTween = Tween<double>(
+        begin: widget.headerMaxHeight, end: homePage.headerMinHeight);
     final buttonBurHeightTween = EdgeInsetsTween(
         begin: EdgeInsets.only(top: homePage.headerMinHeight),
         end: EdgeInsets.zero);
@@ -649,7 +653,8 @@ class _RouteBarrier extends StatelessWidget {
 }
 
 class _FloatIndex extends StatefulWidget {
-  const _FloatIndex({Key key}) : super(key: key);
+  const _FloatIndex({Key key, this.headerMaxHeight}) : super(key: key);
+  final double headerMaxHeight;
 
   @override
   _FloatIndexState createState() => _FloatIndexState();
@@ -694,8 +699,8 @@ class _FloatIndexState extends State<_FloatIndex>
     final homePage = HomePage.of(context);
     final heroAnimation =
         Tween(begin: 1.0, end: 0.0).animate(homePage.heroAnimation);
-    final headerHeightTween =
-        Tween<double>(begin: 200, end: homePage.headerMinHeight);
+    final headerHeightTween = Tween<double>(
+        begin: widget.headerMaxHeight, end: homePage.headerMinHeight);
     final buttonBurHeightTween = EdgeInsetsTween(
         begin: EdgeInsets.only(top: homePage.headerMinHeight),
         end: EdgeInsets.zero);
