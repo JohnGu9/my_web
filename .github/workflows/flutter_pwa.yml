@@ -1,0 +1,20 @@
+name: Flutter PWA
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: beta
+    - run: flutter config --enable-web
+    - run: flutter pub get
+    - run: flutter build web 
+    - run: flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true --release
