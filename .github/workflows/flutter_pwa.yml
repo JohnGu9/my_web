@@ -11,8 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Checkout submodules
-      run: git submodule update --init --recursive
+    - name: Checkout native channel
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/JohnGu9/dart_native_channel.git
+        token: 25693c02201ec381382674872bf4d6048ff456bc
+        path: lib/core/native
     - uses: subosito/flutter-action@v1
       with:
         channel: beta
