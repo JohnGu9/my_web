@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/ui/widgets/context_menu.dart';
-
+import 'package:my_web/ui/widgets/rive_board.dart';
 import 'home_page.dart';
 
 class OtherPage extends StatelessWidget {
@@ -118,84 +119,91 @@ class _MyHobbies extends StatelessWidget {
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
     final theme = Theme.of(context);
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: SizedBox(
-        width: 640,
-        child: Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppBar(
-                  centerTitle: false,
-                  automaticallyImplyLeading: false,
-                  title: Text(localization.myHobbies),
-                  elevation: 0.0,
-                  backgroundColor: Colors.transparent,
-                  textTheme: theme.textTheme),
-              GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _Effect(
-                  child: ContextMenu(
-                    child: Card(
-                      elevation: 0.0,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ListTile(title: Text(localization.game)),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Wrap(
-                                spacing: 4,
-                                runSpacing: 4,
-                                children: const [
-                                  Chip(label: Text('GTA5')),
-                                  Chip(label: Text('The Division')),
-                                  Chip(label: Text('BattleFelid 1')),
-                                ],
+    return Row(
+      children: [
+        SizedBox(
+          width: 640,
+          child: Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppBar(
+                    centerTitle: false,
+                    automaticallyImplyLeading: false,
+                    title: Text(localization.myHobbies),
+                    elevation: 0.0,
+                    backgroundColor: Colors.transparent,
+                    textTheme: theme.textTheme),
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: _Effect(
+                    child: ContextMenu(
+                      child: Card(
+                        elevation: 0.0,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              ListTile(title: Text(localization.game)),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Wrap(
+                                  spacing: 4,
+                                  runSpacing: 4,
+                                  children: const [
+                                    Chip(label: Text('GTA5')),
+                                    Chip(label: Text('The Division')),
+                                    Chip(label: Text('BattleFelid 1')),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _Effect(
-                  child: ContextMenu(
-                    child: Card(
-                      elevation: 0.0,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ListTile(
-                              title: Text(localization.electronicProduction),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Wrap(
-                                spacing: 4,
-                                runSpacing: 4,
-                                children: const [
-                                  Chip(label: Text('Computer')),
-                                  Chip(label: Text('Phone')),
-                                ],
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: _Effect(
+                    child: ContextMenu(
+                      child: Card(
+                        elevation: 0.0,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              ListTile(
+                                title: Text(localization.electronicProduction),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Wrap(
+                                  spacing: 4,
+                                  runSpacing: 4,
+                                  children: const [
+                                    Chip(label: Text('Computer')),
+                                    Chip(label: Text('Phone')),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        Expanded(
+          child: const SizedBox(
+            height: 360,
+            child: RiveBoard(path: 'assets/riv/hobbies.riv'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -206,39 +214,46 @@ class _MyExpectation extends StatelessWidget {
   Widget build(BuildContext context) {
     final localization = StandardLocalizations.of(context);
     final theme = Theme.of(context);
-    return Align(
-      alignment: Alignment.centerRight,
-      child: SizedBox(
-        width: 640,
-        child: Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppBar(
-                  centerTitle: false,
-                  automaticallyImplyLeading: false,
-                  title: Text(localization.myExpectation),
-                  elevation: 0.0,
-                  backgroundColor: Colors.transparent,
-                  textTheme: theme.textTheme),
-              GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _Effect(
-                  child: ContextMenu(
-                    child: Card(
-                      elevation: 0.0,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(localization.myExpectationDescription),
+    return Row(
+      children: [
+        Expanded(
+          child: const SizedBox(
+            height: 240,
+            child: RiveBoard(path: 'assets/riv/mail.riv'),
+          ),
+        ),
+        SizedBox(
+          width: 640,
+          child: Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppBar(
+                    centerTitle: false,
+                    automaticallyImplyLeading: false,
+                    title: Text(localization.myExpectation),
+                    elevation: 0.0,
+                    backgroundColor: Colors.transparent,
+                    textTheme: theme.textTheme),
+                GroupAnimationService.client(
+                  builder: _animatedItemBuilder,
+                  child: _Effect(
+                    child: ContextMenu(
+                      child: Card(
+                        elevation: 0.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(localization.myExpectationDescription),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
