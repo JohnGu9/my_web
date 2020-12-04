@@ -9,8 +9,6 @@ void main() {
   return runApp(const MainActivity());
 }
 
-var d = Colors.blue;
-
 class MainActivity extends StatefulWidget {
   const MainActivity({Key key}) : super(key: key);
 
