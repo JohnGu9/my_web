@@ -836,7 +836,7 @@ const _python = _Data(
     ),
   ],
   description: '''A ease language for programer or normal people. 
-Huge community offering rich package. 
+A Huge community offering rich packages. 
 ''',
   addition:
       '''Because Matlab is not free, it's the best replacement that can easily handle work for a student of signal relative major. 
@@ -935,7 +935,7 @@ const _vhdl = _Data(
     ),
   ],
   description: '''Hardware language that different from software language. 
-Everything run parallel, just like OpenGL or CUDA, but without memory. 
+Everything run parallelling, just like OpenGL or CUDA, but without memory. 
 ''',
   addition: '''State machine. State machine. State switch. 
 Rising edge or falling edge. 

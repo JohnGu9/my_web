@@ -216,8 +216,8 @@ class _MyExpectation extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Expanded(
-          child: const SizedBox(
+        const Expanded(
+          child: SizedBox(
             height: 240,
             child: RiveBoard(path: 'assets/riv/mail.riv'),
           ),

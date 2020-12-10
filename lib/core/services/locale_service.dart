@@ -326,7 +326,7 @@ class StandardLocalizations {
       "digitalImageProcessing": "数字图像处理",
       "circuits": "电路",
       "analogCircuits": "模拟电路",
-      "digitalCircuits": "数字信号",
+      "digitalCircuits": "数字电路",
       "programming": "编程",
       "hardwareLanguage": "硬件语言",
       "softwareLanguage": "软件语言",
