@@ -229,6 +229,7 @@ class StandardLocalizations {
       "useChromeForBetterExperiment": "Use Chrome for better experiment",
       "born": "Born",
       "favorite": "Favorite",
+      "contactMe": "Contact Me",
 
       // background page
       "university": "University",
@@ -310,6 +311,7 @@ class StandardLocalizations {
       "useChromeForBetterExperiment": "使用Chrome获得更好的体验",
       "born": "出生",
       "favorite": "最爱",
+      "contactMe": "联系我",
 
       // background page
       "university": "大学",
@@ -481,6 +483,10 @@ class StandardLocalizations {
 
   String get favorite {
     return _localize['favorite'];
+  }
+
+  String get contactMe {
+    return _localize['contactMe'];
   }
 
   String get tapAndExplore {

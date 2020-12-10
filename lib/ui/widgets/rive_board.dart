@@ -53,8 +53,11 @@ class _RiveBoardState extends State<RiveBoard> {
 
   @override
   Widget build(BuildContext context) {
-    return _riveArtboard == null
-        ? const SizedBox()
-        : Rive(artboard: _riveArtboard);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: _riveArtboard == null
+          ? const SizedBox()
+          : Rive(artboard: _riveArtboard),
+    );
   }
 }
