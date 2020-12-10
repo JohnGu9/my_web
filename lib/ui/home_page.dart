@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:my_web/core/native/native_channel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '.lib.dart';
 import 'package:my_web/core/.lib.dart';
@@ -529,7 +530,7 @@ class _MailButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final elevation = HomePage.of(context).elevation;
     return Tooltip(
-      message: StandardLocalizations.of(context).copy,
+      message: StandardLocalizations.of(context).contactMe,
       child: DetailButton(
         elevation: elevation,
         simple: const Padding(
@@ -540,8 +541,13 @@ class _MailButton extends StatelessWidget {
           ),
         ),
         detail: const SelectableText(_address),
-        onTap: () {
-          return Clipboard.setData(const ClipboardData(text: _address));
+        onTap: () async {
+          final Uri params = Uri(
+            scheme: 'mailto',
+            path: _address,
+          );
+          String url = params.toString();
+          if (await canLaunch(url)) await launch(url);
         },
       ),
     );
