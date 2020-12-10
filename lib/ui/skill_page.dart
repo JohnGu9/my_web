@@ -528,19 +528,11 @@ class _OtherStuff extends StatelessWidget {
                         child: Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: [
-                            const Chip(
-                              label: const Text('Swift'),
-                            ),
-                            const Chip(
-                              label: const Text('Rust'),
-                            ),
-                            const Chip(
-                              label: const Text('Go'),
-                            ),
-                            const Chip(
-                              label: const Text('Kubernetes'),
-                            ),
+                          children: const [
+                            const Chip(label: const Text('Swift')),
+                            const Chip(label: const Text('Rust')),
+                            const Chip(label: const Text('Go')),
+                            const Chip(label: const Text('Kubernetes')),
                           ],
                         ),
                       ),

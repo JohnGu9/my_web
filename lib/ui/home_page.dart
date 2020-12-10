@@ -363,7 +363,7 @@ class __HeaderState extends State<_Header>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const _Hit(),
+                    const _BrowserHit(),
                     SizedBox(
                       width: 72,
                       child: FadeTransition(
@@ -439,6 +439,8 @@ class __HeaderState extends State<_Header>
                                 const _GithubButton(),
                                 const SizedBox(width: 8),
                                 const _MailButton(),
+                                const SizedBox(width: 8),
+                                const _MediumButton(),
                               ],
                             ),
                           ),
@@ -456,8 +458,8 @@ class __HeaderState extends State<_Header>
   }
 }
 
-class _Hit extends StatelessWidget {
-  const _Hit({Key key}) : super(key: key);
+class _BrowserHit extends StatelessWidget {
+  const _BrowserHit({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -507,7 +509,7 @@ class _GithubButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: const Image(
             image: Constants.githubLogoImage,
-            height: 32,
+            height: 28,
           ),
         ),
         detail: const Text(_url),
@@ -534,12 +536,39 @@ class _MailButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: const Image(
             image: Constants.mailLogoImage,
-            height: 32,
+            height: 28,
           ),
         ),
         detail: const SelectableText(_address),
         onTap: () {
           return Clipboard.setData(const ClipboardData(text: _address));
+        },
+      ),
+    );
+  }
+}
+
+class _MediumButton extends StatelessWidget {
+  static const _url = 'https://johngu9.medium.com/';
+  const _MediumButton({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final elevation = HomePage.of(context).elevation;
+    return Tooltip(
+      message: StandardLocalizations.of(context).visit,
+      child: DetailButton(
+        elevation: elevation,
+        simple: const Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: const Image(
+            image: Constants.mediumLogoImage,
+            height: 28,
+          ),
+        ),
+        detail: const Text(_url),
+        onTap: () {
+          return showVisitWebsiteDialog(context, _url);
         },
       ),
     );

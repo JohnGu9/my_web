@@ -683,7 +683,7 @@ class StandardLocalizationsDelegate
 const _myAdvantageDescriptionEN = '''Wide technology support. 
 
   I can offer multi techniques support and technology integration. In a most common problem, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
-  Although I can use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. 
+  Although I can't use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. 
   But that is not meaning I can't develop independently. I can develop as normal developer alone, bundle all the stuff together and distribute a full production. 
 ''';
 const _myAdvantageDescriptionZH = '''广泛的技术支持。

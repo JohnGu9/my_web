@@ -8,6 +8,8 @@ class Constants {
       AssetImage("assets/images/github.png");
   static const AssetImage mailLogoImage =
       AssetImage("assets/images/outlook.png");
+  static const AssetImage mediumLogoImage =
+      AssetImage("assets/images/medium.png");
   static const AssetImage pwaImage = AssetImage("assets/images/pwa.png");
 
   static const AssetImage backgroundImage =

@@ -40,6 +40,7 @@ class _MainActivityState extends State<MainActivity>
       await Future.wait([
         precacheImage(Constants.personLogoImage, context),
         precacheImage(Constants.githubLogoImage, context),
+        precacheImage(Constants.mediumLogoImage, context),
         precacheImage(Constants.mailLogoImage, context),
         precacheImage(Constants.backgroundImage, context),
         precacheImage(Constants.otherImage, context),
