@@ -742,7 +742,7 @@ const _myExpectationDescriptionZH =
   当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';
 
 const _attentionDescriptionEN =
-    'Don\'t except me to be cheap. If not pay enough, I will work depend on my mood. '
+    'Don\'t expect me to be cheap. If not pay enough, I will work depend on my mood. '
     'IoT salary is to be over 10k yuan monthly in average. Don\'t disturb me with less than 200k annually. '
     'And don\'t ask me some question do nothing with my profession or my ability in the interview. Just tell how much you can pay directly. '
     'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to listen the feed back by phone. ';
