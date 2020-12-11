@@ -33,14 +33,16 @@
 </head>
 
 <body>
-  <div class="center">
-    <div style="display: block;">
+  </script>
+  <div class="center" id="mainBody">
+    <div style="display: block;" id="loader">
       <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
         <div class="loader"></div>
       </div>
       <div style="font-family:verdana; color:#2195f37a; font-size: 15px;">Need more time to load at first time</div>
     </div>
   </div>
+
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
@@ -51,8 +53,16 @@
       });
     }
   </script>
-  <script src="main.dart.js" type="application/javascript"></script>
-  <script src="native.js" type="application/javascript"></script>
+  <script src="main.dart.js" type="application/javascript" onerror="
+      const loader = document.getElementById('loader');
+      const img = document.createElement('img'); 
+      img.src = 'error.png'; img.width=150; img.height=150;
+      loader.replaceWith(img);
+      alert('Error on loading resource. \nPlease check your network and refresh website. ');
+    "></script>
+  <script src="native.js" type="application/javascript" onerror="
+  alert('Error on loading resource. \nPlease check your network and refresh website. ');
+    "></script>
 </body>
 
 </html>
