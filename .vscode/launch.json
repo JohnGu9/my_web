@@ -25,6 +25,11 @@
             "name": "Build release with hardware accelerate",
             "preLaunchTask": "Build release with hardware accelerate",
             "type": "extensionHost"
+        },
+        {
+            "name": "Launch localhost",
+            "preLaunchTask": "http-server",
+            "type": "extensionHost"
         }
     ]
 }

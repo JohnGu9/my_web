@@ -230,6 +230,8 @@ class StandardLocalizations {
       "born": "Born",
       "favorite": "Favorite",
       "contactMe": "Contact Me",
+      "attention": "Attention",
+      "@attentionDescription": _attentionDescriptionEN,
 
       // background page
       "university": "University",
@@ -312,6 +314,8 @@ class StandardLocalizations {
       "born": "出生",
       "favorite": "最爱",
       "contactMe": "联系我",
+      "attention": "注意",
+      "@attentionDescription": _attentionDescriptionZH,
 
       // background page
       "university": "大学",
@@ -660,6 +664,14 @@ class StandardLocalizations {
   String get electronicProduction {
     return _localize['electronicProduction'];
   }
+
+  String get attention {
+    return _localize['attention'];
+  }
+
+  String get attentionDescription {
+    return _localize['@attentionDescription'];
+  }
 }
 
 class StandardLocalizationsDelegate
@@ -728,3 +740,13 @@ const _myExpectationDescriptionEN =
 const _myExpectationDescriptionZH =
     ''' 我不希望仅仅只从事某一方面的开发。我希望可以尝试和深入每个方面的技术，并整合它们到一起。这样的方向才更符合我的风格和我的专业方向。
   当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';
+
+const _attentionDescriptionEN =
+    'Don\'t except me to be cheap. If not pay enough, I will work depend on my mood. '
+    'IoT salary is to be over 10k yuan monthly in average. Don\'t disturb me with less than 200k annually. '
+    'And don\'t ask me some question do nothing with my profession or my ability in the interview. Just tell how much you can pay directly. '
+    'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to listen the feed back by phone. ';
+const _attentionDescriptionZH = '我不会很掉价的。如果薪水不够，那我工作完全凭心情。'
+    'IoT专业行业的平均月薪都在1万以上，少于20万年薪的话就不要来打扰我了。'
+    '也请不要在面试时问我一些和我专业或者技能毫不相关的东西。就直接告诉我你们能出多少，不用拐弯来问我。'
+    '如果你觉得我不适合你们公司，也请在面试时直接告诉我，因为我根本不会浪费时间去接电话听反馈。';
