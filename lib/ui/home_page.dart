@@ -364,7 +364,7 @@ class __HeaderState extends State<_Header>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const _BrowserHit(),
+                    const _BrowserHint(),
                     SizedBox(
                       width: 72,
                       child: FadeTransition(
@@ -439,9 +439,9 @@ class __HeaderState extends State<_Header>
                               children: const [
                                 const _GithubButton(),
                                 const SizedBox(width: 8),
-                                const _MailButton(),
-                                const SizedBox(width: 8),
                                 const _MediumButton(),
+                                const SizedBox(width: 8),
+                                const _MailButton(),
                               ],
                             ),
                           ),
@@ -459,8 +459,8 @@ class __HeaderState extends State<_Header>
   }
 }
 
-class _BrowserHit extends StatelessWidget {
-  const _BrowserHit({Key key}) : super(key: key);
+class _BrowserHint extends StatelessWidget {
+  const _BrowserHint({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

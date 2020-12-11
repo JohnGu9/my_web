@@ -29,58 +29,16 @@
 
   <title>My Web</title>
   <link rel="manifest" href="manifest.json">
-  <style>
-    .center {
-      width: 100%;
-      height: 100%;
-      padding: 70px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 8px solid #2196F3;
-      width: 60px;
-      height: 60px;
-      -webkit-animation: spin 1s ease-in-out infinite;
-      /* Safari */
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    /* Safari */
-    @-webkit-keyframes spin {
-      0% {
-        -webkit-transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-      }
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-  </style>
+  <link rel="stylesheet" href="preload.css">
 </head>
 
 <body>
   <div class="center">
-    <div>
-      <div class="center">
+    <div style="display: block;">
+      <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
         <div class="loader"></div>
       </div>
-      <div style="font-family:verdana; color:#2196F3">* Need more time to load page at first time</div>
+      <div style="font-family:verdana; color:#2195f37a; font-size: 15px;">Need more time to load at first time</div>
     </div>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -94,7 +52,7 @@
     }
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
-  <script src="native.js"></script>
+  <script src="native.js" type="application/javascript"></script>
 </body>
 
 </html>
