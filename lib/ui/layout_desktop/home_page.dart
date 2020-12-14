@@ -2,11 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
-import 'package:my_web/core/native/native_channel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '.lib.dart';
-import 'package:my_web/core/.lib.dart';
+import 'package:my_web/core/core.dart';
+import 'package:my_web/core/native/native_channel.dart';
+
+import 'package:my_web/ui/widgets/widgets.dart';
+import 'package:my_web/ui/dialogs/dialogs.dart';
+
+import 'background_page.dart';
+import 'other_page.dart';
+import 'settings_page.dart';
+import 'skill_page.dart';
 
 class HomePage extends StatefulWidget {
   static _HomePage of(BuildContext context) {

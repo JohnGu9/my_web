@@ -3,31 +3,31 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:my_web/core/services/locale_service.dart';
-import 'package:my_web/ui/widgets/scope_navigator.dart';
 import 'dialog_transition.dart';
 
 showVisitWebsiteDialog(BuildContext context, String url) async {
-  if (await canLaunch(url))
-    return ScopeNavigator.of(context).push(ScopePageRoute(
-      builder: (context, animation, secondaryAnimation, size) {
-        final theme = Theme.of(context);
-        return DialogTransition(
-          animation: animation,
-          secondaryAnimation: secondaryAnimation,
-          child: RawKeyboardListener(
-            onKey: (RawKeyEvent event) async {
-              if (event.logicalKey.keyId == 0x100070028) {
-                // Enter key
-                await launch(url);
-                final navigator = Navigator.of(context);
-                if (navigator.canPop()) navigator.pop(true);
-              } else if (event.logicalKey.keyId == 0x100070029) {
-                // Escape key
-                final navigator = Navigator.of(context);
-                if (navigator.canPop()) navigator.pop(false);
-              }
-            },
-            focusNode: FocusNode()..requestFocus(),
+  return Navigator.of(context).push(PageRouteBuilder(
+    opaque: false,
+    pageBuilder: (context, animation, secondaryAnimation) {
+      final theme = Theme.of(context);
+      return DialogTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: RawKeyboardListener(
+          onKey: (RawKeyEvent event) async {
+            if (event.logicalKey.keyId == 0x100070028) {
+              // Enter key
+              await launch(url);
+              final navigator = Navigator.of(context);
+              if (navigator.canPop()) navigator.pop(true);
+            } else if (event.logicalKey.keyId == 0x100070029) {
+              // Escape key
+              final navigator = Navigator.of(context);
+              if (navigator.canPop()) navigator.pop(false);
+            }
+          },
+          focusNode: FocusNode()..requestFocus(),
+          child: SafeArea(
             child: Card(
               margin: const EdgeInsets.all(16.0),
               clipBehavior: Clip.antiAlias,
@@ -61,7 +61,7 @@ showVisitWebsiteDialog(BuildContext context, String url) async {
                         ),
                         RaisedButton.icon(
                           onPressed: () async {
-                            await launch(url);
+                            if (await canLaunch(url)) await launch(url);
                             final navigator = Navigator.of(context);
                             if (navigator.canPop()) navigator.pop(true);
                           },
@@ -75,7 +75,8 @@ showVisitWebsiteDialog(BuildContext context, String url) async {
               ),
             ),
           ),
-        );
-      },
-    ));
+        ),
+      );
+    },
+  ));
 }

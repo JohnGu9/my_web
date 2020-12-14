@@ -7,7 +7,6 @@ mixin RegionObserverMixin<T extends StatefulWidget> on State<T> {
 
   void hide() {
     visibility.value = false;
-    updateRegion();
   }
 
   void show() {

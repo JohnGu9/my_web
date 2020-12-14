@@ -3,22 +3,19 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:listenable_list/listenable_list.dart';
 
-import 'package:my_web/core/.lib.dart';
-import 'package:my_web/ui/.lib.dart';
+import 'package:my_web/core/basic/region.dart';
+import 'animation_controller_builder.dart';
+import 'mixin/region_observer_mixin.dart';
+import 'region_positioned.dart';
 
-typedef Widget ScopePageRouteBuilder(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Size size);
+typedef Widget ScopePageRouteBuilder(BuildContext context,
+    Animation<double> animation, Animation<double> secondaryAnimation);
 
-typedef Widget ScopePageRouteBackgroundBuilder(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Region region);
+typedef Widget ScopePageRouteBackgroundBuilder(BuildContext context,
+    Animation<double> animation, Animation<double> secondaryAnimation);
 
 typedef Widget _SecondaryAnimationBuilder(
   BuildContext context,
@@ -26,12 +23,19 @@ typedef Widget _SecondaryAnimationBuilder(
   Widget child,
 );
 
+extension on AnimationController {
+  TickerFuture animationWithSpring(SpringDescription spring, double target) {
+    return animateWith(SpringSimulation(spring, value, target, velocity));
+  }
+}
+
 class ScopePageRoute {
-  static Widget _backgroundBuilder(
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Region region) {
+  static _ScopePageRoute of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_ScopePageRoute>();
+  }
+
+  static Widget _backgroundBuilder(BuildContext context,
+      Animation<double> animation, Animation<double> secondaryAnimation) {
     final color = ColorTween(begin: Colors.transparent, end: Colors.black38)
         .animate(animation);
     final routeStatus =
@@ -62,24 +66,51 @@ class ScopePageRoute {
   final ScopePageRouteBackgroundBuilder backgroundBuilder;
 }
 
+class _ScopePageRoute extends InheritedWidget {
+  const _ScopePageRoute({Key key, Widget child, this.state})
+      : super(key: key, child: child);
+
+  @visibleForTesting
+  final _RouteLayerState state;
+
+  Region get maxRegion {
+    return state.widget.region;
+  }
+
+  Region get minRegion {
+    return state.widget.hero?.region?.value ?? state.widget.region;
+  }
+
+  @override
+  bool updateShouldNotify(covariant _ScopePageRoute oldWidget) {
+    return state != oldWidget.state;
+  }
+}
+
 class _ScopeNavigator {
   static _ScopeNavigator of(BuildContext context) {
     final navigator = context.dependOnInheritedWidgetOfExactType<_Navigator>();
     final secondaryAnimation = context
         .dependOnInheritedWidgetOfExactType<_SecondaryAnimationController>()
         ?.controller;
+    final hero = ScopeHero.of(context);
     return _ScopeNavigator._internal(
-        context, navigator.state, secondaryAnimation);
+        context, navigator?.state, hero, secondaryAnimation);
   }
 
   _ScopeNavigator._internal(
-      this._context, this._state, this._secondaryAnimation);
+      this._context, this._state, this.hero, this._secondaryAnimation);
   final BuildContext _context;
   final _ScopeNavigatorState _state;
   final AnimationController _secondaryAnimation;
+  final _ScopeHeroState hero;
+
+  bool get available {
+    return _state != null;
+  }
 
   Future<void> push(ScopePageRoute route) async {
-    final newLayer = _Layer(route, _secondaryAnimation, Completer());
+    final newLayer = _Layer(route, _secondaryAnimation, Completer(), hero);
     _state._layers.add(newLayer);
     return newLayer.completer.future;
   }
@@ -100,15 +131,8 @@ class ScopeNavigator extends StatefulWidget {
     return _ScopeNavigator.of(context);
   }
 
-  static Widget _builder(
-    BuildContext context,
-    bool available,
-    Widget child,
-  ) {
-    return IgnorePointer(
-      ignoring: !available,
-      child: child,
-    );
+  static Widget _builder(BuildContext context, bool available, Widget child) {
+    return IgnorePointer(ignoring: !available, child: child);
   }
 
   const ScopeNavigator({
@@ -138,6 +162,12 @@ class _ScopeNavigatorState extends State<ScopeNavigator> {
   }
 
   @override
+  void didChangeDependencies() {
+    ScopeNavigatorProxy.of(context)?.export = this;
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _layers.forEach((element) => element.dispose());
     _layers.dispose();
@@ -145,18 +175,20 @@ class _ScopeNavigatorState extends State<ScopeNavigator> {
   }
 
   void _onLayersChanged() {
+    ScopeNavigatorStatusChangedNotification().dispatch(context);
     _layers.added.forEach((key, element) {
+      element.initState();
       element._isPopped.addListener(_onRouteStatusChanged);
     });
   }
 
-  void _onRouteStatusChanged() {
-    setState(() {});
-  }
+  void _onRouteStatusChanged() => setState(() {
+        ScopeNavigatorStatusChangedNotification().dispatch(context);
+      });
 
   bool _onRemoveLayerNotification(_RemoveLayerNotification notification) {
     final layer = notification.layer;
-    layer.completer.complete();
+    layer.dispose();
     _layers.remove(layer);
     return true;
   }
@@ -175,9 +207,7 @@ class _ScopeNavigatorState extends State<ScopeNavigator> {
   Widget _layoutBuilder(BuildContext context, BoxConstraints constraints) {
     final region = widget.region ??
         Region.fromZero(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-        );
+            width: constraints.maxWidth, height: constraints.maxHeight);
     return ValueListenableBuilder<List<_Layer>>(
       valueListenable: _layers,
       builder: (context, value, child) {
@@ -187,7 +217,8 @@ class _ScopeNavigatorState extends State<ScopeNavigator> {
           children: [
             widget.builder(
               context,
-              _layers.every((element) => element._isPopped.value),
+              _layers
+                  .every((element) => element._isPopped.value), // barrier off
               _RouteStatus(isPopped: false, child: widget.child),
             ),
             ..._layers.map((element) {
@@ -200,19 +231,113 @@ class _ScopeNavigatorState extends State<ScopeNavigator> {
   }
 }
 
+class ScopeNavigatorProxy extends StatefulWidget {
+  static _ScopeNavigatorProxy of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_ScopeNavigatorProxy>();
+  }
+
+  const ScopeNavigatorProxy({Key key, @required this.builder, this.child})
+      : super(key: key);
+  final Widget child;
+  final _SecondaryAnimationBuilder builder;
+
+  @override
+  _ScopeNavigatorProxyState createState() => _ScopeNavigatorProxyState();
+}
+
+class _ScopeNavigatorProxyState extends State<ScopeNavigatorProxy> {
+  ValueNotifier<_ScopeNavigatorState> _proxy;
+  _ScopeNavigatorState get client {
+    return _proxy.value;
+  }
+
+  bool _shouldBarrier = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _proxy = ValueNotifier(null)
+      ..addListener(() {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (mounted) setState(() {});
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _proxy.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _ScopeNavigatorProxy(
+      state: this,
+      child: NotificationListener<ScopeNavigatorStatusChangedNotification>(
+        onNotification: _onNotification,
+        child: _Navigator(
+          state: client,
+          child: widget.builder(
+            context,
+            !_shouldBarrier,
+            widget.child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _onNotification(ScopeNavigatorStatusChangedNotification notification) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (mounted)
+        setState(() {
+          _shouldBarrier =
+              client != null && client._layers.any((element) => element.pushed);
+        });
+    });
+    return true;
+  }
+}
+
+class ScopeNavigatorStatusChangedNotification extends Notification {}
+
+class _ScopeNavigatorProxy extends InheritedWidget {
+  const _ScopeNavigatorProxy({Key key, Widget child, this.state})
+      : super(key: key, child: child);
+  final _ScopeNavigatorProxyState state;
+
+  set export(_ScopeNavigatorState newState) {
+    state._proxy.value = newState;
+  }
+
+  @override
+  bool updateShouldNotify(covariant _ScopeNavigatorProxy oldWidget) {
+    return state != oldWidget.state;
+  }
+}
+
 class _Layer {
-  _Layer(
-    this.route,
-    this.secondaryAnimation,
-    this.completer,
-  );
+  _Layer(this.route, this.secondaryAnimation, this.completer, this.hero);
 
   final ScopePageRoute route;
   final AnimationController secondaryAnimation;
   final Completer completer;
-
+  final _ScopeHeroState hero;
   final ValueNotifier<bool> _isPopped = ValueNotifier(false);
-  void dispose() {
+  bool get pushed {
+    return !_isPopped.value;
+  }
+
+  void initState() {
+    if (hero != null) {
+      hero.updateRegion();
+      hero.hide();
+    }
+  }
+
+  void dispose() async {
+    if (hero.mounted) hero.show();
     if (!completer.isCompleted) completer.complete();
   }
 
@@ -221,6 +346,7 @@ class _Layer {
       layer: this,
       spring: spring,
       region: region,
+      hero: hero,
     );
   }
 }
@@ -235,9 +361,11 @@ class _RouteLayer extends StatefulWidget {
     @required this.layer,
     @required this.spring,
     @required this.region,
+    @required this.hero,
   }) : super(key: ValueKey(layer));
 
   final _Layer layer;
+  final _ScopeHeroState hero;
   final Region region;
   final SpringDescription spring;
 
@@ -247,13 +375,6 @@ class _RouteLayer extends StatefulWidget {
 
 class _RouteLayerState extends State<_RouteLayer>
     with SingleTickerProviderStateMixin<_RouteLayer> {
-  static TickerFuture _animateWith(
-      AnimationController controller, double value, SpringDescription spring) {
-    final res = controller.animateWith(
-        SpringSimulation(spring, controller.value, value, controller.velocity));
-    return res;
-  }
-
   static Widget _layoutBuilder(
       Widget currentChild, List<Widget> previousChildren) {
     return Stack(
@@ -296,8 +417,11 @@ class _RouteLayerState extends State<_RouteLayer>
     _isPopped = false;
 
     if (_secondaryAnimation != null) _controller.addListener(_syncAnimation);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (mounted) _animateWith(_controller, 1, widget.spring);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      if (mounted) {
+        await _controller.animationWithSpring(widget.spring, 1);
+        _controller.addListener(_layer.hero.updateRegion);
+      }
     });
   }
 
@@ -315,13 +439,6 @@ class _RouteLayerState extends State<_RouteLayer>
     _recognizer.dispose();
     _historyEntry?.remove();
     super.dispose();
-  }
-
-  void _onTap() {
-    setState(() {
-      _ensureHistoryEntry();
-      _animateWith(_controller, 1, widget.spring);
-    });
   }
 
   void _syncAnimation() {
@@ -351,6 +468,7 @@ class _RouteLayerState extends State<_RouteLayer>
         else {
           assert(_controller.value - 0.0 < 0.001);
           _historyEntry?.remove();
+          _historyEntry = null;
           _RemoveLayerNotification(layer: _layer).dispatch(context);
         }
         break;
@@ -363,7 +481,7 @@ class _RouteLayerState extends State<_RouteLayer>
       if (route != null) {
         setState(() {
           _isPopped = false;
-          _onRemoved = () => _animateWith(_controller, 0, widget.spring);
+          _onRemoved = () => _controller.animationWithSpring(widget.spring, 0);
           _historyEntry =
               LocalHistoryEntry(onRemove: _handleHistoryEntryRemoved);
           route.addLocalHistoryEntry(_historyEntry);
@@ -381,6 +499,14 @@ class _RouteLayerState extends State<_RouteLayer>
     });
   }
 
+  void _onTap() {
+    if (_isPopped == true)
+      setState(() {
+        _ensureHistoryEntry();
+        _controller.animationWithSpring(widget.spring, 1);
+      });
+  }
+
   void _onPointerDown(PointerDownEvent event) {
     if (mounted) _recognizer.addPointer(event);
   }
@@ -388,25 +514,37 @@ class _RouteLayerState extends State<_RouteLayer>
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: _PrimaryAnimationController(
-        controller: _controller,
-        child: _RouteStatus(
-          isPopped: _isPopped,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Builder(
-                builder: (context) {
-                  return _layer.route.backgroundBuilder(
-                    context,
-                    _controller,
-                    _secondaryAnimation,
-                    widget.region,
-                  );
-                },
-              ),
-              AnimationControllerBuilder(builder: _builder),
-            ],
+      child: _ScopePageRoute(
+        state: this,
+        child: _PrimaryAnimationController(
+          controller: _controller,
+          child: _RouteStatus(
+            isPopped: _isPopped,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Builder(
+                  builder: (context) {
+                    return _layer.route.backgroundBuilder(
+                        context, _controller, _secondaryAnimation);
+                  },
+                ),
+                ValueListenableBuilder<Region>(
+                  valueListenable: widget.hero?.region ??
+                      AlwaysStoppedAnimation(widget.region),
+                  builder: (BuildContext context, Region value, Widget child) {
+                    return AnimatedRegionPositioned(
+                        animation: Tween(begin: value, end: widget.region)
+                            .animate(_controller),
+                        child: child);
+                  },
+                  child: Listener(
+                    onPointerDown: _onPointerDown,
+                    child: AnimationControllerBuilder(builder: _builder),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -414,10 +552,7 @@ class _RouteLayerState extends State<_RouteLayer>
   }
 
   Widget _builder(
-    BuildContext context,
-    AnimationController controller,
-    Widget child,
-  ) {
+      BuildContext context, AnimationController controller, Widget child) {
     final builder = _layer.route.builder;
     return _SecondaryAnimationController(
       controller: controller,
@@ -428,12 +563,7 @@ class _RouteLayerState extends State<_RouteLayer>
             ? const SizedBox()
             : KeyedSubtree(
                 key: GlobalObjectKey(builder),
-                child: builder(
-                  context,
-                  _controller.view,
-                  controller.view,
-                  widget.region.size,
-                ),
+                child: builder(context, _controller.view, controller.view),
               ),
       ),
     );
@@ -443,7 +573,6 @@ class _RouteLayerState extends State<_RouteLayer>
 class _Navigator extends InheritedWidget {
   const _Navigator({Key key, @required Widget child, @required this.state})
       : super(key: key, child: child);
-
   final _ScopeNavigatorState state;
 
   @override
@@ -503,12 +632,11 @@ class _SecondaryAnimationController extends InheritedWidget {
 class ScopeHero extends StatefulWidget {
   static RegionObserverMixin of(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_HeroRegionObserverBinding>()
-        .observer;
+        .dependOnInheritedWidgetOfExactType<_HeroRegionObserver>()
+        ?.state;
   }
 
   const ScopeHero({Key key, this.child}) : super(key: key);
-
   final Widget child;
 
   @override
@@ -556,34 +684,36 @@ class _ScopeHeroState extends State<ScopeHero>
   Widget build(BuildContext context) {
     return NotificationListener<SizeChangedLayoutNotification>(
       onNotification: _onNotification,
-      child: _HeroRegionObserverBinding(
-        observer: this,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: visibility,
-          builder: (context, value, child) {
-            return Visibility(
-              visible: value,
-              maintainState: true,
-              maintainAnimation: true,
-              maintainSize: true,
-              child: child,
-            );
-          },
-          child: SizeChangedLayoutNotifier(child: widget.child),
+      child: _HeroRegionObserver(
+        state: this,
+        child: SizeChangedLayoutNotifier(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: visibility,
+            builder: (context, value, child) {
+              return Visibility(
+                visible: value,
+                maintainState: true,
+                maintainAnimation: true,
+                maintainSize: true,
+                child: child,
+              );
+            },
+            child: widget.child,
+          ),
         ),
       ),
     );
   }
 }
 
-class _HeroRegionObserverBinding extends InheritedWidget {
-  const _HeroRegionObserverBinding({Key key, Widget child, this.observer})
+class _HeroRegionObserver extends InheritedWidget {
+  const _HeroRegionObserver({Key key, Widget child, this.state})
       : super(key: key, child: child);
 
-  final _ScopeHeroState observer;
+  final _ScopeHeroState state;
 
   @override
-  bool updateShouldNotify(_HeroRegionObserverBinding oldWidget) {
-    return observer != oldWidget.observer;
+  bool updateShouldNotify(_HeroRegionObserver oldWidget) {
+    return state != oldWidget.state;
   }
 }

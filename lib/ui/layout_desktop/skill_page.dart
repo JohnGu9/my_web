@@ -5,9 +5,10 @@ import 'package:my_web/core/constants.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
-import 'package:my_web/ui/home_page.dart';
 import 'package:my_web/ui/widgets/context_menu.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
+
+import 'home_page.dart';
 
 class SkillPage extends StatelessWidget {
   const SkillPage({Key key}) : super(key: key);
@@ -588,7 +589,7 @@ _showProgramLanguagePage(BuildContext context, String language) {
           .borderRadius as BorderRadius);
   final data = _content[language];
   return ScopeNavigator.of(context).push(ScopePageRoute(
-    builder: (context, animation, secondaryAnimation, size) {
+    builder: (context, animation, secondaryAnimation) {
       return SlideTransition(
         position: Tween(
           begin: const Offset(1, 0),

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import 'package:my_web/core/.lib.dart';
-import 'package:my_web/ui/.lib.dart';
-import 'package:my_web/ui/dialogs/alert_dialog.dart';
+import 'package:my_web/core/core.dart';
+
+import 'package:my_web/ui/widgets/widgets.dart';
+import 'package:my_web/ui/dialogs/dialogs.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key key}) : super(key: key);
@@ -99,7 +100,7 @@ class _LocaleEditTile extends StatelessWidget {
           : titles[current.languageCode],
       onTap: () {
         return ScopeNavigator.of(context).push(ScopePageRoute(
-          builder: (context, animation, secondaryAnimation, size) {
+          builder: (context, animation, secondaryAnimation) {
             return SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(0, 1),
@@ -289,18 +290,27 @@ class __TileState extends State<_Tile>
             child: SizeTransition(
               axis: Axis.vertical,
               sizeFactor: _controller,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6.0, vertical: 16.0),
-                    child: Text(
-                      'Downloading necessary font...\nDuration depend on your network (zh and jp need more time)',
-                      style: theme.textTheme.caption,
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (BuildContext context, Widget child) {
+                  return TickerMode(
+                    enabled: _controller.value != _controller.lowerBound,
+                    child: child,
+                  );
+                },
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6.0, vertical: 16.0),
+                      child: Text(
+                        'Downloading necessary font...\nDuration depend on your network (zh and jp need more time)',
+                        style: theme.textTheme.caption,
+                      ),
                     ),
-                  ),
-                  const LinearProgressIndicator(),
-                ],
+                    const LinearProgressIndicator(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -320,7 +330,7 @@ class _AboutTile extends StatelessWidget {
       subtitle: Text(Constants.version),
       onTap: () {
         return ScopeNavigator.of(context).push(ScopePageRoute(
-          builder: (context, animation, secondaryAnimation, size) {
+          builder: (context, animation, secondaryAnimation) {
             return SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(0, 1),

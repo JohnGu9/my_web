@@ -2,21 +2,11 @@
 <html>
 
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    Fore more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-  -->
   <base href="/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A Web project based on Flutter">
+  <meta name="description" content="">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,27 +15,30 @@
   <link rel="apple-touch-icon" href="favicon.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png" />
-
-  <title>My Web</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="preload.css">
+
+  <title>My Web</title>
 </head>
 
 <body>
-  </script>
-  <div class="center" id="mainBody">
+  <div class="center" id="preload">
     <div style="display: block;" id="loader">
       <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
-        <div class="loader"></div>
+        <div class="scaleTransition">
+          <div class="loader"></div>
+        </div>
       </div>
-      <div style="font-family:verdana; color:#2195f37a; font-size: 15px;">Need more time to load at first time</div>
+      <div class="slideTransition">
+        <div class="fadeTransition">
+          <div style="font-family:verdana; color:#2195f3; font-size: 15px;">
+            Need more time to load at first time</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- This script installs service_worker.js to provide PWA functionality to
-       application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
@@ -54,14 +47,14 @@
     }
   </script>
   <script src="main.dart.js" type="application/javascript" onerror="
-      const loader = document.getElementById('loader');
       const img = document.createElement('img'); 
       img.src = 'error.png'; img.width=150; img.height=150;
       loader.replaceWith(img);
       alert('Error on loading resource. \nPlease check your network and refresh website. ');
     "></script>
   <script src="native.js" type="application/javascript" onerror="
-  alert('Error on loading resource. \nPlease check your network and refresh website. ');
+  const loader = document.getElementById('loader');
+      alert('Error on loading resource. \nPlease check your network and refresh website. ');
     "></script>
 </body>
 

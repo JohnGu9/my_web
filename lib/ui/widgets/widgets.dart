@@ -11,4 +11,4 @@ export 'transition_barrier.dart';
 export 'context_menu.dart';
 export 'rive_board.dart';
 
-export 'mixin/.lib.dart';
+export 'mixin/mixin.dart';

@@ -6,6 +6,9 @@ function bindFunction(name, fn) { dartFunctions[name] = fn }
 
 function onInvokeMethod(obj) {
     switch (obj.method) {
+        case 'isMobile':
+            return isMobile(obj.arguments);
+
         case 'openFileDialog':
             return openFileDialog(obj.arguments);
 
@@ -66,6 +69,11 @@ class FileDescriptor {
         this.data = uint8List
     }
 }
+
+const isMobile = (args) => {
+    args.callback(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+}
+
 
 const getBrowserType = (args) => {
     if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1)

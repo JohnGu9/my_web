@@ -167,7 +167,7 @@ class AsyncFontFile {
         loading = false;
         isLoaded = true;
       })
-      ..catchError(() {
+      ..catchError((error) {
         loading = false;
         isLoaded = false;
         _loadFuture = null;
@@ -701,13 +701,13 @@ class StandardLocalizationsDelegate
 const _myAdvantageDescriptionEN = '''Wide technology support. 
 
   I can offer multi techniques support and technology integration. In a most common problem, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
-  Although I can't use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. 
+  Although I can't use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. I can develop any projects of my felids. 
   But that is not meaning I can't develop independently. I can develop as normal developer alone, bundle all the stuff together and distribute a full production. 
 ''';
 const _myAdvantageDescriptionZH = '''广泛的技术支持。
 
   我可以提供多层次技术和技术整合。一个常见的问题，来自不同的部门的技术人员常常因为缺乏对方专业的知识背景而彼此之间缺乏有效的沟通。
-  尽管我无法像那些专攻某项技术的人那样马上熟练运用各个专门的技术，但我可以在这些技术之间自由切换和融入其中。
+  尽管我无法像那些专攻某项技术的人那样马上熟练运用各个专门的技术，但我可以在这些技术之间自由切换和融入其中。任何方向的项目我都可以上手直接开发。
   但这并不意味着我无法独立完成开发，我完全可以像普通的开发者完成开发任务，打包全部的内容做成一个独立完整的产品。
 ''';
 
@@ -723,30 +723,33 @@ const _databaseDescriptionZH = '''这个问题仿佛就像我”是否去过某�
   表型/树形/关系型数据库是最常见的数据库类型，而其中每种在市面上都有数个有名的产品。在我短暂的生涯里我还没用过它们全部。
   或者说我并不关心数据库究竟是怎样的，它仅仅是一个简单的用于存储数据的工具，而且本应该是这样。''';
 
-const _machineLearningAndAIDescriptionEN = '''I know a bit. 
+const _machineLearningAndAIDescriptionEN =
+    '''I know a bit. I'm familiar with the underlay some algorithm and constructions of machine learning. 
   When I was in the university, I was very interesting about this and learning a lot of relative theories. I have write a native c program "Image recognize based on machine learning" that ran on a STM32M3 development board. 
-  But I wish you clam down. ML is not magic and it consume a lot of computer resource, time and people resource that only can reach the business production level. 
+  But I wish you clam down. ML is not magic that can't finish any your whimsical ideas and it consume a lot of computer resource, time and people resource that only can reach the business production level. 
   If your company don't focus on it but want integrate it into own production, I recommend you try Google's ML Kit. 
   Of course, I'm glad to join your AI team and receive more salary. Because I need more pay to appease myself while I want to try new stuff but be requested to some repetitive work like a test engineer and try hard to optimize production like a framework developer. ''';
-const _machineLearningAndAIDescriptionZH = '''我了解一点点。
+const _machineLearningAndAIDescriptionZH = '''我了解一点点。我熟悉机器学习一些底层的算法、逻辑和构成。
   当我在大学的时候，对其非常感兴趣，在网上搜索和学习很多相关的原理，在一次嵌入式课程作业我以自己对其理解编写了一个最简易的基于机器学习的图像识别的C程序并在STM32M3上运行。
-  但是我还是希望你可以冷静，机器学习不是魔法，同时它需要大量的运算资源和时间人力资源的投入才能产出一些能达到商业级别的产品。
+  但是我还是希望你可以冷静，机器学习不是魔法，它不可能实现你任意异想天开的想法，同时它需要大量的运算资源和时间人力资源的投入才能产出一些能达到商业级别的产品。
   如果贵公司的主业不是这方面，又希望自己产品有相关属性，我推荐你们还是使用Google的ML Kit实现相关功能。
   当然我不介意你支付更高的薪金让我加入到你们的AI团队，毕竟让一个整天想着尝试新事物的人，去像测试工程师那样无休止的重复一些简单工作又要像框架师那样绞尽脑汁的优化产品，是需要更多的安慰费的。''';
 
 const _myExpectationDescriptionEN =
     ''' I don't want to be only certain developer. I want to try and deep dive into every direction technology. And bundle them together. The road is more suitable for my style and my major. 
+  As long as enough freedom of development for me, I can handle almost normal everything by myself (except center or complex problems). I'm suitable for development only. 
   And image processing is my most interesting felid. I'm glad to join into the felid and offer my ability. ''';
 const _myExpectationDescriptionZH =
     ''' 我不希望仅仅只从事某一方面的开发。我希望可以尝试和深入每个方面的技术，并整合它们到一起。这样的方向才更符合我的风格和我的专业方向。
+  只要给我足够的开发自由度，一般的问题（不涉及顶尖复杂的学术问题）我自己一个人就能解决。（我只适合开发）
   当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';
 
 const _attentionDescriptionEN =
     'Don\'t expect me to be cheap. If not pay enough, I will work depend on my mood. '
-    'IoT salary is to be over 10k yuan monthly in average. Don\'t disturb me with less than 200k annually. '
+    'IoT salary is to be over 10k yuan monthly in average in China. Don\'t disturb me with less than 200k annually. '
     'And don\'t ask me some question do nothing with my profession or my ability in the interview. Just tell how much you can pay directly. '
-    'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to listen the feed back by phone. ';
+    'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to wait for the feedback by phone. ';
 const _attentionDescriptionZH = '我不会很掉价的。如果薪水不够，那我工作完全凭心情。'
-    'IoT专业行业的平均月薪都在1万以上，少于20万年薪的话就不要来打扰我了。'
-    '也请不要在面试时问我一些和我专业或者技能毫不相关的东西。就直接告诉我你们能出多少，不用拐弯来问我。'
-    '如果你觉得我不适合你们公司，也请在面试时直接告诉我，因为我根本不会浪费时间去接电话听反馈。';
+    'IoT本科毕业的行业平均月薪都在1万以上，少于20万年薪的话就不要来打扰我了。'
+    '也请不要在面试时问我一些和我专业或者技能毫不相关的东西。就直接告诉我你们能出多少，不用拐着弯来问我。'
+    '如果你觉得我不适合你们公司，也请在面试时直接告诉我，我不会去浪费时间去等你们电话反馈。';

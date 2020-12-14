@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_web/core/.lib.dart';
+import 'package:my_web/core/core.dart';
 
 class RegionPositioned extends StatelessWidget {
   const RegionPositioned({
