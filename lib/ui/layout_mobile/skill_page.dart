@@ -6,6 +6,7 @@ class SkillPage extends StatelessWidget {
   const SkillPage({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final localizations = StandardLocalizations.of(context);
     return ScopeNavigatorProxy(
       builder: (BuildContext context, bool noRouteLayer, Widget child) {
@@ -19,14 +20,17 @@ class SkillPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
-                child: TabBar(
-                  isScrollable: true,
-                  tabs: [
-                    Tab(text: localizations.technologyStack),
-                    Tab(text: localizations.programmingLanguage),
-                    Tab(text: localizations.supportedPlatform),
-                    Tab(text: localizations.otherRelatedStuff),
-                  ],
+                child: Material(
+                  color: theme.primaryColor,
+                  child: TabBar(
+                    isScrollable: true,
+                    tabs: [
+                      Tab(text: localizations.technologyStack),
+                      Tab(text: localizations.programmingLanguage),
+                      Tab(text: localizations.supportedPlatform),
+                      Tab(text: localizations.otherRelatedStuff),
+                    ],
+                  ),
                 ),
               ),
               const SliverFillRemaining(

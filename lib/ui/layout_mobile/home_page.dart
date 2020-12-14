@@ -30,13 +30,19 @@ class _HomePageState extends State<HomePage>
         SingleTickerProviderStateMixin,
         SpringProvideStateMixin,
         RouteAnimationController {
-  Widget _child = const SizedBox();
+  Widget Function(BuildContext) _builder;
 
-  _showBottomSheet(Widget child) {
+  _showBottomSheet(Widget Function(BuildContext) builder) {
     controller.animationWithSpring(spring, 1);
     setState(() {
-      _child = child;
+      _builder = builder;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _builder = (context) => const SizedBox();
   }
 
   @override
@@ -102,9 +108,10 @@ class _HomePageState extends State<HomePage>
                             context: context,
                             removeTop: true,
                             child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                    maxHeight: constraints.maxHeight * 0.8),
-                                child: _child), // bottom sheet
+                              constraints: BoxConstraints(
+                                  maxHeight: constraints.maxHeight * 0.8),
+                              child: Builder(builder: _builder),
+                            ), // bottom sheet
                           ),
                         ),
                       ],
@@ -242,8 +249,9 @@ class _FullScreenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final channel = NativeChannel.of(context);
-    print(channel.isWeb);
-    if (!channel.isWeb) return const SizedBox();
+    final platformService = PlatformService.of(context);
+    if (!channel.isWeb || platformService.isIOS // IOS js vm can't go fullscreen
+        ) return const SizedBox();
     final fullscreen = channel.fullscreenChanged;
     return ValueListenableBuilder<bool>(
       valueListenable: fullscreen,
@@ -269,8 +277,8 @@ class _HomePage extends InheritedWidget {
       : super(key: key, child: child);
   final _HomePageState state;
 
-  showBottomSheet({@required Widget child}) {
-    return state._showBottomSheet(child);
+  showBottomSheet({@required Widget Function(BuildContext context) builder}) {
+    return state._showBottomSheet(builder);
   }
 
   @override
@@ -284,38 +292,41 @@ class _SettingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = StandardLocalizations.of(context);
     final themeService = ThemeService.of(context);
     return IconButton(
+      tooltip: 'Settings',
       icon: const Icon(Icons.settings),
       onPressed: () {
         return HomePage.of(context).showBottomSheet(
-          child: SafeArea(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                const Card(child: SettingsPage()),
-                Card(
-                  clipBehavior: Clip.hardEdge,
-                  child: InkWell(
-                    onTap: () {
-                      final navigator = Navigator.of(context);
-                      if (navigator.canPop()) navigator.pop();
-                    },
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          localizations.cancel,
-                          style: themeService.textButtonStyle,
+          builder: (context) {
+            final localizations = StandardLocalizations.of(context);
+            return SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  const Card(child: SettingsPage()),
+                  Card(
+                    clipBehavior: Clip.hardEdge,
+                    child: InkWell(
+                      onTap: () {
+                        final navigator = Navigator.of(context);
+                        if (navigator.canPop()) navigator.pop();
+                      },
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            localizations.cancel,
+                            style: themeService.textButtonStyle,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

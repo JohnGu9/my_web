@@ -234,14 +234,23 @@ class _About extends StatelessWidget {
           elevation: 0.0,
         ),
         ListTile(
-          title: Text(localizations.version),
+          title: Text(
+            localizations.version,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           trailing: Text(Constants.version),
         ),
         Tooltip(
           message: localizations.visit,
           child: ListTile(
-            title: Text(localizations.source),
-            trailing: const SelectableText('https://github.com/JohnGu9/my_web'),
+            title: Text(
+              localizations.source,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: const SelectableText('https://github.com/JohnGu9/my_web',
+                maxLines: 1),
             onTap: () {
               const url = 'https://github.com/JohnGu9/my_web';
               showVisitWebsiteDialog(context, url);

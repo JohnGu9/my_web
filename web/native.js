@@ -9,6 +9,9 @@ function onInvokeMethod(obj) {
         case 'isMobile':
             return isMobile(obj.arguments);
 
+        case 'isIOS':
+            return isIOS(obj.arguments);
+
         case 'openFileDialog':
             return openFileDialog(obj.arguments);
 
@@ -73,7 +76,20 @@ class FileDescriptor {
 const isMobile = (args) => {
     args.callback(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 }
-
+function isIOS(args) {
+    args.callback(
+        [
+            'iPad Simulator',
+            'iPhone Simulator',
+            'iPod Simulator',
+            'iPad',
+            'iPhone',
+            'iPod'
+        ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+    )
+}
 
 const getBrowserType = (args) => {
     if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1)
