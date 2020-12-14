@@ -58,20 +58,29 @@ class _HomePageState extends State<HomePage>
           return Scaffold(
             body: ScopeNavigatorProxy(
               builder: (context, noRouteLayer, child) {
+                final hasRouteLayer = !noRouteLayer;
                 return Stack(
                   fit: StackFit.expand,
                   clipBehavior: Clip.hardEdge,
                   children: [
-                    IgnorePointer(
-                      ignoring: !noRouteLayer,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        foregroundDecoration: BoxDecoration(
-                          color: noRouteLayer
-                              ? Colors.transparent
-                              : Colors.black38,
+                    GestureDetector(
+                      onTap: hasRouteLayer
+                          ? () {
+                              final navigator = Navigator.of(context);
+                              if (navigator.canPop()) navigator.pop();
+                            }
+                          : null,
+                      child: AbsorbPointer(
+                        absorbing: hasRouteLayer,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          foregroundDecoration: BoxDecoration(
+                            color: noRouteLayer
+                                ? Colors.transparent
+                                : Colors.black38,
+                          ),
+                          child: child,
                         ),
-                        child: child,
                       ),
                     ),
                     Column(
