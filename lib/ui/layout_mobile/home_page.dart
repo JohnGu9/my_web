@@ -6,8 +6,8 @@ import 'package:my_web/core/core.dart';
 import 'package:my_web/core/native/native_channel.dart';
 import 'package:my_web/ui/dialogs/dialogs.dart';
 import 'package:my_web/ui/widgets/animated_safe_area.dart';
-import 'package:my_web/ui/widgets/mixin/route_animation_controller_mixin.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
+import 'package:my_web/ui/widgets/mixin/route_animation_controller_mixin.dart';
 
 import 'other_page.dart';
 import 'settings_page.dart';
@@ -53,6 +53,8 @@ class _HomePageState extends State<HomePage>
             body: ScopeNavigatorProxy(
               builder: (context, noRouteLayer, child) {
                 return Stack(
+                  fit: StackFit.expand,
+                  clipBehavior: Clip.hardEdge,
                   children: [
                     IgnorePointer(
                       ignoring: !noRouteLayer,
@@ -93,13 +95,16 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                         SizeTransition(
-                          // bottom sheet
                           axis: Axis.vertical,
-                          sizeFactor: controller, axisAlignment: -1.0,
+                          sizeFactor: controller,
+                          axisAlignment: -1.0,
                           child: MediaQuery.removePadding(
                             context: context,
                             removeTop: true,
-                            child: _child,
+                            child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                    maxHeight: constraints.maxHeight * 0.8),
+                                child: _child), // bottom sheet
                           ),
                         ),
                       ],
@@ -236,7 +241,10 @@ class _FullScreenButton extends StatelessWidget {
   const _FullScreenButton({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final fullscreen = NativeChannel.of(context).fullscreenChanged;
+    final channel = NativeChannel.of(context);
+    print(channel.isWeb);
+    if (!channel.isWeb) return const SizedBox();
+    final fullscreen = channel.fullscreenChanged;
     return ValueListenableBuilder<bool>(
       valueListenable: fullscreen,
       builder: (context, value, child) {
