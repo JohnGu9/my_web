@@ -47,11 +47,10 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.skillImage, context),
         precacheImage(Constants.jinanLogoImage, context),
       ]);
-    }()
-      ..then((value) async {
-        /// no need to check [mounted]. If state is not mounted, the app don't run at all.
-        _controller.animateTo(1.0, duration: const Duration(milliseconds: 750));
-      });
+
+      /// no need to check [mounted]. If state is not mounted, the app don't run at all.
+      _controller.animateTo(1.0, duration: const Duration(milliseconds: 750));
+    }();
   }
 
   @override
@@ -64,40 +63,42 @@ class _MainActivityState extends State<MainActivity>
   Widget build(BuildContext context) {
     return NativeChannel(
       child: StorageService(
-        child: SpringProvideService(
-          child: LocaleService(
-            builder: (context, locale) {
-              return ThemeService(
-                builder: (context, theme) {
-                  return MaterialApp(
-                    title: 'My Web',
-                    theme: theme,
-                    locale: locale,
-                    supportedLocales: LocaleService.supportedLocales,
-                    localeResolutionCallback: _localeResolutionCallback,
-                    localizationsDelegates: [
-                      // ... app-specific localization delegate[s] here
-                      StandardLocalizationsDelegate(locale),
-                      GlobalMaterialLocalizations.delegate,
-                      GlobalWidgetsLocalizations.delegate,
-                      GlobalCupertinoLocalizations.delegate,
-                    ],
-                    debugShowCheckedModeBanner: false,
-                    home: FutureBuilder(
-                      future: _init,
-                      builder: (context, snapshot) {
-                        return FadeTransition(
-                          opacity: _controller,
-                          child: PlatformHomePage(
-                              isReady: snapshot.connectionState ==
-                                  ConnectionState.done),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
-            },
+        child: PlatformService(
+          child: SpringProvideService(
+            child: LocaleService(
+              builder: (context, locale) {
+                return ThemeService(
+                  builder: (context, theme) {
+                    return MaterialApp(
+                      title: 'My Web',
+                      theme: theme,
+                      locale: locale,
+                      supportedLocales: LocaleService.supportedLocales,
+                      localeResolutionCallback: _localeResolutionCallback,
+                      localizationsDelegates: [
+                        // ... app-specific localization delegate[s] here
+                        StandardLocalizationsDelegate(locale),
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                      ],
+                      debugShowCheckedModeBanner: false,
+                      home: FutureBuilder(
+                        future: _init,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState != ConnectionState.done)
+                            return const SizedBox();
+                          return FadeTransition(
+                            opacity: _controller,
+                            child: PlatformHomePage(),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
       ),

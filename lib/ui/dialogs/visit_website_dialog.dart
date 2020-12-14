@@ -8,6 +8,8 @@ import 'dialog_transition.dart';
 showVisitWebsiteDialog(BuildContext context, String url) async {
   return Navigator.of(context).push(PageRouteBuilder(
     opaque: false,
+    barrierDismissible: true,
+    barrierColor: Colors.black38,
     pageBuilder: (context, animation, secondaryAnimation) {
       final theme = Theme.of(context);
       return DialogTransition(

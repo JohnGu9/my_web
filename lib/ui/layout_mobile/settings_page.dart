@@ -21,7 +21,7 @@ class SettingsPage extends StatelessWidget {
           backgroundColor: Colors.transparent,
           title: Text(localizations.settings),
         ),
-        SwitchListTile(
+        SwitchListTile.adaptive(
           secondary: const Icon(Icons.brightness_4),
           title: Text(localizations.darkTheme),
           onChanged: (bool value) {

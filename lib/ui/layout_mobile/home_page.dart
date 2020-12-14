@@ -7,7 +7,10 @@ import 'package:my_web/ui/widgets/mixin/route_animation_controller_mixin.dart';
 import 'package:my_web/ui/widgets/scope_navigator.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'other_page.dart';
 import 'settings_page.dart';
+import 'background_page.dart';
+import 'skill_page.dart';
 
 class HomePage extends StatefulWidget {
   static _HomePage of(BuildContext context) {
@@ -381,6 +384,7 @@ class __ListViewState extends State<_ListView>
                 title: Text(localizations.background),
                 subtitle: Text(localizations.backgroundDescription),
                 image: Constants.backgroundImage,
+                page: const BackgroundPage(),
               ),
             ),
             ScopeHero(
@@ -388,6 +392,7 @@ class __ListViewState extends State<_ListView>
                 title: Text(localizations.skill),
                 subtitle: Text(localizations.skillDescription),
                 image: Constants.skillImage,
+                page: const SkillPage(),
               ),
             ),
             ScopeHero(
@@ -395,6 +400,7 @@ class __ListViewState extends State<_ListView>
                 title: Text(localizations.other),
                 subtitle: Text(localizations.otherDescription),
                 image: Constants.otherImage,
+                page: const OtherPage(),
               ),
             ),
             const SizedBox(height: 120)
@@ -406,13 +412,19 @@ class __ListViewState extends State<_ListView>
 }
 
 class _Card extends StatelessWidget {
-  const _Card({Key key, this.title, this.subtitle, this.image})
+  const _Card(
+      {Key key,
+      @required this.title,
+      @required this.subtitle,
+      @required this.image,
+      @required this.page})
       : assert(subtitle != null),
         super(key: key);
 
   final Widget title;
   final Widget subtitle;
   final ImageProvider image;
+  final Widget page;
 
   @override
   Widget build(BuildContext context) {
@@ -509,7 +521,7 @@ class _Card extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const Spacer(),
+                              Expanded(child: page),
                             ],
                           ),
                         ),

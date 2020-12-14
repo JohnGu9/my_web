@@ -81,6 +81,10 @@ class _ScopePageRoute extends InheritedWidget {
     return state.widget.hero?.region?.value ?? state.widget.region;
   }
 
+  Animation<double> get animation {
+    return state._controller;
+  }
+
   @override
   bool updateShouldNotify(covariant _ScopePageRoute oldWidget) {
     return state != oldWidget.state;
@@ -337,7 +341,7 @@ class _Layer {
   }
 
   void dispose() async {
-    if (hero.mounted) hero.show();
+    if (hero != null && hero.mounted) hero.show();
     if (!completer.isCompleted) completer.complete();
   }
 
@@ -420,7 +424,8 @@ class _RouteLayerState extends State<_RouteLayer>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       if (mounted) {
         await _controller.animationWithSpring(widget.spring, 1);
-        _controller.addListener(_layer.hero.updateRegion);
+        if (_layer.hero != null)
+          _controller.addListener(_layer.hero.updateRegion);
       }
     });
   }

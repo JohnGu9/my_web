@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String version = "0.0.2 - pre";
+  static const String version = "0.1.1 - pre";
   static const AssetImage personLogoImage =
       AssetImage("assets/images/logo.png");
   static const AssetImage githubLogoImage =

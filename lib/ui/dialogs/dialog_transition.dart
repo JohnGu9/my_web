@@ -14,26 +14,17 @@ class DialogTransition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return Container(
-            color: ColorTween(begin: Colors.transparent, end: Colors.black38)
-                .evaluate(animation),
-            child: child);
-      },
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: SlideTransition(
-          position: Tween(
-            begin: const Offset(0, -1),
-            end: const Offset(0, 0),
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.fastOutSlowIn,
-          )),
-          child: child,
-        ),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(0, -1),
+          end: const Offset(0, 0),
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.fastOutSlowIn,
+        )),
+        child: child,
       ),
     );
   }
