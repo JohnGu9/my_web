@@ -744,12 +744,11 @@ const _myExpectationDescriptionZH =
   只要给我足够的开发自由度，一般的问题（不涉及顶尖复杂的学术问题）我自己一个人就能解决。（我只适合开发）
   当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';
 
-const _attentionDescriptionEN =
-    'Don\'t expect me to be cheap. If not pay enough, I will work depend on my mood. '
+const _attentionDescriptionEN = 'Don\'t expect me to be cheap. '
     'IoT salary is to be over 10k yuan monthly in average in China. Don\'t disturb me with less than 200k annually. '
     'And don\'t ask me some question do nothing with my profession or my ability in the interview. Just tell how much you can pay directly. '
     'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to wait for the feedback by phone. ';
-const _attentionDescriptionZH = '我不会很掉价的。如果薪水不够，那我工作完全凭心情。'
+const _attentionDescriptionZH = '我不会很掉价的。'
     'IoT本科毕业的行业平均月薪都在1万以上，少于20万年薪的话就不要来打扰我了。'
     '也请不要在面试时问我一些和我专业或者技能毫不相关的东西。就直接告诉我你们能出多少，不用拐着弯来问我。'
     '如果你觉得我不适合你们公司，也请在面试时直接告诉我，我不会去浪费时间去等你们电话反馈。';

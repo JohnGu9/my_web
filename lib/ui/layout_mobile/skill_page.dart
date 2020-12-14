@@ -7,44 +7,39 @@ class SkillPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = StandardLocalizations.of(context);
-    final maxSize = ScopePageRoute.of(context).maxRegion.size;
     return ScopeNavigatorProxy(
       builder: (BuildContext context, bool noRouteLayer, Widget child) {
         return child;
       },
       child: ScopeNavigator(
         spring: SpringProvideService.of(context),
-        child: SingleChildScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          reverse: true,
-          child: SizedBox.fromSize(
-            size: Size(maxSize.width, maxSize.height - 250),
-            child: DefaultTabController(
-              length: 4,
-              child: Column(
-                children: [
-                  const Expanded(
-                    child: TabBarView(
-                      children: const [
-                        _TechnologyStackCard(),
-                        _ProgrammingLanguage(),
-                        _SupportPlatform(),
-                        _OtherRelativeStuff(),
-                      ],
-                    ),
-                  ),
-                  TabBar(
-                    isScrollable: true,
-                    tabs: [
-                      Tab(text: localizations.technologyStack),
-                      Tab(text: localizations.programmingLanguage),
-                      Tab(text: localizations.supportedPlatform),
-                      Tab(text: localizations.otherRelatedStuff),
-                    ],
-                  ),
-                ],
+        child: DefaultTabController(
+          length: 4,
+          child: CustomScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: TabBar(
+                  isScrollable: true,
+                  tabs: [
+                    Tab(text: localizations.technologyStack),
+                    Tab(text: localizations.programmingLanguage),
+                    Tab(text: localizations.supportedPlatform),
+                    Tab(text: localizations.otherRelatedStuff),
+                  ],
+                ),
               ),
-            ),
+              const SliverFillRemaining(
+                child: TabBarView(
+                  children: const [
+                    _TechnologyStackCard(),
+                    _ProgrammingLanguage(),
+                    _SupportPlatform(),
+                    _OtherRelativeStuff(),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
