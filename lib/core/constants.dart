@@ -24,6 +24,9 @@ class Constants {
   static const AssetImage jinanLogoImage =
       AssetImage("assets/images/jinan.png");
 
+  static const AssetImage myDevelopmentImage =
+      AssetImage("assets/images/myDevelopment.jpg");
+
   static const AssetImage dartLogoImage = AssetImage("assets/images/dart.png");
   static const AssetImage tensorflowLogoImage =
       AssetImage("assets/images/tensorflow.png");

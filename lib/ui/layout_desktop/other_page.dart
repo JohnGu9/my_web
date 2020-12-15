@@ -320,21 +320,21 @@ class _More extends StatelessWidget {
                   ),
                 ),
               ),
-              GroupAnimationService.client(
-                builder: _animatedItemBuilder,
-                child: _Effect(
-                  child: Card(
-                    elevation: 0.0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        title: Text(localization.attention),
-                        subtitle: Text(localization.attentionDescription),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // GroupAnimationService.client(
+              //   builder: _animatedItemBuilder,
+              //   child: _Effect(
+              //     child: Card(
+              //       elevation: 0.0,
+              //       child: Padding(
+              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+              //         child: ListTile(
+              //           title: Text(localization.attention),
+              //           subtitle: Text(localization.attentionDescription),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

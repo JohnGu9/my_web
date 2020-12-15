@@ -147,15 +147,7 @@ class _More extends StatelessWidget {
               subtitle: Text(localization.born),
             ),
           ),
-          Card(
-            elevation: 0.0,
-            child: ListTile(
-              title: const Text('Visual Studio Code'),
-              trailing: const Icon(Icons.developer_mode),
-              subtitle: Text('${localization.favorite} IDE'),
-            ),
-          ),
-          Card(
+          const Card(
             elevation: 0.0,
             child: ListTile(
               title: const Text('English'),
@@ -164,16 +156,85 @@ class _More extends StatelessWidget {
               ),
             ),
           ),
-          Card(
-            elevation: 0.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ListTile(
-                title: Text(localization.attention),
-                subtitle: Text(localization.attentionDescription),
-              ),
-            ),
+          const _MyDevelopment(),
+
+          // Card(
+          //   elevation: 0.0,
+          //   child: Padding(
+          //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+          //     child: ListTile(
+          //       title: Text(localization.attention),
+          //       subtitle: Text(localization.attentionDescription),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyDevelopment extends StatefulWidget {
+  const _MyDevelopment({Key key}) : super(key: key);
+
+  @override
+  __MyDevelopmentState createState() => __MyDevelopmentState();
+}
+
+class __MyDevelopmentState extends State<_MyDevelopment>
+    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
+  AnimationController _controller;
+  bool _isOpened;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, value: 1);
+    _isOpened = true;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localization = StandardLocalizations.of(context);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 0.0,
+      child: Column(
+        children: [
+          ListTile(
+            onTap: () {
+              _isOpened = !_isOpened;
+              _controller.animationWithSpring(spring, _isOpened ? 1 : 0);
+            },
+            title: const Text('Visual Studio Code'),
+            trailing: const Icon(Icons.code),
+            subtitle: Text('${localization.favorite} IDE'),
           ),
+          SizeTransition(
+            sizeFactor: _controller,
+            axis: Axis.vertical,
+            child: Stack(
+              children: [
+                const Image(
+                  image: Constants.myDevelopmentImage,
+                  width: double.infinity,
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Icon(Icons.build_circle, size: 48),
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

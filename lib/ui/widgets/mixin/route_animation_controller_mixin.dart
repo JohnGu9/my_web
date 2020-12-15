@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 extension SpringAnimationController on AnimationController {
-  TickerFuture animationWithSpring(SpringDescription spring, double value) {
-    return animateWith(SpringSimulation(spring, this.value, value, velocity));
+  TickerFuture animationWithSpring(SpringDescription spring, double value,
+      {double velocity}) {
+    return animateWith(
+        SpringSimulation(spring, this.value, value, velocity ?? this.velocity));
   }
 }
 
@@ -15,14 +17,24 @@ mixin RouteAnimationController<T extends StatefulWidget>
 
   Function() _ensureHistoryEntryRemove;
 
+  open([double velocity]) {
+    _ensureHistoryEntry();
+    return controller.animationWithSpring(spring, 1, velocity: velocity);
+  }
+
+  close([double velocity]) {
+    _ensureHistoryEntryRemove();
+    return controller.animationWithSpring(spring, 0, velocity: velocity);
+  }
+
   void _animationStatusChanged(AnimationStatus status) {
     switch (status) {
       case AnimationStatus.forward:
       case AnimationStatus.reverse:
-        if (_historyEntry == null)
-          _ensureHistoryEntry();
-        else
-          _ensureHistoryEntryRemove();
+        // if (_historyEntry == null)
+        //   _ensureHistoryEntry();
+        // else
+        //   _ensureHistoryEntryRemove();
         break;
 
       case AnimationStatus.dismissed:

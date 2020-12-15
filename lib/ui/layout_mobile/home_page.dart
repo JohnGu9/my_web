@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,7 +34,7 @@ class _HomePageState extends State<HomePage>
   Widget Function(BuildContext) _builder;
 
   _showBottomSheet(Widget Function(BuildContext) builder) {
-    controller.animationWithSpring(spring, 1);
+    open();
     setState(() {
       _builder = builder;
     });
@@ -259,7 +260,9 @@ class _FullScreenButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final channel = NativeChannel.of(context);
     final platformService = PlatformService.of(context);
-    if (!channel.isWeb || platformService.isIOS // IOS js vm can't go fullscreen
+    if (!channel.isWeb ||
+            platformService
+                .isIOS // IOS js vm don't support standard html5 and can't go fullscreen
         ) return const SizedBox();
     final fullscreen = channel.fullscreenChanged;
     return ValueListenableBuilder<bool>(
@@ -293,6 +296,106 @@ class _HomePage extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant _HomePage oldWidget) {
     return state != oldWidget.state;
+  }
+}
+
+@Deprecated(
+    'It\'s a framework bug that [DragGestureRecognizer] can\'t receive event while any CustomScrollView nested inside it. '
+    'Waiting for fix, issue on https://github.com/flutter/flutter/issues/39389 '
+    'This widget is working for gesture that close HomePage BottomSheet. ')
+class _BottomSheet extends StatefulWidget {
+  const _BottomSheet({Key key, this.builder}) : super(key: key);
+  final Widget Function(BuildContext context) builder;
+
+  @override
+  __BottomSheetState createState() => __BottomSheetState();
+}
+
+class __BottomSheetState extends State<_BottomSheet> {
+  bool _gestureEnable;
+  DragGestureRecognizer _recognizer;
+  Size _size;
+  _HomePageState _state;
+
+  @override
+  void initState() {
+    super.initState();
+    _gestureEnable = true;
+    _recognizer = VerticalDragGestureRecognizer()
+      ..onStart = _onStart
+      ..onUpdate = _onUpdate
+      ..onEnd = _onEnd
+      ..onCancel = _onCancel;
+  }
+
+  @override
+  void dispose() {
+    _recognizer.dispose();
+    super.dispose();
+  }
+
+  bool _onNotification(ScrollNotification notification) {
+    if (notification is ScrollEndNotification ||
+        notification is UserScrollNotification) {
+      final metrics = notification.metrics;
+      _gestureEnable = metrics.pixels == metrics.minScrollExtent;
+    }
+    return false;
+  }
+
+  _onPointerDown(PointerDownEvent event) {
+    if (mounted && _gestureEnable) {
+      _recognizer.addPointer(event);
+    }
+  }
+
+  _onStart(DragStartDetails details) {
+    if (!mounted) return;
+    print('_onStart');
+    _state = HomePage.of(context).state;
+    assert(_state != null);
+    final renderBox = context.findRenderObject() as RenderBox;
+    _size = renderBox.size;
+  }
+
+  _onUpdate(DragUpdateDetails details) {
+    if (!mounted) return;
+    print('_onUpdate');
+    assert(_state != null);
+    final delta = details.delta.dy / _size.height;
+    _state.controller.value = (_state.controller.value - delta)
+        .clamp(_state.controller.lowerBound, _state.controller.upperBound);
+  }
+
+  _onEnd(DragEndDetails details) {
+    print('_onEnd');
+    assert(_state != null);
+    if (details.velocity.pixelsPerSecond.dy > 10) {
+      final delta = -details.velocity.pixelsPerSecond.dy / _size.height;
+      HomePage.of(context).state.close(delta);
+    }
+    _state = null;
+  }
+
+  _onCancel() {
+    print('_onCancel');
+    assert(_state != null);
+    if (_state.controller.value > 0.4)
+      _state.open();
+    else
+      _state.close();
+    _state = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: _onPointerDown,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onNotification,
+        child: widget.builder(context),
+      ),
+    );
   }
 }
 

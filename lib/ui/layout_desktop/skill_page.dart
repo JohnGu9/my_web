@@ -358,7 +358,7 @@ class _SupportPlatform extends StatelessWidget {
                         child: Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: [
+                          children: const [
                             const Chip(
                               label: const Text('Flutter'),
                             ),
@@ -392,7 +392,7 @@ class _SupportPlatform extends StatelessWidget {
                         child: Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: [
+                          children: const [
                             const Chip(
                               avatar: const Icon(Icons.developer_board),
                               label: const Text('STM32'),
@@ -412,7 +412,7 @@ class _SupportPlatform extends StatelessWidget {
                         child: Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: [
+                          children: const [
                             const Chip(
                               avatar: const Icon(Icons.desktop_windows),
                               label: const Text('Windows'),
@@ -445,7 +445,7 @@ class _SupportPlatform extends StatelessWidget {
                         child: Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: [
+                          children: const [
                             const Tooltip(
                               message:
                                   "I only have android phones when I was a student. Sorry IOS. ",
@@ -461,7 +461,23 @@ class _SupportPlatform extends StatelessWidget {
                   ),
                 ),
                 Card(
-                  child: ListTile(title: const Text("Web")),
+                  child: Column(
+                    children: [
+                      ListTile(title: const Text("Web")),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: const [
+                            const Chip(label: const Text('Flutter')),
+                            const Chip(label: const Text('NodeJS')),
+                            const Chip(label: const Text('Angular')),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Card(
                   child: ListTile(title: const Text("FPGA")),
@@ -530,7 +546,11 @@ class _OtherStuff extends StatelessWidget {
                           spacing: 4,
                           runSpacing: 4,
                           children: const [
-                            const Chip(label: const Text('Swift')),
+                            Tooltip(
+                              message:
+                                  'I can do some IOS job, but can\'t be fast as Android',
+                              child: const Chip(label: const Text('Swift')),
+                            ),
                             const Chip(label: const Text('Rust')),
                             const Chip(label: const Text('Go')),
                             const Chip(label: const Text('Kubernetes')),

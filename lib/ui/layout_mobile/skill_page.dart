@@ -115,20 +115,34 @@ class _ProgrammingLanguage extends StatelessWidget {
   const _ProgrammingLanguage({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final localization = StandardLocalizations.of(context);
     final languages = _content.keys.toList();
-    return ListView.builder(
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
       itemCount: languages.length,
       itemBuilder: (BuildContext context, int index) {
         final language = languages[index];
-        return Tooltip(
-          message: localization.tapAndExplore,
-          child: Card(
-            child: ListTile(
-              title: Text(language),
-              onTap: () {
-                return _showProgramLanguagePage(context, language);
-              },
+        final data = _content[language];
+        return Card(
+          child: InkWell(
+            onTap: () {
+              return _showProgramLanguagePage(context, language);
+            },
+            child: FractionallySizedBox(
+              alignment: Alignment.center,
+              heightFactor: 3 / 4,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: data.logo,
+                    ),
+                  ),
+                  Text(language),
+                ],
+              ),
             ),
           ),
         );
@@ -153,23 +167,29 @@ class _SupportPlatform extends StatelessWidget {
                 child: Wrap(
                   spacing: 4,
                   runSpacing: 4,
-                  children: [
+                  children: const [
                     const Chip(
+                      avatar: FlutterLogo(),
                       label: const Text('Flutter'),
                     ),
                     const Chip(
+                      avatar: Image(image: Constants.qtLogoImage),
                       label: const Text('PyQt5'),
                     ),
                     const Chip(
+                      avatar: Image(image: Constants.opencvLogoImage),
                       label: const Text('OpenCV'),
                     ),
                     const Chip(
+                      avatar: Image(image: Constants.tensorflowLogoImage),
                       label: const Text('Tensorflow'),
                     ),
                     const Chip(
+                      avatar: Image(image: Constants.flaskLogoImage),
                       label: const Text('Flask'),
                     ),
                     const Chip(
+                      avatar: Image(image: Constants.electronLogoImage),
                       label: const Text('Electron'),
                     ),
                   ],
@@ -187,7 +207,7 @@ class _SupportPlatform extends StatelessWidget {
                 child: Wrap(
                   spacing: 4,
                   runSpacing: 4,
-                  children: [
+                  children: const [
                     const Chip(
                       avatar: const Icon(Icons.developer_board),
                       label: const Text('STM32'),
@@ -207,7 +227,7 @@ class _SupportPlatform extends StatelessWidget {
                 child: Wrap(
                   spacing: 4,
                   runSpacing: 4,
-                  children: [
+                  children: const [
                     const Chip(
                       avatar: const Icon(Icons.desktop_windows),
                       label: const Text('Windows'),
@@ -238,7 +258,7 @@ class _SupportPlatform extends StatelessWidget {
                 child: Wrap(
                   spacing: 4,
                   runSpacing: 4,
-                  children: [
+                  children: const [
                     const Tooltip(
                       message:
                           "I only have android phones when I was a student. Sorry IOS. ",
@@ -254,9 +274,31 @@ class _SupportPlatform extends StatelessWidget {
           ),
         ),
         Card(
-          child: ListTile(title: const Text("Web")),
+          child: Column(
+            children: [
+              ListTile(title: const Text("Web")),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: const [
+                    const Chip(
+                      avatar: const FlutterLogo(),
+                      label: const Text('Flutter'),
+                    ),
+                    const Chip(
+                      avatar: Image(image: Constants.nodejsLogoImage),
+                      label: const Text('NodeJS'),
+                    ),
+                    const Chip(label: const Text('Angular')),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        Card(
+        const Card(
           child: ListTile(title: const Text("FPGA")),
         ),
       ],
@@ -305,10 +347,26 @@ class _OtherRelativeStuff extends StatelessWidget {
                   spacing: 4,
                   runSpacing: 4,
                   children: const [
-                    const Chip(label: const Text('Swift')),
-                    const Chip(label: const Text('Rust')),
-                    const Chip(label: const Text('Go')),
-                    const Chip(label: const Text('Kubernetes')),
+                    Tooltip(
+                      message:
+                          'I can do some IOS job, but can\'t be fast as Android',
+                      child: const Chip(
+                        avatar: Image(image: Constants.swiftLogoImage),
+                        label: const Text('Swift'),
+                      ),
+                    ),
+                    const Chip(
+                      avatar: Image(image: Constants.rustLogoImage),
+                      label: const Text('Rust'),
+                    ),
+                    const Chip(
+                      avatar: Image(image: Constants.goLogoImage),
+                      label: const Text('Go'),
+                    ),
+                    const Chip(
+                      avatar: Image(image: Constants.k8sLogoImage),
+                      label: const Text('Kubernetes'),
+                    ),
                   ],
                 ),
               ),
@@ -351,9 +409,6 @@ class _OtherRelativeStuff extends StatelessWidget {
 }
 
 _showProgramLanguagePage(BuildContext context, String language) {
-  final borderRadius =
-      ((Theme.of(context).cardTheme.shape as RoundedRectangleBorder)
-          .borderRadius as BorderRadius);
   final data = _content[language];
   return ScopeNavigator.of(context).push(ScopePageRoute(
     builder: (context, animation, secondaryAnimation) {
@@ -362,16 +417,10 @@ _showProgramLanguagePage(BuildContext context, String language) {
           begin: const Offset(1, 0),
           end: const Offset(0, 0),
         ).animate(animation),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Material(
-            elevation: 8.0,
-            borderRadius: BorderRadius.only(
-                topLeft: borderRadius.topLeft,
-                bottomLeft: borderRadius.bottomLeft),
-            clipBehavior: Clip.hardEdge,
-            child: _ProgramLanguagePage(data: data),
-          ),
+        child: Material(
+          elevation: 8.0,
+          clipBehavior: Clip.hardEdge,
+          child: _ProgramLanguagePage(data: data),
         ),
       );
     },
@@ -390,7 +439,7 @@ class _ProgramLanguagePage extends StatelessWidget {
         SliverAppBar(
           pinned: true,
           leading: IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.arrow_back_ios),
             onPressed: () {
               final navigator = ScopeNavigator.of(context);
               if (navigator.canPop()) navigator.pop();

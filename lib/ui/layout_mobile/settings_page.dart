@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+
 import 'package:my_web/core/core.dart';
-import 'package:my_web/ui/dialogs/alert_dialog.dart';
-import 'package:my_web/ui/dialogs/change_locale_dialog.dart';
 import 'package:my_web/ui/dialogs/dialogs.dart';
 
 class SettingsPage extends StatelessWidget {
