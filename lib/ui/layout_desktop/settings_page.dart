@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'package:my_web/core/core.dart';
 
@@ -58,7 +57,7 @@ class _ThemeEditTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.brightness_4),
       title: Text(StandardLocalizations.of(context).darkTheme),
-      trailing: PlatformSwitch(
+      trailing: Switch.adaptive(
         value: theme.brightness == Brightness.dark,
         onChanged: (value) {
           final service = ThemeService.of(context);

@@ -2,13 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:my_web/core/constants.dart';
 import 'package:my_web/core/core.dart';
 import 'package:my_web/core/native/native_channel.dart';
 import 'package:my_web/ui/dialogs/dialogs.dart';
-import 'package:my_web/ui/widgets/animated_safe_area.dart';
-import 'package:my_web/ui/widgets/scope_navigator.dart';
-import 'package:my_web/ui/widgets/mixin/route_animation_controller_mixin.dart';
+import 'package:my_web/ui/widgets/widgets.dart';
 
 import 'other_page.dart';
 import 'settings_page.dart';

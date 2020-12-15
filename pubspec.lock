@@ -81,13 +81,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_platform_widgets:
-    dependency: "direct main"
-    description:
-      name: flutter_platform_widgets
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.71.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -106,7 +99,7 @@ packages:
     source: hosted
     version: "0.2.0"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       url: "https://pub.dartlang.org"
@@ -243,13 +236,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sliver_tools:
-    dependency: "direct main"
-    description:
-      name: sliver_tools
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.9"
   source_span:
     dependency: transitive
     description:

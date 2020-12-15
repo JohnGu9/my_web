@@ -13,7 +13,7 @@ class ThemeService extends StatefulWidget {
   }
 
   static const _shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16.0)));
+      borderRadius: BorderRadius.all(Radius.circular(12.0)));
   static const _cardTheme = CardTheme(shape: _shape);
 
   static final lightTheme = ThemeData(

@@ -10,5 +10,6 @@ export 'delay_show.dart';
 export 'transition_barrier.dart';
 export 'context_menu.dart';
 export 'rive_board.dart';
+export 'animated_safe_area.dart';
 
 export 'mixin/mixin.dart';

@@ -1,5 +1,5 @@
 name: my_web
-description: A new Flutter project.
+description: A Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -25,12 +25,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl:
   js:
-  flutter_platform_widgets:
-  listenable_list:
-  sliver_tools:
   rive:
+  listenable_list:
 
   url_launcher:
   url_launcher_web:
@@ -51,7 +48,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-  generate: true
+  # generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
