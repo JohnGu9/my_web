@@ -45,7 +45,6 @@ class _MainActivityState extends State<MainActivity>
         precacheImage(Constants.backgroundImage, context),
         precacheImage(Constants.otherImage, context),
         precacheImage(Constants.skillImage, context),
-        precacheImage(Constants.jinanLogoImage, context),
       ]);
 
       /// no need to check [mounted]. If state is not mounted, the app don't run at all.

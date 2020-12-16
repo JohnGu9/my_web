@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'flutter_version.dart';
 
 class Constants {
-  static const String version = "0.1.1";
+  static const String buildVersion = "0.1.1";
+  static String get frameworkVersion => version['frameworkVersion'];
+  static String get channel => version['channel'];
+  static String get repositoryUrl => version['repositoryUrl'];
+  static String get frameworkRevision => version['frameworkRevision'];
+  static String get frameworkCommitDate => version['frameworkCommitDate'];
+  static String get engineRevision => version['engineRevision'];
+  static String get dartSdkVersion => version['dartSdkVersion'];
+
   static const AssetImage personLogoImage =
       AssetImage("assets/images/logo.png");
   static const AssetImage githubLogoImage =

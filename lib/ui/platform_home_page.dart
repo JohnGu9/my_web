@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/core/core.dart';
 
-import 'layout_desktop/layout_desktop.dart' as Desktop;
-import 'layout_mobile/layout_mobile.dart' as Mobile;
+import 'layout_desktop/layout_desktop.dart' as desktop;
+import 'layout_mobile/layout_mobile.dart' as mobile;
 
 class PlatformHomePage extends StatelessWidget {
   const PlatformHomePage({Key key}) : super(key: key);
@@ -10,6 +10,6 @@ class PlatformHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = PlatformService.of(context).isMobile;
-    return isMobile ? const Mobile.HomePage() : const Desktop.HomePage();
+    return isMobile ? const mobile.HomePage() : const desktop.HomePage();
   }
 }

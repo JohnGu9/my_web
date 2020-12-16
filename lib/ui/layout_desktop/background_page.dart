@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
-import 'package:my_web/core/constants.dart';
+import 'package:my_web/core/basic/constants.dart';
 import 'package:my_web/core/services/group_animation_service.dart';
 import 'package:my_web/core/services/locale_service.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';

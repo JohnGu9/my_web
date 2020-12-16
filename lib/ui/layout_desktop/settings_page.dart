@@ -326,7 +326,7 @@ class _AboutTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.info),
       title: Text(StandardLocalizations.of(context).about),
-      subtitle: Text(Constants.version),
+      subtitle: Text(Constants.buildVersion),
       onTap: () {
         return ScopeNavigator.of(context).push(ScopePageRoute(
           builder: (context, animation, secondaryAnimation) {
@@ -369,16 +369,21 @@ class _AboutBottomSheet extends StatelessWidget {
               ),
               ListTile(
                 title: Text(localization.version),
-                trailing: Text(Constants.version),
+                trailing: Text(Constants.buildVersion),
               ),
               Tooltip(
                 message: localization.visit,
                 child: ListTile(
-                  title: Text(localization.framework),
+                  title: const Text(
+                    'Flutter',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   trailing: const FlutterLogo(),
+                  subtitle: Text(Constants.frameworkVersion),
                   onTap: () {
-                    const url = 'https://flutter.dev';
-                    return showVisitWebsiteDialog(context, url);
+                    return showVisitWebsiteDialog(
+                        context, Constants.repositoryUrl);
                   },
                 ),
               ),

@@ -136,7 +136,7 @@ class _ProgrammingLanguage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: data.logo,
                     ),
                   ),
@@ -447,7 +447,6 @@ class _ProgramLanguagePage extends StatelessWidget {
           ),
           expandedHeight: 200,
           flexibleSpace: FlexibleSpaceBar(
-            title: Text(data.name),
             centerTitle: false,
             background: Padding(
               padding: const EdgeInsets.all(16.0),

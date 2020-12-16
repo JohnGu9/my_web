@@ -238,7 +238,19 @@ class _About extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: Text(Constants.version),
+          trailing: const Text(Constants.buildVersion),
+        ),
+        ListTile(
+          title: const Text(
+            'Flutter',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: const FlutterLogo(),
+          subtitle: Text(Constants.frameworkVersion),
+          onTap: () {
+            return showVisitWebsiteDialog(context, Constants.repositoryUrl);
+          },
         ),
         Tooltip(
           message: localizations.visit,

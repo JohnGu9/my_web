@@ -297,7 +297,7 @@ class _HomePage extends InheritedWidget {
 }
 
 @Deprecated(
-    'It\'s a framework bug that [DragGestureRecognizer] can\'t receive event while any CustomScrollView nested inside it. '
+    'It\'s a framework bug that [DragGestureRecognizer] can\'t receive event while any CustomScrollView nest inside it. '
     'Waiting for fix, issue on https://github.com/flutter/flutter/issues/39389 '
     'This widget is working for gesture that close HomePage BottomSheet. ')
 class _BottomSheet extends StatefulWidget {
@@ -616,8 +616,17 @@ class _Card extends StatelessWidget {
                   builder: (context, animation, secondaryAnimation) {
                     return AnimatedSafeArea(
                       animation: animation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      child: AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) {
+                          return Padding(
+                            padding: EdgeInsetsTween(
+                              begin: const EdgeInsets.all(16.0),
+                              end: const EdgeInsets.all(6.0),
+                            ).evaluate(animation),
+                            child: child,
+                          );
+                        },
                         child: Material(
                           elevation: elevation,
                           shape: theme.cardTheme.shape,
@@ -628,7 +637,8 @@ class _Card extends StatelessWidget {
                                 children: [
                                   Image(
                                     image: image,
-                                    color: Color.fromRGBO(255, 255, 255, 0.3),
+                                    color: const Color.fromRGBO(
+                                        255, 255, 255, 0.3),
                                     colorBlendMode: BlendMode.modulate,
                                     fit: BoxFit.cover,
                                     height: 180,
@@ -690,7 +700,7 @@ class _Card extends StatelessWidget {
               children: [
                 Image(
                   image: image,
-                  color: Color.fromRGBO(255, 255, 255, 0.3),
+                  color: const Color.fromRGBO(255, 255, 255, 0.3),
                   colorBlendMode: BlendMode.modulate,
                   fit: BoxFit.cover,
                   height: 180,
