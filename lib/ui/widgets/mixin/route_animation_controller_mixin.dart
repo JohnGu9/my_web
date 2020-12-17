@@ -15,7 +15,7 @@ mixin RouteAnimationController<T extends StatefulWidget>
   LocalHistoryEntry _historyEntry;
   SpringDescription get spring;
 
-  Function() _ensureHistoryEntryRemove;
+  Function() _ensureHistoryEntryRemove = () {};
 
   open([double velocity]) {
     _ensureHistoryEntry();
@@ -76,6 +76,7 @@ mixin RouteAnimationController<T extends StatefulWidget>
   @override
   void dispose() {
     controller.dispose();
+    _ensureHistoryEntryRemove();
     super.dispose();
   }
 }

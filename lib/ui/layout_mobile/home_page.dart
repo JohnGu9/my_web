@@ -207,9 +207,8 @@ class _HomePageState extends State<HomePage>
                             child: IconButton(
                               tooltip: 'GitHub',
                               icon: const Image(
-                                image: Constants.githubLogoImage,
-                                fit: BoxFit.contain,
-                              ),
+                                  image: Constants.githubLogoImage,
+                                  fit: BoxFit.contain),
                               onPressed: () {
                                 const url = 'https://github.com/JohnGu9';
                                 showVisitWebsiteDialog(context, url);
@@ -225,9 +224,8 @@ class _HomePageState extends State<HomePage>
                             child: IconButton(
                               tooltip: 'Medium',
                               icon: const Image(
-                                image: Constants.mediumLogoImage,
-                                fit: BoxFit.contain,
-                              ),
+                                  image: Constants.mediumLogoImage,
+                                  fit: BoxFit.contain),
                               onPressed: () {
                                 const url = 'https://johngu9.medium.com/';
                                 showVisitWebsiteDialog(context, url);

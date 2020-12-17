@@ -48,7 +48,7 @@ class _MainActivityState extends State<MainActivity>
       ]);
 
       /// no need to check [mounted]. If state is not mounted, the app don't run at all.
-      _controller.animateTo(1.0, duration: const Duration(milliseconds: 750));
+      _controller.animateTo(1.0, duration: const Duration(milliseconds: 700));
     }();
   }
 
@@ -89,7 +89,7 @@ class _MainActivityState extends State<MainActivity>
                             return const SizedBox();
                           return FadeTransition(
                             opacity: _controller,
-                            child: PlatformHomePage(),
+                            child: const PlatformHomePage(),
                           );
                         },
                       ),

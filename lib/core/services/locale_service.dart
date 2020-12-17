@@ -230,8 +230,6 @@ class StandardLocalizations {
       "born": "Born",
       "favorite": "Favorite",
       "contactMe": "Contact Me",
-      "attention": "Attention",
-      "@attentionDescription": _attentionDescriptionEN,
 
       // background page
       "university": "University",
@@ -314,8 +312,6 @@ class StandardLocalizations {
       "born": "出生",
       "favorite": "最爱",
       "contactMe": "联系我",
-      "attention": "注意",
-      "@attentionDescription": _attentionDescriptionZH,
 
       // background page
       "university": "大学",
@@ -664,14 +660,6 @@ class StandardLocalizations {
   String get electronicProduction {
     return _localize['electronicProduction'];
   }
-
-  String get attention {
-    return _localize['attention'];
-  }
-
-  String get attentionDescription {
-    return _localize['@attentionDescription'];
-  }
 }
 
 class StandardLocalizationsDelegate
@@ -700,7 +688,7 @@ class StandardLocalizationsDelegate
 
 const _myAdvantageDescriptionEN = '''Wide technology support. 
 
-  I can offer multi techniques support and technology integration. In a most common problem, different staff from different tech divisions can communication between each other because of lack tech background knowledge of side other. 
+  I can offer multi techniques support and technology integration. In a most common problem, different staff from different tech divisions can't communication between each other because of lack tech background knowledge of side other. But I would not.
   Although I can't use all this technique as skilled as a dedicated pro technical staff at the beginning, I can switch among and into them easily. I can develop any projects of my felids. 
   But that is not meaning I can't develop independently. I can develop as normal developer alone, bundle all the stuff together and distribute a full production. 
 ''';
@@ -737,18 +725,9 @@ const _machineLearningAndAIDescriptionZH = '''我了解一点点。我熟悉机�
 
 const _myExpectationDescriptionEN =
     ''' I don't want to be only certain developer. I want to try and deep dive into every direction technology. And bundle them together. The road is more suitable for my style and my major. 
-  As long as enough freedom of development for me, I can handle almost normal everything by myself (except center or complex problems). I'm suitable for development only. 
+  As long as enough freedom of development for me, I can handle almost every normal thing by myself (except center or complex problems). I'm suitable for development only. 
   And image processing is my most interesting felid. I'm glad to join into the felid and offer my ability. ''';
 const _myExpectationDescriptionZH =
     ''' 我不希望仅仅只从事某一方面的开发。我希望可以尝试和深入每个方面的技术，并整合它们到一起。这样的方向才更符合我的风格和我的专业方向。
   只要给我足够的开发自由度，一般的问题（不涉及顶尖复杂的学术问题）我自己一个人就能解决。（我只适合开发）
   当然图像处理是我最感兴趣的领域，我会很高兴加入这个领域并做出我的贡献。''';
-
-const _attentionDescriptionEN = 'Don\'t expect me to be cheap. '
-    'IoT salary is to be over 10k yuan monthly in average in China. Don\'t disturb me with less than 200k annually. '
-    'And don\'t ask me some question do nothing with my profession or my ability in the interview. Just tell how much you can pay directly. '
-    'If you consider me not suitable for your company, just tell me directly in the interview. I wouldn\'t waste time to wait for the feedback by phone. ';
-const _attentionDescriptionZH = '我不会很掉价的。'
-    'IoT本科毕业的行业平均月薪都在1万以上，少于20万年薪的话就不要来打扰我了。'
-    '也请不要在面试时问我一些和我专业或者技能毫不相关的东西。就直接告诉我你们能出多少，不用拐着弯来问我。'
-    '如果你觉得我不适合你们公司，也请在面试时直接告诉我，我不会去浪费时间去等你们电话反馈。';
