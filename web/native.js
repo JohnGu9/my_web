@@ -33,6 +33,9 @@ function onInvokeMethod(obj) {
         case 'getBrowserType':
             return getBrowserType(obj.arguments);
 
+        case 'installPWA':
+            return installPWA(obj.arguments);
+
         default:
             return console.log('NoSuchMethod');
     };
@@ -73,9 +76,22 @@ class FileDescriptor {
     }
 }
 
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+});
+
+const installPWA = (args) => {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => { args.callback(choiceResult.outcome === 'accepted') });
+}
+
 const isMobile = (args) => {
     args.callback(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 }
+
 function isIOS(args) {
     args.callback(
         [
@@ -94,67 +110,62 @@ function isIOS(args) {
 const getBrowserType = (args) => {
     if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1)
         return args.callback('Opera');
-
     else if (navigator.userAgent.indexOf("Chrome") != -1)
         return args.callback('Chrome');
-
     else if (navigator.userAgent.indexOf("Safari") != -1)
         return args.callback('Safari');
-
     else if (navigator.userAgent.indexOf("Firefox") != -1)
         return args.callback('Firefox');
-
     else if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)) //IF IE > 10
-
         return args.callback('IE');
-
     else
         return args.callback('unknown');
 
 }
 
-const readFileAsync = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => { resolve(reader.result) }
-        reader.onerror = reject
-        reader.readAsArrayBuffer(file)
-    })
-}
 
-const inputFile = (multiple, accept) => {
-    return new Promise((resolve) => {
-        const input = document.createElement('input')
-        input.type = 'file';
-        if (multiple != null) input.multiple = multiple
-        if (accept != null) input.accept = accept
+const loadFileAsync = async (multiple, accept) => {
+    const readFileAsync = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => { resolve(reader.result) }
+            reader.onerror = reject
+            reader.readAsArrayBuffer(file)
+        })
+    }
 
-        let fileList = null;
-        const cache = document.body.onfocus;
+    const inputFile = (multiple, accept) => {
+        return new Promise((resolve) => {
+            const input = document.createElement('input')
+            input.type = 'file';
+            if (multiple != null) input.multiple = multiple
+            if (accept != null) input.accept = accept
 
-        input.onchange = async (event) => {
-            if (fileList === null) {
-                fileList = event.target.files
-                resolve(fileList)
-            }
-        }
-        input.onclick = () => {
-            document.body.onfocus = async () => {
-                document.body.onfocus = cache;
-                await delay(350)
+            let fileList = null;
+            const cache = document.body.onfocus;
+
+            input.onchange = async (event) => {
                 if (fileList === null) {
-                    console.log('Read-files timeout. ')
-                    fileList = []
+                    fileList = event.target.files
                     resolve(fileList)
                 }
             }
-        }
+            input.onclick = () => {
+                document.body.onfocus = async () => {
+                    document.body.onfocus = cache;
+                    await delay(350)
+                    if (fileList === null) {
+                        console.log('Read-files timeout. ')
+                        fileList = []
+                        resolve(fileList)
+                    }
+                }
+            }
 
-        input.click()
-    })
-}
+            input.click()
+        })
+    }
 
-const loadFileAsync = async (multiple, accept) => {
     const fileList = await inputFile(multiple, accept)
     const res = []
     for (let i = 0; i < fileList.length; i++) {

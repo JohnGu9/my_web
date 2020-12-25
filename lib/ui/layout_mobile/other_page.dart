@@ -102,11 +102,11 @@ class _MyExpectation extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppBar(
+              elevation: 0.0,
               centerTitle: false,
               automaticallyImplyLeading: false,
-              title: Text(localization.myExpectation),
-              elevation: 0.0,
               backgroundColor: Colors.transparent,
+              title: Text(localization.myExpectation),
               textTheme: theme.textTheme),
           Card(
             elevation: 0.0,
@@ -132,9 +132,9 @@ class _More extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppBar(
+            elevation: 0.0,
             centerTitle: false,
             automaticallyImplyLeading: false,
-            elevation: 0.0,
             backgroundColor: Colors.transparent,
             title: Text(localization.more),
             textTheme: theme.textTheme,
@@ -150,24 +150,11 @@ class _More extends StatelessWidget {
           const Card(
             elevation: 0.0,
             child: ListTile(
-              title: const Text('English'),
-              trailing: const Chip(
-                label: Text('CET 4'),
-              ),
+              title: Text('English'),
+              trailing: Chip(label: Text('CET 4')),
             ),
           ),
           const _MyDevelopment(),
-
-          // Card(
-          //   elevation: 0.0,
-          //   child: Padding(
-          //     padding: const EdgeInsets.symmetric(vertical: 8.0),
-          //     child: ListTile(
-          //       title: Text(localization.attention),
-          //       subtitle: Text(localization.attentionDescription),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -225,11 +212,11 @@ class __MyDevelopmentState extends State<_MyDevelopment>
                   image: Constants.myDevelopmentImage,
                   width: double.infinity,
                 ),
-                Align(
+                const Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Icon(Icons.build_circle, size: 48),
+                    child: Icon(Icons.build_circle, size: 48),
                   ),
                 ),
               ],

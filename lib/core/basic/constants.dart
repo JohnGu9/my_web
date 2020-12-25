@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'flutter_version.dart';
 
 class Constants {
-  static const String buildVersion = "0.1.1";
+  static const String buildVersion = "0.1.3-pre";
   static String get frameworkVersion => version['frameworkVersion'];
   static String get channel => version['channel'];
   static String get repositoryUrl => version['repositoryUrl'];

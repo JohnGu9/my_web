@@ -18,7 +18,7 @@
         },
         {
             "label": "Build release with hardware accelerate",
-            "command": "flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true --release",
+            "command": "flutter build web --web-renderer canvaskit --release",
             "args": [],
             "type": "shell",
             "dependsOn": [

@@ -31,9 +31,9 @@ class _HomePageState extends State<HomePage>
   Widget Function(BuildContext) _builder;
 
   _showBottomSheet(Widget Function(BuildContext) builder) {
-    open();
     setState(() {
       _builder = builder;
+      open();
     });
   }
 
@@ -193,9 +193,8 @@ class _HomePageState extends State<HomePage>
                                   theme.primaryColor.withOpacity(1.0),
                                 ])),
                             child: const Image(
-                              image: Constants.personLogoImage,
-                              fit: BoxFit.cover,
-                            ),
+                                image: Constants.personLogoImage,
+                                fit: BoxFit.cover),
                           ),
                         ),
                         actions: [
