@@ -233,7 +233,7 @@ class StandardLocalizations {
 
       // background page
       "university": "University",
-      "JNU": "JNU University",
+      "JNU": "JiNan University",
       "fourYearFullTime": "four-year full-time",
       "internetOfThings": "Internet of Things",
       // skill page

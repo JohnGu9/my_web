@@ -145,7 +145,7 @@ class __EducationState extends State<_Education>
     final theme = Theme.of(context);
     final colorTween = ColorTween(
         begin: theme.selectedRowColor.withOpacity(0.0),
-        end: theme.selectedRowColor.withOpacity(0.12));
+        end: theme.selectedRowColor.withOpacity(0.06));
     final localization = StandardLocalizations.of(context);
     final titleStyle = theme.textTheme.headline4.copyWith(color: Colors.white);
 
@@ -428,7 +428,7 @@ class __ExperimentState extends State<_Experiment>
     final titleStyle = theme.textTheme.headline4.copyWith(color: Colors.white);
     final colorTween = ColorTween(
         begin: theme.selectedRowColor.withOpacity(0.0),
-        end: theme.selectedRowColor.withOpacity(0.12));
+        end: theme.selectedRowColor.withOpacity(0.6));
     return InkWell(
       onTap: _onTap,
       onHover: _onHover,

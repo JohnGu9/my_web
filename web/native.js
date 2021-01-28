@@ -84,6 +84,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 const installPWA = (args) => {
+    if (deferredPrompt == null) return args.callback(false)
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => { args.callback(choiceResult.outcome === 'accepted') });
 }
@@ -92,7 +93,7 @@ const isMobile = (args) => {
     args.callback(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 }
 
-function isIOS(args) {
+const isIOS = (args) => {
     args.callback(
         [
             'iPad Simulator',
@@ -122,7 +123,6 @@ const getBrowserType = (args) => {
         return args.callback('unknown');
 
 }
-
 
 const loadFileAsync = async (multiple, accept) => {
     const readFileAsync = (file) => {

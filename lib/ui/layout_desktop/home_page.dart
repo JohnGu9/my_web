@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:my_web/core/core.dart';
 import 'package:my_web/core/native/native_channel.dart';
-
 import 'package:my_web/ui/widgets/widgets.dart';
 import 'package:my_web/ui/dialogs/dialogs.dart';
 
