@@ -7,10 +7,10 @@ class Region {
   final double width;
 
   const Region({
-    this.top,
-    this.left,
-    this.height,
-    this.width,
+    required this.top,
+    required this.left,
+    required this.height,
+    required this.width,
   });
 
   const Region.fromZero({
@@ -20,8 +20,8 @@ class Region {
     this.width = 0,
   });
 
-  factory Region.fromContext(BuildContext context) {
-    final renderBox = context.findRenderObject() as RenderBox;
+  static Region? fromContext(BuildContext context) {
+    final renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null) return null;
     final position = renderBox.localToGlobal(Offset.zero);
     return Region(
@@ -37,10 +37,10 @@ class Region {
   }
 
   Region copyWith({
-    final double height,
-    final double left,
-    final double top,
-    final double width,
+    final double? height,
+    final double? left,
+    final double? top,
+    final double? width,
   }) {
     return Region(
       height: height ?? this.height,

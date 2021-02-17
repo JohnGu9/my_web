@@ -3,21 +3,21 @@ import 'package:flutter/physics.dart';
 import 'package:my_web/core/services/spring_provide_service.dart';
 
 typedef AnimatedInkWellBuilder = Widget Function(
-    BuildContext context, Animation<double> animation, Widget child);
+    BuildContext context, Animation<double> animation, Widget? child);
 
 Widget _builder(
-    BuildContext context, Animation<double> animation, Widget child) {
-  return child;
+    BuildContext context, Animation<double> animation, Widget? child) {
+  return child!;
 }
 
 class AnimatedInkWell extends StatefulWidget {
   const AnimatedInkWell(
-      {Key key, this.builder = _builder, this.onTap, this.child})
+      {Key? key, this.builder = _builder, this.onTap, this.child})
       : super(key: key);
 
   final AnimatedInkWellBuilder builder;
-  final Function() onTap;
-  final Widget child;
+  final Function()? onTap;
+  final Widget? child;
 
   @override
   _AnimatedInkWellState createState() => _AnimatedInkWellState();
@@ -27,9 +27,8 @@ class _AnimatedInkWellState extends State<AnimatedInkWell>
     with
         SingleTickerProviderStateMixin<AnimatedInkWell>,
         SpringProvideStateMixin<AnimatedInkWell> {
-  AnimationController _controller;
-
-  ColorTween _colorTween;
+  late AnimationController _controller;
+  late ColorTween _colorTween;
 
   @override
   void initState() {

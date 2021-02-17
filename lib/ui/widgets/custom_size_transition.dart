@@ -3,11 +3,11 @@ import 'dart:math' as math;
 
 class CustomSizeTransition extends SizeTransition {
   CustomSizeTransition({
-    Key key,
+    Key? key,
     Axis axis = Axis.vertical,
-    @required Animation<double> sizeFactor,
+    required Animation<double> sizeFactor,
     double axisAlignment = 0.0,
-    Widget child,
+    required Widget child,
     this.crossAxisAlignment = 0.0,
   }) : super(
             key: key,

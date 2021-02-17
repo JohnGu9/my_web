@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 typedef Widget AnimationBuilder(
-    BuildContext context, AnimationController controller, Widget child);
+    BuildContext context, AnimationController controller, Widget? child);
 
 class AnimationControllerBuilder extends StatefulWidget {
   const AnimationControllerBuilder({
-    Key key,
-    @required this.builder,
+    Key? key,
+    required this.builder,
     this.child,
     this.duration,
     this.reverseDuration,
@@ -19,13 +19,13 @@ class AnimationControllerBuilder extends StatefulWidget {
     this.animationBehavior = AnimationBehavior.normal,
   }) : super(key: key);
 
-  final Widget child;
+  final Widget? child;
   final AnimationBuilder builder;
 
-  final double initialValue;
-  final Duration duration;
-  final Duration reverseDuration;
-  final String debugLabel;
+  final double? initialValue;
+  final Duration? duration;
+  final Duration? reverseDuration;
+  final String? debugLabel;
   final double lowerBound;
   final double upperBound;
   final AnimationBehavior animationBehavior;
@@ -37,7 +37,7 @@ class AnimationControllerBuilder extends StatefulWidget {
 
 class _AnimationControllerBuilderState extends State<AnimationControllerBuilder>
     with SingleTickerProviderStateMixin<AnimationControllerBuilder> {
-  AnimationController _controller;
+  late AnimationController _controller;
 
   @override
   void initState() {

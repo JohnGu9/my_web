@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class DialogTransition extends StatelessWidget {
   const DialogTransition({
-    Key key,
-    this.animation,
-    this.secondaryAnimation,
-    this.child,
+    Key? key,
+    required this.animation,
+    required this.secondaryAnimation,
+    required this.child,
   }) : super(key: key);
 
   final Animation<double> animation;

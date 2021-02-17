@@ -4,13 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageService extends StatelessWidget {
   static SharedPreferences of(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_StorageService>()
-        ?.storage;
+        .dependOnInheritedWidgetOfExactType<_StorageService>()!
+        .storage;
   }
 
   final Widget child;
 
-  const StorageService({Key key, this.child}) : super(key: key);
+  const StorageService({Key? key, required this.child}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<SharedPreferences>(
@@ -18,7 +18,7 @@ class StorageService extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) return SizedBox();
         return _StorageService(
-          storage: snapshot.data,
+          storage: snapshot.data!,
           child: child,
         );
       },
@@ -27,13 +27,14 @@ class StorageService extends StatelessWidget {
 }
 
 class _StorageService extends InheritedWidget {
-  const _StorageService({Key key, Widget child, this.storage})
+  const _StorageService(
+      {Key? key, required Widget child, required this.storage})
       : super(key: key, child: child);
 
   final SharedPreferences storage;
 
   @override
   bool updateShouldNotify(covariant _StorageService oldWidget) {
-    return oldWidget?.storage != storage;
+    return oldWidget.storage != storage;
   }
 }

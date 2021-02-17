@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ContextMenu extends StatefulWidget {
-  const ContextMenu({Key key, this.child}) : super(key: key);
+  const ContextMenu({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 

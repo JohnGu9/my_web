@@ -3,10 +3,10 @@ import 'package:my_web/core/native/native_channel.dart';
 
 class PlatformService extends StatefulWidget {
   static _PlatformService of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_PlatformService>();
+    return context.dependOnInheritedWidgetOfExactType<_PlatformService>()!;
   }
 
-  const PlatformService({Key key, this.child}) : super(key: key);
+  const PlatformService({Key? key, required this.child}) : super(key: key);
   final Widget child;
 
   @override
@@ -14,12 +14,12 @@ class PlatformService extends StatefulWidget {
 }
 
 class _PlatformServiceState extends State<PlatformService> {
-  Future _future;
-  bool _isMobile;
-  bool _isIOS;
+  late Future _future;
+  late bool _isMobile;
+  late bool _isIOS;
   @override
   void didChangeDependencies() {
-    final channel = NativeChannel.of(context);
+    final channel = NativeChannel.of(context)!;
     _future = Future.wait([
       channel.isMobile.then((value) => _isMobile = value),
       channel.isIOS.then((value) => _isIOS = value),
@@ -46,7 +46,10 @@ class _PlatformServiceState extends State<PlatformService> {
 
 class _PlatformService extends InheritedWidget {
   const _PlatformService(
-      {Key key, Widget child, @required this.future, this.state})
+      {Key? key,
+      required Widget child,
+      required this.future,
+      required this.state})
       : super(key: key, child: child);
 
   final Future future;

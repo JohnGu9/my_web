@@ -9,18 +9,17 @@ mixin RouteControllerMixin<T extends StatefulWidget> on State<T> {
   @protected
   FocusScopeNode get focusScopeNode;
 
-  ValueNotifier<bool> onRouteChanged;
-
-  double _targetValue;
-  LocalHistoryEntry _historyEntry;
+  late ValueNotifier<bool> onRouteChanged;
+  late double _targetValue;
+  LocalHistoryEntry? _historyEntry;
 
   void _ensureHistoryEntry() {
     onRouteChanged.value = true;
     if (_historyEntry == null) {
-      final ModalRoute<dynamic> route = ModalRoute.of(context);
+      final route = ModalRoute.of(context);
       if (route != null) {
         _historyEntry = LocalHistoryEntry(onRemove: _handleHistoryEntryRemoved);
-        route.addLocalHistoryEntry(_historyEntry);
+        route.addLocalHistoryEntry(_historyEntry!);
         FocusScope.of(context).setFirstFocus(focusScopeNode);
       }
     }

@@ -10,13 +10,13 @@ class SpringProvideService extends InheritedWidget {
 
   static SpringDescription of(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<SpringProvideService>()
+        .dependOnInheritedWidgetOfExactType<SpringProvideService>()!
         .spring;
   }
 
   const SpringProvideService({
-    Key key,
-    Widget child,
+    Key? key,
+    required Widget child,
     this.spring = _spring,
   }) : super(key: key, child: child);
 

@@ -3,7 +3,7 @@ import 'package:flutter/physics.dart';
 
 extension SpringAnimationController on AnimationController {
   TickerFuture animationWithSpring(SpringDescription spring, double value,
-      {double velocity}) {
+      {double? velocity}) {
     return animateWith(
         SpringSimulation(spring, this.value, value, velocity ?? this.velocity));
   }
@@ -11,18 +11,18 @@ extension SpringAnimationController on AnimationController {
 
 mixin RouteAnimationController<T extends StatefulWidget>
     on SingleTickerProviderStateMixin<T> {
-  AnimationController controller;
-  LocalHistoryEntry _historyEntry;
+  late AnimationController controller;
+  LocalHistoryEntry? _historyEntry;
   SpringDescription get spring;
 
   Function() _ensureHistoryEntryRemove = () {};
 
-  open([double velocity]) {
+  open([double? velocity]) {
     _ensureHistoryEntry();
     return controller.animationWithSpring(spring, 1, velocity: velocity);
   }
 
-  close([double velocity]) {
+  close([double? velocity]) {
     _ensureHistoryEntryRemove();
     return controller.animationWithSpring(spring, 0, velocity: velocity);
   }
@@ -48,13 +48,13 @@ mixin RouteAnimationController<T extends StatefulWidget>
 
   void _ensureHistoryEntry() {
     if (_historyEntry == null) {
-      final ModalRoute route = ModalRoute.of(context);
+      final route = ModalRoute.of(context);
       if (route != null) {
         setState(() {
           _historyEntry =
               LocalHistoryEntry(onRemove: _handleHistoryEntryRemoved);
-          _ensureHistoryEntryRemove = _historyEntry.remove;
-          route.addLocalHistoryEntry(_historyEntry);
+          _ensureHistoryEntryRemove = _historyEntry!.remove;
+          route.addLocalHistoryEntry(_historyEntry!);
         });
       }
     }

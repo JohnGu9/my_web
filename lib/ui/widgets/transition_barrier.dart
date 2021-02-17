@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class TransitionBarrier extends AnimatedWidget {
   const TransitionBarrier({
-    Key key,
-    @required this.child,
-    @required this.animation,
+    Key? key,
+    required this.child,
+    required this.animation,
   }) : super(key: key, listenable: animation);
   final Animation<double> animation;
   final Widget child;

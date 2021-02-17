@@ -6,11 +6,11 @@ import 'custom_size_transition.dart';
 
 class DetailButton extends StatefulWidget {
   const DetailButton({
-    Key key,
+    Key? key,
     this.shape = const StadiumBorder(),
     this.color,
-    @required this.simple,
-    @required this.detail,
+    required this.simple,
+    required this.detail,
     this.axis = Axis.horizontal,
     this.onTap,
     this.elevation = 0.0,
@@ -18,11 +18,11 @@ class DetailButton extends StatefulWidget {
 
   final double elevation;
   final ShapeBorder shape;
-  final Color color;
+  final Color? color;
   final Widget simple;
   final Widget detail;
   final Axis axis;
-  final Function() onTap;
+  final Function()? onTap;
 
   @override
   _DetailButtonState createState() => _DetailButtonState();
@@ -30,7 +30,7 @@ class DetailButton extends StatefulWidget {
 
 class _DetailButtonState extends State<DetailButton>
     with SingleTickerProviderStateMixin<DetailButton> {
-  AnimationController _controller;
+  late AnimationController _controller;
 
   @override
   void initState() {
@@ -86,7 +86,7 @@ class _DetailButtonState extends State<DetailButton>
                 child: Padding(
                   padding: padding,
                   child: DefaultTextStyle(
-                    style: theme.textTheme.subtitle2.copyWith(
+                    style: theme.textTheme.subtitle2!.copyWith(
                       color: theme.canvasColor,
                     ),
                     child: widget.detail,
@@ -100,7 +100,7 @@ class _DetailButtonState extends State<DetailButton>
     );
   }
 
-  Widget _buildAxis({List<Widget> children}) {
+  Widget _buildAxis({required List<Widget> children}) {
     switch (widget.axis) {
       case Axis.horizontal:
         return Row(
@@ -118,9 +118,9 @@ class _DetailButtonState extends State<DetailButton>
 
 class _DetailButton extends InheritedWidget {
   const _DetailButton({
-    Key key,
-    Widget child,
-    this.state,
+    Key? key,
+    required Widget child,
+    required this.state,
   }) : super(key: key, child: child);
   @visibleForTesting
   final _DetailButtonState state;

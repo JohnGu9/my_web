@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
-class LiveData<T> extends ValueNotifier<T> implements Future<T> {
-  LiveData({T initial, @required Future<T> future})
+class LiveData<T> extends ValueNotifier<T?> implements Future<T> {
+  LiveData({T? initial, Future<T>? future})
       : this._future = future ?? Future.value(initial),
         this._isCompleted = false,
         super(initial) {
-    _controller.add(initial);
+    if (initial != null) _controller.add(initial);
     addListener(() {
-      _controller.add(value);
-      _isCompleted = true;
+      final value = this.value;
+      if (value != null) {
+        _controller.add(value);
+        _isCompleted = true;
+      }
     });
     future?.then((value) => this.value = value);
   }
@@ -44,17 +47,17 @@ class LiveData<T> extends ValueNotifier<T> implements Future<T> {
   }
 
   @override
-  Future<T> catchError(Function onError, {bool test(Object error)}) {
+  Future<T> catchError(Function onError, {bool test(Object error)?}) {
     return _future.catchError(onError, test: test);
   }
 
   @override
-  Future<R> then<R>(FutureOr<R> onValue(T value), {Function onError}) {
+  Future<R> then<R>(FutureOr<R> onValue(T value), {Function? onError}) {
     return _future.then(onValue, onError: onError);
   }
 
   @override
-  Future<T> timeout(Duration timeLimit, {FutureOr<T> Function() onTimeout}) {
+  Future<T> timeout(Duration timeLimit, {FutureOr<T> Function()? onTimeout}) {
     return _future.timeout(timeLimit, onTimeout: onTimeout);
   }
 

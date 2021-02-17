@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class DelayShow extends StatefulWidget {
   const DelayShow({
-    Key key,
-    @required this.show,
-    @required this.child,
-    @required this.delay,
+    Key? key,
+    required this.show,
+    required this.child,
+    required this.delay,
     this.placeHolder = const SizedBox(),
   }) : super(key: key);
   final bool show;
@@ -18,7 +18,7 @@ class DelayShow extends StatefulWidget {
 }
 
 class _DelayShowState extends State<DelayShow> {
-  Widget _child;
+  late Widget _child;
 
   @override
   void initState() {

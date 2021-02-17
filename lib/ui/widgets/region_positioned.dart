@@ -3,9 +3,9 @@ import 'package:my_web/core/core.dart';
 
 class RegionPositioned extends StatelessWidget {
   const RegionPositioned({
-    Key key,
-    @required this.region,
-    @required this.child,
+    Key? key,
+    required this.region,
+    required this.child,
   }) : super(key: key);
 
   final Region region;
@@ -25,9 +25,9 @@ class RegionPositioned extends StatelessWidget {
 
 class AnimatedRegionPositioned extends AnimatedWidget {
   const AnimatedRegionPositioned({
-    Key key,
-    @required this.animation,
-    @required this.child,
+    Key? key,
+    required this.animation,
+    required this.child,
   }) : super(key: key, listenable: animation);
 
   final Animation<Region> animation;

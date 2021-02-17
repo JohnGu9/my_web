@@ -7,11 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:my_web/core/services/storage_service.dart';
 
 typedef LocaleServiceBuilder = Widget Function(
-    BuildContext context, Locale locale);
+    BuildContext context, Locale? locale);
 
 class LocaleService extends StatefulWidget {
   static _LocaleService of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_LocaleService>();
+    return context.dependOnInheritedWidgetOfExactType<_LocaleService>()!;
   }
 
   static const _map = {
@@ -23,7 +23,7 @@ class LocaleService extends StatefulWidget {
       Locale.fromSubtags(languageCode: 'zh'); // Chinese, no country code
   static const List<Locale> supportedLocales = [en, zh];
 
-  const LocaleService({Key key, this.builder}) : super(key: key);
+  const LocaleService({Key? key, required this.builder}) : super(key: key);
   final LocaleServiceBuilder builder;
 
   @override
@@ -39,20 +39,19 @@ class _LocaleServiceState extends State<LocaleService> {
         fontFamily: 'Noto Sans SC')
   };
 
-  Locale _locale;
-  Future<bool> _init;
+  Locale? _locale;
+  late Future<bool> _init;
 
-  _changeLocale(Locale locale) async {
+  _changeLocale(Locale? locale) async {
     assert(LocaleService.supportedLocales.contains(locale) || locale == null);
     final storage = StorageService.of(context);
-    await storage.setString(_key, locale?.languageCode);
-    if (mounted)
-      setState(() {
-        return _locale = locale;
-      });
+    locale != null
+        ? await storage.setString(_key, locale.languageCode)
+        : await storage.remove(_key);
+    if (mounted) setState(() => _locale = locale);
   }
 
-  FutureOr<bool> _loadFont(Locale locale) {
+  FutureOr<bool> _loadFont(Locale? locale) {
     if (locale == null) return true;
     final asyncFile = _availableFont[locale.languageCode];
     if (asyncFile == null) return false;
@@ -60,7 +59,7 @@ class _LocaleServiceState extends State<LocaleService> {
     asyncFile.loadFuture ??= () async {
       print('Async load font');
       try {
-        final fontFile = await rootBundle.load(asyncFile.path);
+        final fontFile = await rootBundle.load(asyncFile.path!);
         await loadFontFromList(fontFile.buffer.asUint8List(),
             fontFamily: asyncFile.fontFamily);
       } catch (error) {
@@ -69,19 +68,19 @@ class _LocaleServiceState extends State<LocaleService> {
       }
       return true;
     }();
-    return asyncFile.loadFuture;
+    return asyncFile.loadFuture!;
   }
 
-  FutureOr<bool> _checkLoadingFont(Locale locale) {
+  FutureOr<bool> _checkLoadingFont(Locale? locale) {
     if (locale == null) return true;
-    final asyncFile = _availableFont[locale.languageCode];
+    final asyncFile = _availableFont[locale.languageCode]!;
     if (asyncFile.isLoaded) return true;
-    return asyncFile.loadFuture;
+    return asyncFile.loadFuture!;
   }
 
   _resetLocale() {
     final storage = StorageService.of(context);
-    storage.setString(_key, null);
+    storage.remove(_key);
     _locale = null;
   }
 
@@ -119,11 +118,11 @@ class _LocaleServiceState extends State<LocaleService> {
 }
 
 class _LocaleService extends InheritedWidget {
-  _LocaleService({Key key, Widget child, this.state})
+  _LocaleService({Key? key, required Widget child, required this.state})
       : locale = state._locale,
         super(key: key, child: child);
 
-  final Locale locale;
+  final Locale? locale;
 
   @visibleForTesting
   final _LocaleServiceState state;
@@ -140,10 +139,10 @@ class _LocaleService extends InheritedWidget {
     return state._checkLoadingFont(locale);
   }
 
-  String get fontFamily {
+  String? get fontFamily {
     if (state._locale == null) return null;
     return _LocaleServiceState
-        ._availableFont[state._locale.languageCode].fontFamily;
+        ._availableFont[state._locale?.languageCode]?.fontFamily;
   }
 
   @override
@@ -153,17 +152,17 @@ class _LocaleService extends InheritedWidget {
 }
 
 class AsyncFontFile {
-  final String path;
-  final String fontFamily;
-  Future<bool> _loadFuture;
-  Future<bool> get loadFuture {
+  final String? path;
+  final String? fontFamily;
+  Future<bool>? _loadFuture;
+  Future<bool>? get loadFuture {
     return _loadFuture;
   }
 
-  set loadFuture(Future<bool> future) {
+  set loadFuture(Future<bool>? future) {
     loading = true;
     _loadFuture = future
-      ..whenComplete(() {
+      ?..whenComplete(() {
         loading = false;
         isLoaded = true;
       })
@@ -189,7 +188,7 @@ class StandardLocalizations {
 
   static StandardLocalizations of(BuildContext context) {
     return Localizations.of<StandardLocalizations>(
-        context, StandardLocalizations);
+        context, StandardLocalizations)!;
   }
 
   static const Map<String, Map<String, String>> _localizedValues = {
@@ -362,303 +361,303 @@ class StandardLocalizations {
   };
 
   String get helloWorld {
-    return _localize['helloWorld'];
+    return _localize['helloWorld']!;
   }
 
   String get home {
-    return _localize['home'];
+    return _localize['home']!;
   }
 
   String get settings {
-    return _localize['settings'];
+    return _localize['settings']!;
   }
 
   String get darkTheme {
-    return _localize['darkTheme'];
+    return _localize['darkTheme']!;
   }
 
   String get auto {
-    return _localize['auto'];
+    return _localize['auto']!;
   }
 
   String get about {
-    return _localize['about'];
+    return _localize['about']!;
   }
 
   String get language {
-    return _localize['language'];
+    return _localize['language']!;
   }
 
   String get sure {
-    return _localize['sure'];
+    return _localize['sure']!;
   }
 
   String get cancel {
-    return _localize['cancel'];
+    return _localize['cancel']!;
   }
 
   String get version {
-    return _localize['version'];
+    return _localize['version']!;
   }
 
   String get framework {
-    return _localize['framework'];
+    return _localize['framework']!;
   }
 
   String get distTechnique {
-    return _localize['distTechnique'];
+    return _localize['distTechnique']!;
   }
 
   String get profile {
-    return _localize['profile'];
+    return _localize['profile']!;
   }
 
   String get source {
-    return _localize['source'];
+    return _localize['source']!;
   }
 
   String get copy {
-    return _localize['copy'];
+    return _localize['copy']!;
   }
 
   String get paste {
-    return _localize['paste'];
+    return _localize['paste']!;
   }
 
   String get skill {
-    return _localize['skill'];
+    return _localize['skill']!;
   }
 
   String get background {
-    return _localize['background'];
+    return _localize['background']!;
   }
 
   String get more {
-    return _localize['more'];
+    return _localize['more']!;
   }
 
   String get other {
-    return _localize['other'];
+    return _localize['other']!;
   }
 
   String get visit {
-    return _localize['visit'];
+    return _localize['visit']!;
   }
 
   String get toVisitOtherWebsite {
-    return _localize['toVisitOtherWebsite'];
+    return _localize['toVisitOtherWebsite']!;
   }
 
   String get education {
-    return _localize['education'];
+    return _localize['education']!;
   }
 
   String get experiment {
-    return _localize['experiment'];
+    return _localize['experiment']!;
   }
 
   String get backgroundDescription {
-    return _localize['@backgroundDescription'];
+    return _localize['@backgroundDescription']!;
   }
 
   String get skillDescription {
-    return _localize['@skillDescription'];
+    return _localize['@skillDescription']!;
   }
 
   String get otherDescription {
-    return _localize['@otherDescription'];
+    return _localize['@otherDescription']!;
   }
 
   String get alert {
-    return _localize['alert'];
+    return _localize['alert']!;
   }
 
   String get useChromeForBetterExperiment {
-    return _localize['useChromeForBetterExperiment'];
+    return _localize['useChromeForBetterExperiment']!;
   }
 
   String get born {
-    return _localize['born'];
+    return _localize['born']!;
   }
 
   String get favorite {
-    return _localize['favorite'];
+    return _localize['favorite']!;
   }
 
   String get contactMe {
-    return _localize['contactMe'];
+    return _localize['contactMe']!;
   }
 
   String get tapAndExplore {
-    return _localize['tapAndExplore'];
+    return _localize['tapAndExplore']!;
   }
 
   String get university {
-    return _localize['university'];
+    return _localize['university']!;
   }
 
   String get jnu {
-    return _localize['JNU'];
+    return _localize['JNU']!;
   }
 
   String get fourYearFullTime {
-    return _localize['fourYearFullTime'];
+    return _localize['fourYearFullTime']!;
   }
 
   String get internetOfThings {
-    return _localize['internetOfThings'];
+    return _localize['internetOfThings']!;
   }
 
   String get technologyStack {
-    return _localize['technologyStack'];
+    return _localize['technologyStack']!;
   }
 
   String get programmingLanguage {
-    return _localize['programmingLanguage'];
+    return _localize['programmingLanguage']!;
   }
 
   String get supportedPlatform {
-    return _localize['supportedPlatform'];
+    return _localize['supportedPlatform']!;
   }
 
   String get otherRelatedStuff {
-    return _localize['otherRelatedStuff'];
+    return _localize['otherRelatedStuff']!;
   }
 
   String get signalProcessing {
-    return _localize['signalProcessing'];
+    return _localize['signalProcessing']!;
   }
 
   String get digitalSignalProcessing {
-    return _localize['digitalSignalProcessing'];
+    return _localize['digitalSignalProcessing']!;
   }
 
   String get digitalImageProcessing {
-    return _localize['digitalImageProcessing'];
+    return _localize['digitalImageProcessing']!;
   }
 
   String get circuits {
-    return _localize['circuits'];
+    return _localize['circuits']!;
   }
 
   String get analogCircuits {
-    return _localize['analogCircuits'];
+    return _localize['analogCircuits']!;
   }
 
   String get digitalCircuits {
-    return _localize['digitalCircuits'];
+    return _localize['digitalCircuits']!;
   }
 
   String get programming {
-    return _localize['programming'];
+    return _localize['programming']!;
   }
 
   String get hardwareLanguage {
-    return _localize['hardwareLanguage'];
+    return _localize['hardwareLanguage']!;
   }
 
   String get softwareLanguage {
-    return _localize['softwareLanguage'];
+    return _localize['softwareLanguage']!;
   }
 
   String get computerNetwork {
-    return _localize['computerNetwork'];
+    return _localize['computerNetwork']!;
   }
 
   String get embeddedSystem {
-    return _localize['embeddedSystem'];
+    return _localize['embeddedSystem']!;
   }
 
   String get desktop {
-    return _localize['desktop'];
+    return _localize['desktop']!;
   }
 
   String get mobile {
-    return _localize['mobile'];
+    return _localize['mobile']!;
   }
 
   String get usedFramework {
-    return _localize['usedFramework'];
+    return _localize['usedFramework']!;
   }
 
   String get whatIsMyAdvantage {
-    return _localize['whatIsMyAdvantage'];
+    return _localize['whatIsMyAdvantage']!;
   }
 
   String get myAdvantageDescription {
-    return _localize['@myAdvantageDescription'];
+    return _localize['@myAdvantageDescription']!;
   }
 
   String get learning {
-    return _localize['learning'];
+    return _localize['learning']!;
   }
 
   String get interest {
-    return _localize['interest'];
+    return _localize['interest']!;
   }
 
   String get database {
-    return _localize['database'];
+    return _localize['database']!;
   }
 
   String get databaseDescription {
-    return _localize['@databaseDescription'];
+    return _localize['@databaseDescription']!;
   }
 
   String get machineLearning {
-    return _localize['machineLearning'];
+    return _localize['machineLearning']!;
   }
 
   String get machineLearningAndAIDescription {
-    return _localize['@machineLearningAndAIDescription'];
+    return _localize['@machineLearningAndAIDescription']!;
   }
 
   String get coverage {
-    return _localize['coverage'];
+    return _localize['coverage']!;
   }
 
   String get signalAndCommunication {
-    return _localize['signalAndCommunication'];
+    return _localize['signalAndCommunication']!;
   }
 
   String get electronicCircuit {
-    return _localize['electronicCircuit'];
+    return _localize['electronicCircuit']!;
   }
 
   String get computerScience {
-    return _localize['computerScience'];
+    return _localize['computerScience']!;
   }
 
   String get embeddedEngineer {
-    return _localize['embeddedEngineer'];
+    return _localize['embeddedEngineer']!;
   }
 
   String get communicationsEngineer {
-    return _localize['communicationsEngineer'];
+    return _localize['communicationsEngineer']!;
   }
 
   String get practice {
-    return _localize['practice'];
+    return _localize['practice']!;
   }
 
   String get myHobbies {
-    return _localize['myHobbies'];
+    return _localize['myHobbies']!;
   }
 
   String get myExpectation {
-    return _localize['myExpectation'];
+    return _localize['myExpectation']!;
   }
 
   String get myExpectationDescription {
-    return _localize['@myExpectationDescription'];
+    return _localize['@myExpectationDescription']!;
   }
 
   String get game {
-    return _localize['game'];
+    return _localize['game']!;
   }
 
   String get electronicProduction {
-    return _localize['electronicProduction'];
+    return _localize['electronicProduction']!;
   }
 }
 
@@ -666,7 +665,7 @@ class StandardLocalizationsDelegate
     extends LocalizationsDelegate<StandardLocalizations> {
   const StandardLocalizationsDelegate(this.locale);
 
-  final Locale locale;
+  final Locale? locale;
 
   @override
   bool isSupported(Locale locale) =>

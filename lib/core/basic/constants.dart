@@ -3,13 +3,13 @@ import 'flutter_version.dart';
 
 class Constants {
   static const String buildVersion = "0.1.3-pre";
-  static String get frameworkVersion => version['frameworkVersion'];
-  static String get channel => version['channel'];
-  static String get repositoryUrl => version['repositoryUrl'];
-  static String get frameworkRevision => version['frameworkRevision'];
-  static String get frameworkCommitDate => version['frameworkCommitDate'];
-  static String get engineRevision => version['engineRevision'];
-  static String get dartSdkVersion => version['dartSdkVersion'];
+  static String get frameworkVersion => version['frameworkVersion']!;
+  static String get channel => version['channel']!;
+  static String get repositoryUrl => version['repositoryUrl']!;
+  static String get frameworkRevision => version['frameworkRevision']!;
+  static String get frameworkCommitDate => version['frameworkCommitDate']!;
+  static String get engineRevision => version['engineRevision']!;
+  static String get dartSdkVersion => version['dartSdkVersion']!;
 
   static const AssetImage personLogoImage =
       AssetImage("assets/images/logo.png");

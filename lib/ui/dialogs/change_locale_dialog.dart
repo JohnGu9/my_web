@@ -13,7 +13,7 @@ showChangeLocaleDialog(BuildContext context, Locale locale) {
 }
 
 class _Page extends StatefulWidget {
-  const _Page({Key key, this.locale}) : super(key: key);
+  const _Page({Key? key, required this.locale}) : super(key: key);
 
   final Locale locale;
 
@@ -23,8 +23,8 @@ class _Page extends StatefulWidget {
 
 class __PageState extends State<_Page>
     with SingleTickerProviderStateMixin<_Page> {
-  AnimationController _controller;
-  CurvedAnimation _curvedAnimation;
+  late AnimationController _controller;
+  late CurvedAnimation _curvedAnimation;
 
   @override
   void initState() {

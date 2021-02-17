@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/basic/region.dart';
 
 mixin RegionObserverMixin<T extends StatefulWidget> on State<T> {
-  ValueNotifier<Region> get region;
+  ValueNotifier<Region?> get region;
   ValueNotifier<bool> get visibility;
 
   void hide() {
@@ -18,6 +18,6 @@ mixin RegionObserverMixin<T extends StatefulWidget> on State<T> {
       final newRegion = Region.fromContext(context);
       if (newRegion != null) region.value = newRegion;
     }
-    return region.value;
+    return region.value!;
   }
 }

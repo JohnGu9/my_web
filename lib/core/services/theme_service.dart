@@ -8,7 +8,7 @@ typedef ThemeServiceBuilder = Widget Function(
     BuildContext context, ThemeData theme);
 
 class ThemeService extends StatefulWidget {
-  static _ThemeService of(BuildContext context) {
+  static _ThemeService? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<_ThemeService>();
   }
 
@@ -28,8 +28,8 @@ class ThemeService extends StatefulWidget {
   static final List<ThemeData> supportedThemes = [lightTheme, darkTheme];
 
   const ThemeService(
-      {Key key,
-      this.builder,
+      {Key? key,
+      required this.builder,
       this.expandedHeight = 120,
       this.bottomSheetPadding = const EdgeInsets.all(8.0)})
       : super(key: key);
@@ -44,7 +44,7 @@ class ThemeService extends StatefulWidget {
 class _ThemeServiceState extends State<ThemeService> {
   static const _darkModeKey = 'ThemeService#DarkMode';
 
-  ThemeData _cache;
+  late ThemeData _cache;
   ThemeData get _theme {
     return _cache;
   }
@@ -76,7 +76,6 @@ class _ThemeServiceState extends State<ThemeService> {
     } catch (error) {
       print(error);
     }
-    assert(_theme != null);
     super.didChangeDependencies();
   }
 
@@ -90,7 +89,7 @@ class _ThemeServiceState extends State<ThemeService> {
 }
 
 class _ThemeService extends InheritedWidget {
-  const _ThemeService({Key key, Widget child, this.state})
+  const _ThemeService({Key? key, required Widget child, required this.state})
       : super(key: key, child: child);
 
   @visibleForTesting
@@ -126,12 +125,12 @@ class _ThemeService extends InheritedWidget {
 
   TextStyle get centerStyle {
     return theme.appBarTheme.textTheme?.headline6 ??
-        theme.primaryTextTheme.headline6;
+        theme.primaryTextTheme.headline6!;
   }
 
   TextStyle get sideStyle {
     return theme.appBarTheme.textTheme?.bodyText2 ??
-        theme.primaryTextTheme.bodyText2;
+        theme.primaryTextTheme.bodyText2!;
   }
 
   @override

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AnimatedSafeArea extends StatelessWidget {
   const AnimatedSafeArea({
-    Key key,
-    @required this.animation,
-    this.child,
+    Key? key,
+    required this.animation,
+    required this.child,
   }) : super(key: key);
 
   final Animation<double> animation;
