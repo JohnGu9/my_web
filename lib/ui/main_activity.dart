@@ -109,6 +109,6 @@ class PlatformHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = PlatformService.of(context).isMobile;
-    return isMobile ? const mobile.HomePage() : const desktop.HomePage();
+    return false ? const mobile.HomePage() : const desktop.HomePage();
   }
 }

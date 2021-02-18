@@ -26,7 +26,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   js:
-
+  animations: ^2.0.0-nullsafety.0
   shared_preferences: ^2.0.0-nullsafety
   shared_preferences_web: ^0.2.0-nullsafety
   url_launcher: ^6.0.0-nullsafety.7
