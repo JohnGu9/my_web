@@ -11,6 +11,8 @@
         "artboard",
         "cmake",
         "iphone",
-        "opencv"
+        "opencv",
+        "precache",
+        "toggleable"
     ]
 }

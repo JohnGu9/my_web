@@ -8,8 +8,8 @@ typedef ThemeServiceBuilder = Widget Function(
     BuildContext context, ThemeData theme);
 
 class ThemeService extends StatefulWidget {
-  static _ThemeService? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_ThemeService>();
+  static _ThemeService of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_ThemeService>()!;
   }
 
   static const _shape = RoundedRectangleBorder(
@@ -71,7 +71,7 @@ class _ThemeServiceState extends State<ThemeService> {
   void didChangeDependencies() {
     final storage = StorageService.of(context);
     try {
-      final isDark = storage.getBool(_darkModeKey) ?? true;
+      final isDark = storage.getBool(_darkModeKey) ?? false;
       _theme = isDark ? ThemeService.darkTheme : ThemeService.lightTheme;
     } catch (error) {
       print(error);
