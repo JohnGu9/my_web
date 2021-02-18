@@ -19,7 +19,7 @@ class _PlatformServiceState extends State<PlatformService> {
   late bool _isIOS;
   @override
   void didChangeDependencies() {
-    final channel = NativeChannel.of(context)!;
+    final channel = NativeChannel.of(context);
     _future = Future.wait([
       channel.isMobile.then((value) => _isMobile = value),
       channel.isIOS.then((value) => _isIOS = value),
