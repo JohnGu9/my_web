@@ -93,7 +93,7 @@ class _LocaleServiceState extends State<LocaleService> {
       if (load is Future<bool>)
         _init = load;
       else
-        _init = Future.value(load as bool);
+        _init = Future.value(load);
     } catch (error) {
       print(error);
     }

@@ -49,7 +49,7 @@ showAlertDialog(BuildContext context, String message) {
                     SizedBox(height: 16),
                     ButtonBar(
                       children: [
-                        FlatButton(
+                        TextButton(
                           onPressed: () {
                             final navigator = Navigator.of(context);
                             if (navigator.canPop()) navigator.pop();
