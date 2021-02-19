@@ -194,6 +194,7 @@ class StandardLocalizations {
   static const Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'helloWorld': 'Hello World!',
+      "license": "License",
       "sure": "Sure",
       "cancel": "Cancel",
       "home": "Home",
@@ -279,6 +280,7 @@ class StandardLocalizations {
     },
     'zh': {
       'helloWorld': '你好👋',
+      "license": "许可",
       "sure": "确认",
       "cancel": "取消",
       "home": "主页",
@@ -362,6 +364,10 @@ class StandardLocalizations {
 
   String get helloWorld {
     return _localize['helloWorld']!;
+  }
+
+  String get license {
+    return _localize["license"]!;
   }
 
   String get home {
