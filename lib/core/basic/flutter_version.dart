@@ -1,11 +1,11 @@
 const version = const <String,String>
 {
-  "frameworkVersion": "1.25.0-8.3.pre",
+  "frameworkVersion": "1.26.0-17.6.pre",
   "channel": "beta",
   "repositoryUrl": "https://github.com/flutter/flutter.git",
-  "frameworkRevision": "5d36f2e7f5387b6c751449258ade8e4e6edf99be",
-  "frameworkCommitDate": "2021-01-14 15:57:49 -0800",
-  "engineRevision": "7a8f8ca02c276dce02f8dd42a44e776ac03fa9bc",
-  "dartSdkVersion": "2.12.0 (build 2.12.0-133.7.beta)",
+  "frameworkRevision": "a29104a69b102a7485cd00d358eaeab219d258ab",
+  "frameworkCommitDate": "2021-02-16 09:26:56 -0800",
+  "engineRevision": "21fa8bb99e9a20563d9a7d39afeba8e5c811a7eb",
+  "dartSdkVersion": "2.12.0 (build 2.12.0-259.12.beta)",
 }
 ;

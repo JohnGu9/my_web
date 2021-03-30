@@ -55,8 +55,10 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
+    - LICENSE
     - assets/images/
     - assets/fonts/Noto_Sans_SC/
+    - assets/fonts/Roboto/
     - assets/riv/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -74,7 +76,7 @@ flutter:
   #         weight: 100
   #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf
   #         weight: 300
-        # - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf
+  #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf
   #         weight: 400
   #       - asset: assets/fonts/Noto_Sans_SC/NotoSansSC-Medium.otf
   #         weight: 500    

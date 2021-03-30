@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:my_web/core/services/storage_service.dart';
 
 typedef LocaleServiceBuilder = Widget Function(
-    BuildContext context, Locale? locale);
+    BuildContext context, Locale locale);
 
 class LocaleService extends StatefulWidget {
   static _LocaleService of(BuildContext context) {
@@ -18,7 +18,7 @@ class LocaleService extends StatefulWidget {
     'en': en,
     'zh': zh,
   };
-  static const en = Locale('en', ''); // English, no country code
+  static const en = Locale('en'); // English, no country code
   static const zh =
       Locale.fromSubtags(languageCode: 'zh'); // Chinese, no country code
   static const List<Locale> supportedLocales = [en, zh];
@@ -33,70 +33,61 @@ class LocaleService extends StatefulWidget {
 class _LocaleServiceState extends State<LocaleService> {
   static const _key = 'LocaleService';
   static final _availableFont = <String, AsyncFontFile>{
-    'en': AsyncFontFile(), // no need to load additional font file
+    'en': AsyncFontFile(
+      path: 'assets/fonts/Roboto/Roboto-Light.ttf',
+      fontFamily: 'Roboto',
+    ),
     'zh': AsyncFontFile(
-        path: 'assets/fonts/Noto_Sans_SC/NotoSansSC-Light.otf',
-        fontFamily: 'Noto Sans SC')
+      path: 'assets/fonts/Noto_Sans_SC/NotoSansSC-Regular.otf',
+      fontFamily: 'Noto Sans SC',
+    ),
   };
 
-  Locale? _locale;
+  Locale _locale = LocaleService.en;
   late Future<bool> _init;
 
-  _changeLocale(Locale? locale) async {
-    assert(LocaleService.supportedLocales.contains(locale) || locale == null);
+  Future<void> _changeLocale(Locale locale) async {
+    assert(LocaleService.supportedLocales.contains(locale));
     final storage = StorageService.of(context);
-    locale != null
-        ? await storage.setString(_key, locale.languageCode)
-        : await storage.remove(_key);
+    await storage.setString(_key, locale.languageCode);
     if (mounted) setState(() => _locale = locale);
   }
 
-  FutureOr<bool> _loadFont(Locale? locale) {
-    if (locale == null) return true;
-    final asyncFile = _availableFont[locale.languageCode];
-    if (asyncFile == null) return false;
-    if (asyncFile.isLoaded) return true;
-    asyncFile.loadFuture ??= () async {
-      print('Async load font');
-      try {
-        final fontFile = await rootBundle.load(asyncFile.path!);
-        await loadFontFromList(fontFile.buffer.asUint8List(),
-            fontFamily: asyncFile.fontFamily);
-      } catch (error) {
-        print(error);
-        return false;
-      }
-      return true;
-    }();
-    return asyncFile.loadFuture!;
-  }
-
-  FutureOr<bool> _checkLoadingFont(Locale? locale) {
-    if (locale == null) return true;
+  Future<bool> _loadFont(Locale locale) async {
     final asyncFile = _availableFont[locale.languageCode]!;
     if (asyncFile.isLoaded) return true;
-    return asyncFile.loadFuture!;
+    if (asyncFile.loading == false)
+      asyncFile.loadFuture = () async {
+        print(
+            'Start to load font [${asyncFile.fontFamily}] from [${asyncFile.path}] for language [${locale.languageCode}]');
+        try {
+          final fontFile = await rootBundle.load(asyncFile.path);
+          await loadFontFromList(fontFile.buffer.asUint8List(),
+              fontFamily: asyncFile.fontFamily);
+        } catch (error) {
+          print('Error [$error] while loading font [${asyncFile.fontFamily}]');
+          return false;
+        }
+        return true;
+      }();
+    return await asyncFile.loadFuture;
   }
 
-  _resetLocale() {
+  void _resetLocale() {
     final storage = StorageService.of(context);
     storage.remove(_key);
-    _locale = null;
+    _locale = LocaleService.en;
   }
 
   @override
   void didChangeDependencies() {
     final storage = StorageService.of(context);
-    try {
-      _locale = LocaleService._map[storage.getString(_key)];
-      final load = _loadFont(_locale);
-      if (load is Future<bool>)
-        _init = load;
-      else
-        _init = Future.value(load);
-    } catch (error) {
-      print(error);
-    }
+    _locale = LocaleService._map[storage.getString(_key)] ?? LocaleService.en;
+    final load = _loadFont(_locale);
+    if (load is Future<bool>)
+      _init = load;
+    else
+      _init = Future.value(load);
     super.didChangeDependencies();
   }
 
@@ -109,7 +100,6 @@ class _LocaleServiceState extends State<LocaleService> {
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done)
             return const SizedBox();
-          if (snapshot.hasError) _resetLocale();
           return widget.builder(context, _locale);
         },
       ),
@@ -122,27 +112,26 @@ class _LocaleService extends InheritedWidget {
       : locale = state._locale,
         super(key: key, child: child);
 
-  final Locale? locale;
+  final Locale locale;
 
   @visibleForTesting
   final _LocaleServiceState state;
 
-  changeLocale(Locale locale) {
+  Future<void> changeLocale(Locale locale) {
     return state._changeLocale(locale);
   }
 
-  FutureOr<bool> loadFont(Locale locale) {
+  Future<bool> loadFont(Locale locale) {
     return state._loadFont(locale);
   }
 
-  FutureOr<bool> checkLoadingFont(Locale locale) {
-    return state._checkLoadingFont(locale);
+  void resetLocal() {
+    return state._resetLocale();
   }
 
   String? get fontFamily {
-    if (state._locale == null) return null;
     return _LocaleServiceState
-        ._availableFont[state._locale?.languageCode]?.fontFamily;
+        ._availableFont[state._locale.languageCode]?.fontFamily;
   }
 
   @override
@@ -152,36 +141,31 @@ class _LocaleService extends InheritedWidget {
 }
 
 class AsyncFontFile {
-  final String? path;
-  final String? fontFamily;
-  Future<bool>? _loadFuture;
-  Future<bool>? get loadFuture {
+  final String path;
+  final String fontFamily;
+  late Future<bool> _loadFuture;
+  Future<bool> get loadFuture {
     return _loadFuture;
   }
 
-  set loadFuture(Future<bool>? future) {
+  set loadFuture(Future<bool> future) {
     loading = true;
     _loadFuture = future
-      ?..whenComplete(() {
+      ..then((value) {
         loading = false;
-        isLoaded = true;
-      })
-      ..catchError((error) {
-        loading = false;
-        isLoaded = false;
-        _loadFuture = null;
+        isLoaded = value;
       });
   }
 
   bool loading = false;
-  bool isLoaded;
+  bool isLoaded = false;
 
-  AsyncFontFile({this.path, this.fontFamily}) : isLoaded = path == null;
+  AsyncFontFile({required this.path, required this.fontFamily});
 }
 
 class StandardLocalizations {
   StandardLocalizations(this.locale)
-      : _localize = _localizedValues[locale.languageCode] ?? Map();
+      : _localize = _localizedValues[locale.languageCode] ?? const {};
 
   final Locale locale;
   final Map<String, String> _localize;
@@ -195,6 +179,10 @@ class StandardLocalizations {
     'en': {
       'helloWorld': 'Hello World!',
       "license": "License",
+      "search": "Search",
+      "help": "Help",
+      "privacy": "Privacy",
+      "terms": "Terms",
       "sure": "Sure",
       "cancel": "Cancel",
       "home": "Home",
@@ -211,6 +199,7 @@ class StandardLocalizations {
       "copy": "Copy",
       "paste": "Paste",
       "more": "More",
+      "@personDescription": _personDescriptionEN,
       "background": "Background",
       "skill": "Skill",
       "other": "Other",
@@ -281,6 +270,10 @@ class StandardLocalizations {
     'zh': {
       'helloWorld': '你好👋',
       "license": "许可",
+      "search": "搜索",
+      "help": "帮助",
+      "privacy": "隐私",
+      "terms": "条款",
       "sure": "确认",
       "cancel": "取消",
       "home": "主页",
@@ -296,6 +289,7 @@ class StandardLocalizations {
       "source": "源代码",
       "copy": "复制",
       "paste": "粘贴",
+      "@personDescription": _personDescriptionZH,
       "skill": "技能",
       "background": "背景",
       "more": "更多",
@@ -370,6 +364,22 @@ class StandardLocalizations {
     return _localize["license"]!;
   }
 
+  String get search {
+    return _localize["search"]!;
+  }
+
+  String get help {
+    return _localize["help"]!;
+  }
+
+  String get privacy {
+    return _localize["privacy"]!;
+  }
+
+  String get terms {
+    return _localize["terms"]!;
+  }
+
   String get home {
     return _localize['home']!;
   }
@@ -428,6 +438,10 @@ class StandardLocalizations {
 
   String get paste {
     return _localize['paste']!;
+  }
+
+  String get personDescription {
+    return _localize['@personDescription']!;
   }
 
   String get skill {
@@ -671,7 +685,7 @@ class StandardLocalizationsDelegate
     extends LocalizationsDelegate<StandardLocalizations> {
   const StandardLocalizationsDelegate(this.locale);
 
-  final Locale? locale;
+  final Locale locale;
 
   @override
   bool isSupported(Locale locale) =>
@@ -682,7 +696,7 @@ class StandardLocalizationsDelegate
     // Returning a SynchronousFuture here because an async "load" operation
     // isn't needed to produce an instance of StandardLocalizations.
     return SynchronousFuture<StandardLocalizations>(
-        StandardLocalizations(locale));
+        StandardLocalizations(this.locale));
   }
 
   @override
@@ -690,6 +704,19 @@ class StandardLocalizationsDelegate
     return true;
   }
 }
+
+const _personDescriptionEN =
+    '''A normal software engineer and communication engineer. 
+Currently live in GuangZhou-GuangDong, China. Working for China Telecom. 
+Enjoy music and e-game. NS is my favorite. Try to be a better UI designer now. 
+Hopefully become a true master some day. 
+''';
+
+const _personDescriptionZH = '''一名普通的软件开发和通信工程师
+现生活于中国广东广州，在给中国电信打工
+平时喜欢音乐和电子游戏，任天堂的Switch真的太赞了
+正努力成为一个更好UI设计者
+''';
 
 const _myAdvantageDescriptionEN = '''Wide technology support. 
 

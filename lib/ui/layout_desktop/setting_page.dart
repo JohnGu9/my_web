@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_web/core/core.dart';
 
 typedef void _ChangeCurrentWidget(Widget newWidget);
@@ -119,17 +120,9 @@ class _MainPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                GroupAnimationService.client(
+                const GroupAnimationService.client(
                   builder: _animationBuilder,
-                  child: ListTile(
-                    leading: const Icon(Icons.brightness_4),
-                    title: Text(locale.darkTheme),
-                    trailing: Switch.adaptive(
-                      value: false,
-                      onChanged: (value) {},
-                    ),
-                    onTap: () {},
-                  ),
+                  child: _ThemeListTile(),
                 ),
                 GroupAnimationService.client(
                   builder: _animationBuilder,
@@ -147,9 +140,13 @@ class _MainPage extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.text_snippet),
                     title: Text(locale.license),
-                    onTap: () {
+                    onTap: () async {
+                      final license = await rootBundle.loadString('LICENSE');
                       changePage(_LicensePage(
-                          animation: animation, changePage: changePage));
+                        animation: animation,
+                        changePage: changePage,
+                        license: license,
+                      ));
                     },
                   ),
                 ),
@@ -182,47 +179,113 @@ class _MainPage extends StatelessWidget {
   }
 }
 
+class _ThemeListTile extends StatelessWidget {
+  const _ThemeListTile();
+  @override
+  Widget build(BuildContext context) {
+    final locale = StandardLocalizations.of(context);
+    final theme = Theme.of(context);
+    final themeService = ThemeService.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return ListTile(
+      leading: const Icon(Icons.brightness_4),
+      title: Text(locale.darkTheme),
+      trailing: Switch.adaptive(
+        value: theme.brightness == Brightness.dark,
+        onChanged: (value) {
+          return themeService.changeTheme(
+              value ? ThemeService.darkTheme : ThemeService.lightTheme);
+        },
+      ),
+      onTap: isDark
+          ? () => themeService.changeTheme(ThemeService.lightTheme)
+          : () => themeService.changeTheme(ThemeService.darkTheme),
+    );
+  }
+}
+
 class _LanguagePage extends StatelessWidget {
   const _LanguagePage(
       {Key? key, required this.animation, required this.changePage})
       : super(key: key);
   final Animation<double> animation; // init animation
   final _ChangeCurrentWidget changePage;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = StandardLocalizations.of(context);
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-            delegate: SliverChildListDelegate.fixed([
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: ListTile(
-              title: Text(
-                locale.language,
-                style: theme.textTheme.headline4,
+    final localeService = LocaleService.of(context);
+    return Material(
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: ListTile(
+                title: Text(
+                  locale.language,
+                  style: theme.textTheme.headline4,
+                ),
+                trailing: Material(
+                  clipBehavior: Clip.antiAlias,
+                  shape: CircleBorder(
+                      side: BorderSide(color: theme.disabledColor, width: 2)),
+                  child: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        changePage(_MainPage(
+                            animation: animation, changePage: changePage));
+                      }),
+                ),
               ),
-              trailing: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    changePage(_MainPage(
-                        animation: animation, changePage: changePage));
-                  }),
             ),
           ),
-        ])),
-      ],
+          SliverList(
+              delegate: SliverChildListDelegate.fixed([
+            ListTile(
+              selected: localeService.locale == LocaleService.en,
+              title: const Text("English"),
+              trailing: localeService.locale == LocaleService.en
+                  ? const Icon(Icons.check)
+                  : const SizedBox(),
+              onTap: localeService.locale == LocaleService.en
+                  ? null
+                  : () async {
+                      if (await localeService.loadFont(LocaleService.en))
+                        await localeService.changeLocale(LocaleService.en);
+                    },
+            ),
+            ListTile(
+              selected: localeService.locale == LocaleService.zh,
+              title: const Text("Chinese"),
+              trailing: localeService.locale == LocaleService.zh
+                  ? const Icon(Icons.check)
+                  : const SizedBox(),
+              onTap: localeService.locale == LocaleService.zh
+                  ? null
+                  : () async {
+                      if (await localeService.loadFont(LocaleService.zh))
+                        await localeService.changeLocale(LocaleService.zh);
+                    },
+            ),
+          ])),
+        ],
+      ),
     );
   }
 }
 
 class _LicensePage extends StatelessWidget {
   const _LicensePage(
-      {Key? key, required this.animation, required this.changePage})
+      {Key? key,
+      required this.animation,
+      required this.changePage,
+      required this.license})
       : super(key: key);
   final Animation<double> animation; // init animation
   final _ChangeCurrentWidget changePage;
+  final String license;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -238,13 +301,21 @@ class _LicensePage extends StatelessWidget {
                 locale.license,
                 style: theme.textTheme.headline4,
               ),
-              trailing: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    changePage(_MainPage(
-                        animation: animation, changePage: changePage));
-                  }),
+              trailing: Material(
+                clipBehavior: Clip.antiAlias,
+                shape: CircleBorder(
+                    side: BorderSide(color: theme.disabledColor, width: 2)),
+                child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      changePage(_MainPage(
+                          animation: animation, changePage: changePage));
+                    }),
+              ),
             ),
+          ),
+          ListTile(
+            subtitle: Text(license),
           ),
         ])),
       ],
@@ -274,12 +345,17 @@ class _AboutPage extends StatelessWidget {
                 locale.about,
                 style: theme.textTheme.headline4,
               ),
-              trailing: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    changePage(_MainPage(
-                        animation: animation, changePage: changePage));
-                  }),
+              trailing: Material(
+                clipBehavior: Clip.antiAlias,
+                shape: CircleBorder(
+                    side: BorderSide(color: theme.disabledColor, width: 2)),
+                child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      changePage(_MainPage(
+                          animation: animation, changePage: changePage));
+                    }),
+              ),
             ),
           ),
           ListTile(

@@ -16,7 +16,12 @@ class StorageService extends StatelessWidget {
     return FutureBuilder<SharedPreferences>(
       future: SharedPreferences.getInstance(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) return SizedBox();
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox();
+        } else if (snapshot.hasError) {
+          print(snapshot.error);
+          return const SizedBox();
+        }
         return _StorageService(
           storage: snapshot.data!,
           child: child,
