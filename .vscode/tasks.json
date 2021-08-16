@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "update flutter version code",
-            "command": "echo \"const version = const <String,String>\" > lib/core/basic/flutter_version.dart;  flutter --version --machine >> lib/core/basic/flutter_version.dart; sed -i '' '10d' lib/core/basic/flutter_version.dart ; echo \";\" >> lib/core/basic/flutter_version.dart",
+            "command": "echo 'const version = const <String,String>' > lib/core/basic/flutter_version.dart;  flutter --version --machine >> lib/core/basic/flutter_version.dart; sed -i '' '10d' lib/core/basic/flutter_version.dart ; echo ';' >> lib/core/basic/flutter_version.dart",
             "args": [],
             "type": "shell"
         },

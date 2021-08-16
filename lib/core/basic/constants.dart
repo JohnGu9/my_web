@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'flutter_version.dart';
 
 class Constants {
-  static const String buildVersion = "0.2.0-nullsafety-alpha";
+  static const String buildVersion = "0.3.0-nullsafety";
   static String get frameworkVersion => version['frameworkVersion']!;
   static String get channel => version['channel']!;
   static String get repositoryUrl => version['repositoryUrl']!;

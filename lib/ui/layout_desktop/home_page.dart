@@ -1,29 +1,247 @@
-import 'package:flutter/material.dart';
+import 'package:circular_clip_route/circular_clip_route.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/physics.dart';
-import 'package:my_web/core/core.dart';
-import 'package:my_web/ui/layout_desktop/setting_page.dart';
-import 'package:animations/animations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage();
+import 'package:my_web/core/core.dart';
+import 'package:my_web/ui/layout_desktop/person_page.dart';
+import 'package:my_web/ui/layout_desktop/setting_page.dart';
+import 'package:my_web/ui/widgets/page_route_animation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      removeLeft: true,
+      removeRight: true,
+      removeTop: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 32),
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: theme.scaffoldBackgroundColor,
+            title: Padding(
+              padding: const EdgeInsets.only(left: 64),
+              child: SizedBox(
+                height: 56,
+                width: 56,
+                child: Builder(builder: (context) {
+                  return Hero(
+                    tag: Constants.personLogoImage,
+                    child: Material(
+                      shape: CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: Ink.image(
+                        image: Constants.personLogoImage,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(CircularClipRoute(
+                              expandFrom: context,
+                              builder: (context) {
+                                return const PersonPage();
+                              },
+                            ));
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            actions: [
+              const Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const _ContactButton(),
+              ),
+              Tooltip(
+                message: "https://github.com/JohnGu9",
+                child: CupertinoButton(
+                    child: const Text("Github"),
+                    onPressed: () async {
+                      if (await canLaunch("https://github.com/JohnGu9"))
+                        launch("https://github.com/JohnGu9");
+                    }),
+              ),
+              const SizedBox(width: 42),
+              Hero(
+                tag: "navigatorButton",
+                child: Tooltip(
+                  message: "Setting",
+                  child: Builder(builder: (context) {
+                    return CupertinoButton(
+                        child: const Icon(Icons.menu),
+                        onPressed: () {
+                          Navigator.of(context).push(CircularClipRoute(
+                            expandFrom: context,
+                            builder: (context) {
+                              return const SettingPage();
+                            },
+                          ));
+                        });
+                  }),
+                ),
+              ),
+            ],
+          ),
+          body: const _Content(),
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin, SpringProvideStateMixin {
+class _Content extends StatelessWidget {
+  const _Content({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          colors: const [Colors.black, Colors.black, Colors.transparent],
+          stops: const [0, 0.95, 1],
+        ).createShader(bounds);
+      },
+      child: GroupAnimationService.passiveHost(
+        animation: PageRouteAnimation.of(context).animation,
+        child: CustomScrollView(
+          scrollDirection: Axis.horizontal,
+          slivers: [
+            const SliverToBoxAdapter(
+              child: SizedBox(width: 64),
+            ),
+            SliverToBoxAdapter(
+              child: RotatedBox(
+                quarterTurns: -1,
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return RadialGradient(
+                      center: Alignment.topLeft,
+                      radius: 7.0,
+                      colors: <Color>[
+                        theme.textTheme.headline2!.color!,
+                        Colors.blue
+                      ],
+                    ).createShader(bounds);
+                  },
+                  child: Text(
+                    "Hybrid Development",
+                    style: theme.textTheme.headline2
+                        ?.copyWith(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(width: 108),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                const images = [
+                  "undraw_Coding_re_iv62.svg",
+                  "undraw_lightbulb_moment_re_ulyo.svg",
+                  "undraw_fast_loading_re_8oi3.svg",
+                  "undraw_Design_notes_re_eklr.svg",
+                  "undraw_Modern_professional_re_3b6l.svg",
+                ];
+                const texts = [
+                  "Build app for multi platforms. For desktop / for mobile. For Windows / for Linux. Even for embedded system. ",
+                  "Build app into flexible forms. Cli or GUI. Professional or accessible",
+                  "Build app under varied languages. C/C++, Java/Kotlin, Python, Dart and JavaScript. ",
+                  "Build app with rich abilities. Access network, camera or hardware driver. Take advantage of database or text form data like xml or json. ",
+                  "Build app more customizable. ",
+                ];
+                return GroupAnimationService.client(
+                  builder: (BuildContext context, Animation<double> animation,
+                      Widget child) {
+                    const begin = Offset(1, 0);
+                    const end = Offset.zero;
+                    final tween = Tween(begin: begin, end: end);
+                    return SlideTransition(
+                      position: tween.animate(CurvedAnimation(
+                          parent: animation, curve: Curves.fastOutSlowIn)),
+                      child: child,
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (index.isOdd) Spacer(),
+                            Text(
+                              "0${index + 1}",
+                              style: theme.textTheme.headline1,
+                            ),
+                            AspectRatio(
+                              aspectRatio: 3 / 4,
+                              child: SvgPicture.asset(
+                                  "assets/images/${images[index]}"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Text(
+                                  texts[index],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (index != 4)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: VerticalDivider(
+                            width: 56,
+                            thickness: 2,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }, childCount: 5),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(width: 108),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ContactButton extends StatefulWidget {
+  const _ContactButton({Key? key}) : super(key: key);
+
+  @override
+  State<_ContactButton> createState() => _ContactButtonState();
+}
+
+class _ContactButtonState extends State<_ContactButton>
+    with SingleTickerProviderStateMixin {
+  bool _onHovering = false;
   late AnimationController _controller;
-  bool _isOpened = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, value: 1)
-      ..animateBack(0.0,
-          curve: Curves.fastOutSlowIn, duration: const Duration(seconds: 1));
+    _controller = AnimationController(vsync: this);
   }
 
   @override
@@ -32,549 +250,92 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
-  Widget get _settingPage {
-    return FractionallySizedBox(
-      alignment: Alignment.topRight,
-      heightFactor: 0.9,
-      widthFactor: 0.7,
-      child: SlideTransition(
-          position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero)
-              .animate(_controller),
-          child: SettingPage(controller: _controller)),
-    );
-  }
-
-  Widget get _settingsButton {
-    return FractionallySizedBox(
-      alignment: Alignment.topRight,
-      heightFactor: 0.1,
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: PageTransitionSwitcher(
-            transitionBuilder: _settingsButtonTransition,
-            reverse: !_isOpened,
-            child: _isOpened ? _settingsCloseButton : _settingsOpenButton,
-          ),
-        ),
-      ),
-    );
-  }
-
-  static Widget _settingsButtonTransition(
-      Widget child,
-      Animation<double> primaryAnimation,
-      Animation<double> secondaryAnimation) {
-    return SharedAxisTransition(
-      animation: primaryAnimation,
-      secondaryAnimation: secondaryAnimation,
-      transitionType: SharedAxisTransitionType.horizontal,
-      child: child,
-    );
-  }
-
-  Widget get _settingsOpenButton {
-    return Material(
-      key: ValueKey(false),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: IconButton(
-        icon: const Icon(Icons.settings),
-        onPressed: () {
-          setState(() {
-            _isOpened = true;
-            _controller.animateWith(SpringSimulation(
-                spring, _controller.value, 1.0, _controller.velocity));
-          });
-        },
-      ),
-    );
-  }
-
-  Widget get _settingsCloseButton {
-    return Material(
-      key: ValueKey(true),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () {
-          setState(() {
-            _isOpened = false;
-            _controller.animateWith(SpringSimulation(
-                spring, _controller.value, 0.0, _controller.velocity));
-          });
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    Widget content() {
-      return AnimatedBuilder(
-        animation: _controller,
-        builder: (BuildContext context, Widget? child) {
-          return FractionallySizedBox(
-            alignment: Alignment.bottomRight,
-            widthFactor: Tween(begin: 0.9, end: 1.0).evaluate(_controller),
-            heightFactor: 0.9,
-            child: child,
-          );
-        },
-        child: SlideTransition(
-          position: Tween(begin: Offset.zero, end: const Offset(0.0, 8 / 9))
-              .animate(_controller),
-          child: Material(
-            color: theme.primaryColor.withOpacity(0.25),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  topLeft: ((theme.cardTheme.shape as RoundedRectangleBorder)
-                          .borderRadius as BorderRadius)
-                      .topLeft),
-            ),
-            child: SlideTransition(
-              position: Tween(begin: Offset.zero, end: const Offset(0.0, 0.3))
-                  .animate(_controller),
-              child: FadeTransition(
-                opacity: Tween(begin: 1.0, end: 0.0).animate(_controller),
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (BuildContext context, Widget? child) {
-                    return FractionallySizedBox(
-                      alignment: Alignment.centerRight,
-                      widthFactor: Tween(begin: 7 / 9, end: 7 / 10)
-                          .evaluate(_controller),
-                      child: child,
-                    );
-                  },
-                  child: const _Content(),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    Widget navigator() {
-      return AnimatedBuilder(
-        animation: _controller,
-        builder: (BuildContext context, Widget? child) {
-          return FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: Tween(begin: 0.4, end: 0.2).evaluate(_controller),
-            child: Container(
-              color: theme.primaryColor.withOpacity(0.7),
-              child: FractionallySizedBox(
-                alignment: Alignment.bottomRight,
-                widthFactor: Tween(begin: 0.75, end: 1.0).evaluate(_controller),
-                heightFactor: 0.9,
-                child: child,
-              ),
-            ),
-          );
-        },
-        child: SlideTransition(
-          position: Tween(begin: Offset.zero, end: const Offset(-0.3, 0.0))
-              .animate(_controller),
-          child: FadeTransition(
-            opacity: Tween(begin: 1.0, end: 0.0).animate(_controller),
-            child: const _Navigator(),
-          ),
-        ),
-      );
-    }
-
-    return MediaQuery.removePadding(
-      context: context,
-      child: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          clipBehavior: Clip.hardEdge,
-          children: [
-            _settingPage,
-            content(),
-            navigator(),
-            _settingsButton,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Navigator extends StatelessWidget {
-  const _Navigator();
-
-  @override
-  Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      heightFactor: 0.9,
-      widthFactor: 0.9,
-      child: CustomScrollView(
-        slivers: [
-          const _PageSelectorColumn(),
-          SliverFillRemaining(
-            fillOverscroll: false,
-            hasScrollBody: false,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+    final locale = StandardLocalizations.of(context);
+    return Tooltip(
+      message: "johngustyle@outlook.com",
+      child: Material(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        color: Colors.blue,
+        child: InkWell(
+          onTap: _onPressed,
+          onHover: _onHover,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
                 children: [
-                  const _SearchBox(),
-                  const _ReferenceRow(),
+                  const Icon(Icons.email),
+                  const SizedBox(width: 8),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.fastOutSlowIn,
+                    alignment: Alignment.centerLeft,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 450),
+                      layoutBuilder: (Widget? child, List<Widget> children) {
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          fit: StackFit.passthrough,
+                          children: [if (child != null) child, ...children],
+                        );
+                      },
+                      child: _onHovering
+                          ? Text(
+                              "Email",
+                              key: const ValueKey(false),
+                              maxLines: 1,
+                              style: const TextStyle(color: Colors.white),
+                            )
+                          : Text(
+                              locale.contactMe,
+                              key: const ValueKey(true),
+                              maxLines: 1,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PageSelectorColumn extends StatelessWidget {
-  const _PageSelectorColumn();
-  @override
-  Widget build(BuildContext context) {
-    final locale = StandardLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: ListTileTheme(
-        dense: false,
-        textColor: Colors.white,
-        child: SliverList(
-          delegate: SliverChildListDelegate.fixed([
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {},
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: ListTile(
-                  title: Text(
-                    locale.home,
-                    style: TextStyle(
-                      fontSize: textTheme.headline4!.fontSize,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {},
-              child: ListTile(
-                title: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Container(
-                        height: 5,
-                        width: 5,
-                        decoration: BoxDecoration(
-                            color: Colors.white, shape: BoxShape.circle),
-                      ),
-                    ),
-                    Text(
-                      locale.background,
-                      style: TextStyle(
-                        fontSize: textTheme.headline6!.fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {},
-              child: ListTile(
-                title: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Container(
-                        height: 5,
-                        width: 5,
-                        decoration: BoxDecoration(
-                            color: Colors.white, shape: BoxShape.circle),
-                      ),
-                    ),
-                    Text(
-                      locale.skill,
-                      style: TextStyle(
-                        fontSize: textTheme.headline6!.fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {},
-              child: ListTile(
-                title: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Container(
-                        height: 5,
-                        width: 5,
-                        decoration: BoxDecoration(
-                            color: Colors.white, shape: BoxShape.circle),
-                      ),
-                    ),
-                    Text(
-                      locale.other,
-                      style: TextStyle(
-                        fontSize: textTheme.headline6!.fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ]),
         ),
       ),
     );
   }
-}
 
-class _ReferenceRow extends StatelessWidget {
-  const _ReferenceRow();
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final locale = StandardLocalizations.of(context);
-    return Row(
-      children: [
-        CupertinoButton(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(locale.help,
-              style: textTheme.caption!.copyWith(color: Colors.white60)),
-          onPressed: () {},
-        ),
-        CupertinoButton(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(locale.privacy,
-              style: textTheme.caption!.copyWith(color: Colors.white60)),
-          onPressed: () {},
-        ),
-        CupertinoButton(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(locale.terms,
-              style: textTheme.caption!.copyWith(color: Colors.white60)),
-          onPressed: () {},
-        ),
-        CupertinoButton(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(locale.more,
-              style: textTheme.caption!.copyWith(color: Colors.white60)),
-          onPressed: () {},
-        ),
-      ],
+  void _onPressed() async {
+    final emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'johngustyle@outlook.com',
     );
-  }
-}
-
-class _SearchBox extends StatelessWidget {
-  const _SearchBox();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = StandardLocalizations.of(context);
-    final theme = Theme.of(context);
-    return TextField(
-      decoration: InputDecoration(
-          fillColor: Colors.white30,
-          filled: true,
-          border: OutlineInputBorder(
-            borderRadius: (theme.cardTheme.shape as RoundedRectangleBorder)
-                .borderRadius as BorderRadius,
-            borderSide: BorderSide.none,
-          ),
-          prefixIcon: const Icon(Icons.search, color: Colors.white70),
-          hintText: locale.search,
-          hintStyle: const TextStyle(color: Colors.white70)),
-      textInputAction: TextInputAction.search,
-      autofocus: false,
-    );
-  }
-}
-
-class _Content extends StatelessWidget {
-  const _Content();
-  @override
-  Widget build(BuildContext context) {
-    final locale = StandardLocalizations.of(context);
-    final theme = Theme.of(context);
-    final padding = ListTileTheme.of(context).contentPadding ??
-        EdgeInsets.symmetric(horizontal: 16.0);
-    return FractionallySizedBox(
-      alignment: Alignment.centerRight,
-      widthFactor: 6 / 7,
-      child: FractionallySizedBox(
-        alignment: Alignment(-0.3, 0.0),
-        heightFactor: 0.9,
-        widthFactor: 0.8,
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-                delegate: SliverChildListDelegate.fixed([
-              Padding(
-                padding: padding,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Text(
-                            locale.profile,
-                            style: theme.textTheme.headline4,
-                          ),
-                        ),
-                        subtitle: Text(
-                          locale.personDescription,
-                          style: theme.textTheme.caption,
-                        ),
-                      ),
-                    ),
-                    const Image(image: Constants.personLogoImage, width: 100)
-                  ],
-                ),
-              ),
-              Padding(
-                padding: padding,
-                child: Row(
-                  children: [
-                    ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Image(
-                          image: Constants.githubLogoImage,
-                          width: 20,
-                        ),
-                        label: const Text("Github")),
-                    const SizedBox(width: 12),
-                    OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: const Image(
-                        image: Constants.mediumLogoImage,
-                        width: 20,
-                      ),
-                      label: Text('View article'),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              Padding(
-                padding: padding,
-                child: const _CardRow(),
-              )
-            ]))
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CardRow extends StatelessWidget {
-  const _CardRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = StandardLocalizations.of(context);
-    final theme = Theme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-            child: Padding(
-          padding: const EdgeInsets.only(top: 32 * 2),
-          child: Material(
-            elevation: 1,
-            shape: theme.cardTheme.shape,
-            clipBehavior: Clip.hardEdge,
-            child: Column(
-              children: [
-                Image(
-                  image: Constants.backgroundImage,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: ListTile(
-                    title: Text(
-                      locale.backgroundDescription,
-                      style: theme.textTheme.caption,
-                    ),
-                  ),
-                )
-              ],
+    final urlString = emailLaunchUri.toString();
+    if (await canLaunch(urlString))
+      launch(urlString);
+    else
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ListTile(
+            leading: const Icon(Icons.error),
+            title: Text("Can't launch email app. Please send email manually. "),
+            subtitle: const SelectableText("johngustyle@outlook.com"),
+            trailing: CupertinoButton(
+              child: Text("Copy address"),
+              onPressed: () {
+                Clipboard.setData(
+                    const ClipboardData(text: "johngustyle@outlook.com"));
+              },
             ),
           ),
-        )),
-        const SizedBox(width: 16),
-        Expanded(
-            child: Padding(
-          padding: const EdgeInsets.only(top: 32),
-          child: Material(
-            elevation: 1,
-            shape: theme.cardTheme.shape,
-            clipBehavior: Clip.hardEdge,
-            child: Column(
-              children: [
-                Image(
-                  image: Constants.skillImage,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: ListTile(
-                    title: Text(
-                      locale.backgroundDescription,
-                      style: theme.textTheme.caption,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        )),
-        const SizedBox(width: 16),
-        Expanded(
-            child: Material(
-          elevation: 1,
-          shape: theme.cardTheme.shape,
-          clipBehavior: Clip.hardEdge,
-          child: Column(
-            children: [
-              Image(
-                image: Constants.otherImage,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: ListTile(
-                  title: Text(
-                    locale.backgroundDescription,
-                    style: theme.textTheme.caption,
-                  ),
-                ),
-              )
-            ],
-          ),
-        )),
-      ],
-    );
+        ),
+      );
+  }
+
+  void _onHover(bool value) {
+    return setState(() {
+      _onHovering = value;
+    });
   }
 }

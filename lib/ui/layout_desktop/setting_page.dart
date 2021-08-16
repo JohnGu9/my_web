@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_web/core/core.dart';
@@ -6,8 +7,7 @@ import 'package:my_web/core/core.dart';
 typedef void _ChangeCurrentWidget(Widget newWidget);
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({Key? key, required this.controller}) : super(key: key);
-  final AnimationController controller;
+  const SettingPage({Key? key}) : super(key: key);
   @override
   _SettingPageState createState() => _SettingPageState();
 }
@@ -15,7 +15,6 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  bool _isOpened = false;
 
   late Widget _currentPage;
   Widget get _mainPage {
@@ -29,62 +28,61 @@ class _SettingPageState extends State<SettingPage>
     );
   }
 
-  _listener() {
-    if (widget.controller.value > 0.75 && _isOpened == false) {
-      _isOpened = true;
-      _controller.animateTo(1.0);
-    } else if (widget.controller.value - widget.controller.lowerBound < 0.01) {
-      _isOpened = false;
-      _controller.value = 0.0;
-      _currentPage = _mainPage;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    widget.controller.addListener(_listener);
     _currentPage = _mainPage;
-  }
-
-  @override
-  void didUpdateWidget(covariant SettingPage oldWidget) {
-    if (widget.controller != oldWidget.controller) {
-      oldWidget.controller.removeListener(_listener);
-      widget.controller.addListener(_listener);
-    }
-    super.didUpdateWidget(oldWidget);
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) _controller.animateTo(1.0);
+    });
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_listener);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      alignment: Alignment(-1.0, 0),
-      heightFactor: 0.9,
-      widthFactor: 0.9,
-      child: ListTileTheme(
-        shape: const StadiumBorder(),
-        child: PageTransitionSwitcher(
-          transitionBuilder: (Widget child, Animation<double> primaryAnimation,
-              Animation<double> secondaryAnimation) {
-            return SharedAxisTransition(
-              animation: primaryAnimation,
-              secondaryAnimation: secondaryAnimation,
-              transitionType: SharedAxisTransitionType.horizontal,
-              child: child,
-            );
-          },
-          reverse: _currentPage is _MainPage,
-          child: _currentPage,
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        actions: [
+          Hero(
+            tag: "navigatorButton",
+            child: CupertinoButton(
+              child: const Icon(Icons.close),
+              onPressed: Navigator.of(context).pop,
+            ),
+          ),
+        ],
+      ),
+      body: Center(
+        child: AspectRatio(
+          aspectRatio: 3 / 4,
+          child: ListTileTheme(
+            shape: const StadiumBorder(),
+            child: PageTransitionSwitcher(
+              transitionBuilder: (Widget child,
+                  Animation<double> primaryAnimation,
+                  Animation<double> secondaryAnimation) {
+                return SharedAxisTransition(
+                  animation: primaryAnimation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal,
+                  child: child,
+                );
+              },
+              reverse: _currentPage is _MainPage,
+              child: _currentPage,
+            ),
+          ),
         ),
       ),
     );
@@ -315,7 +313,7 @@ class _LicensePage extends StatelessWidget {
             ),
           ),
           ListTile(
-            subtitle: Text(license),
+            subtitle: SelectableText(license),
           ),
         ])),
       ],
@@ -360,23 +358,27 @@ class _AboutPage extends StatelessWidget {
           ),
           ListTile(
             title: Text(locale.version),
-            trailing: const Text(Constants.buildVersion),
+            trailing: const SelectableText(Constants.buildVersion),
+          ),
+          ListTile(
+            title: const Text("illustrations"),
+            trailing: const SelectableText("https://undraw.co/illustrations"),
           ),
           ListTile(
             title: const Text("Flutter"),
-            trailing: Text(Constants.frameworkVersion),
+            trailing: SelectableText(Constants.frameworkVersion),
           ),
           ListTile(
-            trailing: Text(Constants.channel),
+            trailing: SelectableText(Constants.channel),
           ),
           ListTile(
-            trailing: Text(Constants.frameworkRevision),
+            trailing: SelectableText(Constants.frameworkRevision),
           ),
           ListTile(
-            trailing: Text(Constants.frameworkCommitDate),
+            trailing: SelectableText(Constants.frameworkCommitDate),
           ),
           ListTile(
-            trailing: Text(Constants.repositoryUrl),
+            trailing: SelectableText(Constants.repositoryUrl),
           ),
         ])),
       ],

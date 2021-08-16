@@ -3,6 +3,7 @@ import 'package:my_web/core/core.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_web/core/native/native_channel.dart';
+import 'package:my_web/ui/widgets/page_route_animation.dart';
 
 import 'layout_desktop/layout_desktop.dart' as desktop;
 import 'layout_mobile/layout_mobile.dart' as mobile;
@@ -27,35 +28,6 @@ class _MainActivityState extends State<MainActivity>
     return supportedLocales.first;
   }
 
-  late Future _init;
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this);
-    _init = () async {
-      await Future.wait([
-        precacheImage(Constants.personLogoImage, context),
-        precacheImage(Constants.githubLogoImage, context),
-        precacheImage(Constants.mediumLogoImage, context),
-        precacheImage(Constants.mailLogoImage, context),
-        precacheImage(Constants.backgroundImage, context),
-        precacheImage(Constants.otherImage, context),
-        precacheImage(Constants.skillImage, context),
-      ]);
-
-      /// no need to check [mounted]. If state is not mounted, the app don't run at all.
-      _controller.animateTo(1.0, duration: const Duration(milliseconds: 700));
-    }();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return NativeChannel(
@@ -67,7 +39,7 @@ class _MainActivityState extends State<MainActivity>
                 return ThemeService(
                   builder: (context, theme) {
                     return MaterialApp(
-                      title: 'My Web',
+                      title: "JohnGu's Profile",
                       theme: theme,
                       locale: locale,
                       supportedLocales: LocaleService.supportedLocales,
@@ -80,17 +52,16 @@ class _MainActivityState extends State<MainActivity>
                         GlobalCupertinoLocalizations.delegate,
                       ],
                       debugShowCheckedModeBanner: false,
-                      home: FutureBuilder(
-                        future: _init,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState != ConnectionState.done)
-                            return const SizedBox();
-                          return FadeTransition(
-                            opacity: _controller,
-                            child: const PlatformHomePage(),
-                          );
-                        },
-                      ),
+                      home: _DelayRoute(
+                          future: Future.wait([
+                        precacheImage(Constants.personLogoImage, context),
+                        // precacheImage(Constants.githubLogoImage, context),
+                        // precacheImage(Constants.mediumLogoImage, context),
+                        // precacheImage(Constants.mailLogoImage, context),
+                        // precacheImage(Constants.backgroundImage, context),
+                        // precacheImage(Constants.otherImage, context),
+                        // precacheImage(Constants.skillImage, context),
+                      ])),
                     );
                   },
                 );
@@ -100,6 +71,54 @@ class _MainActivityState extends State<MainActivity>
         ),
       ),
     );
+  }
+}
+
+class _DelayRoute extends StatefulWidget {
+  final Future future;
+
+  const _DelayRoute({Key? key, required this.future}) : super(key: key);
+
+  @override
+  State<_DelayRoute> createState() => _DelayRouteState();
+}
+
+class _DelayRouteState extends State<_DelayRoute> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    widget.future.then((value) {
+      if (mounted)
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            transitionDuration: const Duration(seconds: 3),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              final curvedAnimation = CurvedAnimation(
+                  parent: animation, curve: const Interval(0.2, 1));
+              return Material(
+                child: ScaleTransition(
+                  scale:
+                      Tween(begin: 1.0, end: 0.95).animate(secondaryAnimation),
+                  child: FadeTransition(
+                    opacity: CurvedAnimation(
+                        parent: curvedAnimation, curve: Curves.fastOutSlowIn),
+                    child: PageRouteAnimation(
+                      animation: curvedAnimation,
+                      secondaryAnimation: secondaryAnimation,
+                      child: const PlatformHomePage(),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox();
   }
 }
 
