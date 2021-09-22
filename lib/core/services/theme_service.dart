@@ -124,12 +124,12 @@ class _ThemeService extends InheritedWidget {
   }
 
   TextStyle get centerStyle {
-    return theme.appBarTheme.textTheme?.headline6 ??
+    return theme.appBarTheme.titleTextStyle ??
         theme.primaryTextTheme.headline6!;
   }
 
   TextStyle get sideStyle {
-    return theme.appBarTheme.textTheme?.bodyText2 ??
+    return theme.appBarTheme.toolbarTextStyle ??
         theme.primaryTextTheme.bodyText2!;
   }
 

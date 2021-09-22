@@ -252,7 +252,6 @@ class _ContactButtonState extends State<_ContactButton>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final locale = StandardLocalizations.of(context);
     return Tooltip(
       message: "johngustyle@outlook.com",
