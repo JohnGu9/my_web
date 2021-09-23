@@ -11,3 +11,29 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#root{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    color: rgba(0, 0, 0, 0.87);
+    background-color: #fff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: rgba(255, 255, 255, 1);
+    background-color: #303030;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  transition: background-color 1s, color 0.2s;
+}

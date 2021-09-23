@@ -1,6 +1,12 @@
+import 'core-js/es/map';
+import 'core-js/es/set';
+import 'raf/polyfill';
+import 'material-icons/iconfont/material-icons.css';
+import 'rmwc/dist/styles';
+import './index.css';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

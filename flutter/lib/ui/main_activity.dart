@@ -93,8 +93,18 @@ class _DelayRouteState extends State<_DelayRoute> {
           PageRouteBuilder(
             transitionDuration: const Duration(seconds: 3),
             pageBuilder: (context, animation, secondaryAnimation) {
-              final curvedAnimation = CurvedAnimation(
-                  parent: animation, curve: const Interval(0.2, 1));
+              final curvedAnimation = TweenSequence<double>(
+                <TweenSequenceItem<double>>[
+                  TweenSequenceItem<double>(
+                    tween: Tween<double>(begin: 0.0, end: 0.05),
+                    weight: 20.0,
+                  ),
+                  TweenSequenceItem<double>(
+                    tween: Tween<double>(begin: 0.05, end: 1),
+                    weight: 80.0,
+                  ),
+                ],
+              ).animate(animation);
               return Material(
                 child: ScaleTransition(
                   scale:
