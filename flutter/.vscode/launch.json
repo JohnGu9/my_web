@@ -8,22 +8,25 @@
             "name": "Flutter Debug",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "debug"
+            "flutterMode": "debug",
+            "args": [
+                "--dart-define",
+                "FLUTTER_WEB_CANVASKIT_URL=/"
+            ]
         },
         {
             "name": "Flutter Profile",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args": [
+                "--dart-define",
+                "FLUTTER_WEB_CANVASKIT_URL=/"
+            ]
         },
         {
             "name": "Build release",
             "preLaunchTask": "Build release",
-            "type": "extensionHost"
-        },
-        {
-            "name": "Build release with hardware accelerate",
-            "preLaunchTask": "Build release with hardware accelerate",
             "type": "extensionHost"
         },
         {

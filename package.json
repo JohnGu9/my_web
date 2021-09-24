@@ -28,9 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "pre": "npm run flutterBuild && npm run flutterCopy",
-    "flutterBuild": "cd flutter && flutter build web --release --dart-define=FLUTTER_WEB_CANVASKIT_URL=/",
-    "flutterCopy": "cp -rf flutter/build/web public/flutter && mv -f public/flutter/canvaskit.* public"
+    "pre-build": "node pre-build.js"
   },
   "eslintConfig": {
     "extends": [

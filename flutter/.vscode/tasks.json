@@ -9,16 +9,7 @@
         },
         {
             "label": "Build release",
-            "command": "flutter build web --release",
-            "args": [],
-            "type": "shell",
-            "dependsOn": [
-                "update flutter version code"
-            ]
-        },
-        {
-            "label": "Build release with hardware accelerate",
-            "command": "flutter build web --web-renderer canvaskit --release",
+            "command": "flutter build web --release --dart-define=FLUTTER_WEB_CANVASKIT_URL=/",
             "args": [],
             "type": "shell",
             "dependsOn": [

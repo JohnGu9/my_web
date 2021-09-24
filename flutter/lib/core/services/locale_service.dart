@@ -58,7 +58,7 @@ class _LocaleServiceState extends State<LocaleService> {
     if (asyncFile.isLoaded) return true;
     if (asyncFile.loading == false)
       asyncFile.loadFuture = () async {
-        print(
+        debugPrint(
             'Start to load font [${asyncFile.fontFamily}] from [${asyncFile.path}] for language [${locale.languageCode}]');
         try {
           final fontFile = await rootBundle.load(asyncFile.path);
