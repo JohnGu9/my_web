@@ -46,5 +46,8 @@
       "last 1 chrome version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "minify": "^7.1.0"
   }
 }

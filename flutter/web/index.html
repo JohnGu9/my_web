@@ -78,12 +78,10 @@
 </head>
 
 <body>
-  <div class="center">
-    <div class="scaleTransition">
-      <div class="fadeTransition">
-        <div id="loader"></div>
-      </div>
-    </div>
+  <div class="slider" style="top: 0; left: 0;">
+    <div class="line"></div>
+    <div class="subline inc"></div>
+    <div class="subline dec"></div>
   </div>
   <script>
     if ('serviceWorker' in navigator) {
@@ -92,17 +90,8 @@
       });
     }
   </script>
-  <script>
-    function onError() {
-      const loader = document.getElementById('loader');
-      const img = document.createElement('img');
-      img.src = 'error.png'; img.width = 150; img.height = 150;
-      loader.replaceWith(img);
-      alert('Error on loading resource. \nPlease check your network and refresh website. ');
-    }
-  </script>
-  <script src="native.js" type="application/javascript" onerror="onError()"></script>
-  <script src="main.dart.js" type="application/javascript" onerror="onError()"></script>
+  <script src="native.js" type="application/javascript"></script>
+  <script src="main.dart.js" type="application/javascript"></script>
 </body>
 
 </html>

@@ -132,4 +132,3 @@ function Card(props: {
     </Ripple>
   );
 }
-

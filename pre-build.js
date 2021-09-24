@@ -1,22 +1,48 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+const fs = require('fs').promises;
+const minify = require('minify');
 
-console.log('running pre-build.js')
-execSync('cd flutter && flutter build web --release --dart-define=FLUTTER_WEB_CANVASKIT_URL=/',
-  (err, stdout) => {
-    if (err) return;
-    console.log(`${stdout}`);
-  });
+const options = {
+  html: {
+  },
+  css: {
+    compatibility: '*',
+  },
+  js: {
+    ecma: 5,
+  },
+  img: {
+    maxSize: 4096,
+  },
+};
 
-execSync('rm -rf public/flutter');
-execSync('cp -rf flutter/build/web public/flutter');
-execSync('mv -f public/flutter/canvaskit.* public');
+async function main() {
+  console.log('running pre-build.js')
+  const { stdout } = await exec('cd flutter && flutter build web --release --dart-define=FLUTTER_WEB_CANVASKIT_URL=/');
+  console.log(stdout);
 
-const flutterIndex = 'public/flutter/index.html';
-fs.readFile(flutterIndex, 'utf8', function (err, data) {
-  if (err) return console.log(err);
-  const result = data.replace('"/"', '"/flutter/"');
-  fs.writeFile(flutterIndex, result, 'utf8', function (err) {
-    if (err) return console.log(err);
-  });
-});
+
+  console.log('merge flutter to root reactjs project');
+  // TODO: use js code to modify files rather than system command
+  await exec('rm -rf ./public/flutter');
+  await exec('cp -rf ./flutter/build/web public/flutter');
+  await exec('mv -f ./public/flutter/canvaskit.* public');
+
+
+  const native = await minify('./public/flutter/native.js', options);
+  await fs.writeFile('./public/flutter/native.js', native, 'utf8');
+
+
+  const preload = await minify('./public/flutter/preload.css', options);
+  await fs.writeFile('./public/flutter/preload.css', preload, 'utf8');
+
+
+  const flutterIndex = './public/flutter/index.html';
+  const indexBuffer = await fs.readFile(flutterIndex, 'utf8');
+  const indexData = indexBuffer.toString();
+  const indexResult = indexData.replace('"/"', '"/flutter/"');
+  await fs.writeFile(flutterIndex, indexResult, 'utf8');
+}
+
+main();

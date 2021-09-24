@@ -1,120 +1,47 @@
-.center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
+.slider {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 4px;
+    overflow-x: hidden;
 }
 
-#loader {
-    border: 8px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 8px solid #2196F3;
-    width: 60px;
-    height: 60px;
-    -webkit-animation: spin 1s ease-in-out infinite;
-    /* Safari */
-    animation: spin 1s ease-in-out infinite;
+.line {
+    position: absolute;
+    opacity: 0.4;
+    background: #4a8df8;
+    width: 150%;
+    height: 4px;
 }
 
-.scaleTransition {
-    -webkit-animation: scale 1s ease-out;
-    /* Safari */
-    animation: scale 1s ease-out;
+.subline {
+    position: absolute;
+    background: #4a8df8;
+    height: 4px;
+}
+.inc {
+    animation: increase 2s infinite;
+}
+.dec {
+    animation: decrease 2s 0.5s infinite;
 }
 
-.fadeTransition {
-    -webkit-animation: fade 1s ease-out;
-    /* Safari */
-    animation: fade 1s ease-out;
-}
-
-.slideTransition {
-    -webkit-animation: slide 0.5s ease-out;
-    /* Safari */
-    animation: slide 0.5s ease-out;
-}
-
-/* Safari */
-
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* Safari */
-
-@-webkit-keyframes scale {
-    0% {
-        -webkit-transform: scale(0.7);
-    }
-    100% {
-        -webkit-transform: scale(1.0);
-    }
-}
-
-@keyframes scale {
-    0% {
-        transform: scale(0.7);
-    }
-    100% {
-        transform: scale(1.0);
-    }
-}
-
-/* Safari */
-
-@-webkit-keyframes fade {
+@keyframes increase {
     from {
-        opacity: 0;
+        left: -5%;
+        width: 5%;
     }
     to {
-        opacity: 1;
+        left: 130%;
+        width: 100%;
     }
 }
-
-@keyframes fade {
+@keyframes decrease {
     from {
-        opacity: 0;
+        left: -80%;
+        width: 80%;
     }
     to {
-        opacity: 1;
-    }
-}
-
-/* Safari */
-
-@-webkit-keyframes slide {
-    from {
-        transform: translateY(200%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-@keyframes slide {
-    from {
-        transform: translateY(200%);
-    }
-    to {
-        transform: translateY(0);
+        left: 110%;
+        width: 10%;
     }
 }
