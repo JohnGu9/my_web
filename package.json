@@ -48,6 +48,8 @@
     ]
   },
   "devDependencies": {
-    "minify": "^7.1.0"
+    "@types/minify": "^6.0.1",
+    "minify": "^7.1.0",
+    "ts-node": "^10.2.1"
   }
 }
