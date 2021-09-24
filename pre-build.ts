@@ -1,11 +1,11 @@
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const fs = require('fs').promises;
-const { existsSync } = require('fs');
-const path = require('path');
-const minify = require('minify');
+import util = require('util');
+import child_process = require('child_process');
+const exec = util.promisify(child_process.exec);
+import { promises as fs, existsSync } from 'fs';
+import path = require('path');
+import minify = require('minify');
 
-async function copyFolderRecursive(source, target) {
+async function copyFolderRecursive(source: string, target: string) {
   // Check if folder needs to be created or integrated
   if (!existsSync(target)) await fs.mkdir(target);
 
@@ -40,7 +40,7 @@ async function main() {
   await fs.rename(path.join(__dirname, 'public', 'flutter', 'canvaskit.wasm'), path.join(__dirname, 'public', 'canvaskit.wasm'));
 
   // minify js and css
-  const options = {
+  const options: minify.Options = {
     html: {
     },
     css: {
@@ -53,17 +53,19 @@ async function main() {
       maxSize: 4096,
     },
   };
-  const native = await minify('./public/flutter/native.js', options);
-  await fs.writeFile('./public/flutter/native.js', native, 'utf8');
-  const preload = await minify('./public/flutter/preload.css', options);
-  await fs.writeFile('./public/flutter/preload.css', preload, 'utf8');
+  const nativeJsPath = path.join('public', 'flutter', 'native.js');
+  const nativeSource = await minify(nativeJsPath, options);
+  await fs.writeFile(nativeJsPath, nativeSource, 'utf8');
+  const preloadCssPath = path.join('public', 'flutter', 'preload.css');
+  const preloadSource = await minify(preloadCssPath, options);
+  await fs.writeFile(preloadCssPath, preloadSource, 'utf8');
 
   // change html base url
-  const flutterIndex = './public/flutter/index.html';
-  const indexBuffer = await fs.readFile(flutterIndex, 'utf8');
+  const indexPath = path.join('public', 'flutter', 'index.html');
+  const indexBuffer = await fs.readFile(indexPath, 'utf8');
   const indexData = indexBuffer.toString();
-  const indexResult = indexData.replace('"/"', '"/flutter/"');
-  await fs.writeFile(flutterIndex, indexResult, 'utf8');
+  const indexSource = indexData.replace('"/"', '"/flutter/"');
+  await fs.writeFile(indexPath, indexSource, 'utf8');
 }
 
 main();

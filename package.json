@@ -28,7 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "pre-build": "node pre-build.js"
+    "pre-build": "npx ts-node -P tsconfig.pre.json pre-build.ts"
   },
   "eslintConfig": {
     "extends": [
