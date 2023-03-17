@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/box_constraints_extension.dart';
 import 'package:my_web/ui/widgets/drag_gesture.dart';
-import 'package:my_web/ui/widgets/stack_list_view.dart';
 
 import 'task_manager_view/blur.dart';
 import 'task_manager_view/scale.dart';
+import 'task_manager_view/stack_list_view.dart';
 import 'task_manager_view/task_manager_app_card.dart';
 import 'task_manager_view/task_manager_data.dart';
 
@@ -28,9 +29,11 @@ class _TaskManagerViewState extends State<TaskManagerView>
   late ScrollController _scrollController;
   late AnimationController _reenterController;
   late BoxConstraints _layoutConstraints;
-  _TaskManagerAnimationData? _data;
   final List<StackListViewData<AppData>> _apps = [];
+
+  _TaskManagerAnimationData? _data;
   AppData? _focusApp;
+  bool _isFocusAppDirty = false;
 
   Rect _getRect(RenderBox box) {
     final size = box.size;
@@ -38,12 +41,14 @@ class _TaskManagerViewState extends State<TaskManagerView>
       Offset.zero,
       ancestor: context.findRenderObject(),
     );
-    return Rect.fromLTWH(
-      offset.dx,
-      offset.dy,
-      size.width,
-      size.height,
-    );
+    return Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+  }
+
+  void _updateSnapshot() {
+    if (_isFocusAppDirty) {
+      _focusApp?.updateSnapshot();
+      _isFocusAppDirty = false;
+    }
   }
 
   void _enter(AppData data) {
@@ -53,45 +58,47 @@ class _TaskManagerViewState extends State<TaskManagerView>
     });
     if (index != -1) _apps.removeAt(index);
     _apps.insert(0, StackListViewData<AppData>(0, ValueKey(data), data));
-    for (final app in _apps) {
-      app.sizeFactor = 0;
-    }
 
     final context = data.iconKey.currentContext;
     if (context == null) {
       _reenter(
         _data = _TaskManagerEnterAppAnimationData(
-          Rect.fromLTWH(
-            -widget.constraints.maxWidth,
+          widget.constraints.toRect(left: widget.constraints.maxWidth),
+          _AppRect(
             0,
-            widget.constraints.maxWidth,
-            widget.constraints.maxHeight,
+            widget.constraints.toRect(left: widget.constraints.maxWidth),
+            widget.constraints.toRect(),
           ),
-          _AppRect.invalid,
         ),
       );
     } else {
       final start = context.findRenderObject() as RenderBox;
       final rect = _getRect(start);
       _reenter(_data = _TaskManagerAppFlyInAnimationData(
-        _AppRect(0, rect, 1),
+        _AppRect(0, rect, widget.constraints.toRect()),
       ));
     }
   }
 
   void _reenter(_TaskManagerAnimationData _) async {
-    if (_data?.isEnterApp != true && _data?.isDragging != true) {
-      _focusApp?.updateSnapshot();
+    assert(_data?.stats != TaskManagerStats.exit);
+    _updateSnapshot();
+    switch (_data?.stats) {
+      case TaskManagerStats.enterApp:
+        _isFocusAppDirty = true;
+        break;
+      default:
     }
     _reenterController.value = 0;
     await _reenterController.animateTo(1);
-    if (_reenterController.isCompleted && _data?.isEnterApp == true) {
+    if (_reenterController.isCompleted &&
+        _data?.stats == TaskManagerStats.enterApp) {
       final index = _getCurrentIndex();
       if (index > -1 && index < _apps.length) {
-        final app = _apps[index];
-        if (app.data != _focusApp) {
+        final app = _apps[index].data;
+        if (_focusApp != app) {
           setState(() {
-            _focusApp = app.data;
+            _focusApp = app;
           });
         }
       }
@@ -99,7 +106,8 @@ class _TaskManagerViewState extends State<TaskManagerView>
   }
 
   void _exit(_TaskManagerAnimationData _) async {
-    _focusApp?.updateSnapshot();
+    assert(_data?.stats == TaskManagerStats.exit);
+    _updateSnapshot();
     _reenterController.value = 1;
     await _reenterController.animateBack(0);
     if (_reenterController.isDismissed) {
@@ -114,6 +122,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
   }
 
   void _scrollToIndex(int index) {
+    if (_apps.length < 2) return;
     _scrollController.animateTo(
       index.clamp(0, (_apps.length - 1)) * _layoutConstraints.maxWidth,
       duration: const Duration(milliseconds: 450),
@@ -167,26 +176,16 @@ class _TaskManagerViewState extends State<TaskManagerView>
         widget.constraints,
         _reenterController.value,
       );
-      final appData = (data.hideFromWidget &&
+      final flyAnimation = data.flyAnimation;
+      final appData = (flyAnimation != null &&
               appRect.index > -1 &&
               appRect.index < _apps.length)
           ? _apps[appRect.index].data
           : null;
-      void exit() {
-        _exit(_data = _TaskManagerExitAnimationData(
-          stackListViewRect,
-          appRect,
-        ));
-      }
-
-      final biggest = widget.constraints.biggest;
-      final otherRect = Rect.fromLTWH(
-        biggest.width * (1 - appRect.other) / 2,
-        biggest.height * (1 - appRect.other) / 2,
-        biggest.width * appRect.other,
-        biggest.height * appRect.other,
+      final cardPadding = EdgeInsets.symmetric(
+        horizontal:
+            (_layoutConstraints.maxWidth - widget.constraints.maxWidth) / 2,
       );
-      final padding = (_layoutConstraints.maxWidth - biggest.width) / 2;
 
       void enterTaskManager() {
         _reenter(_data = _TaskManagerEnterAnimationData(
@@ -196,10 +195,9 @@ class _TaskManagerViewState extends State<TaskManagerView>
       }
 
       void enterApp(int index) {
-        if (index > -1 && index < _apps.length) {
-          _focusApp = _apps[index].data;
-        }
-        _scrollToIndex(index);
+        final i = index.clamp(0, _apps.length - 1);
+        _focusApp = _apps[i].data;
+        _scrollToIndex(i);
         _reenter(_data = _TaskManagerEnterAppAnimationData(
           stackListViewRect,
           appRect,
@@ -208,12 +206,14 @@ class _TaskManagerViewState extends State<TaskManagerView>
 
       void flyBack() {
         final index = _getCurrentIndex();
+        _scrollToIndex(index);
         final nextAppRect = _AppRect(
           index,
-          appRect.index == index ? appRect.rect : otherRect,
+          appRect.index == index ? appRect.rect : appRect.other,
           appRect.other,
         );
-        Rect? getTargetRect() {
+
+        final rect = () {
           if (index < _apps.length) {
             final appData = _apps[index];
             final context = appData.data.iconKey.currentContext;
@@ -224,9 +224,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
             }
           }
           return null;
-        }
-
-        final rect = getTargetRect();
+        }();
         if (rect != null) {
           _exit(_data = _TaskManagerAppFlyBackAnimationData(
             stackListViewRect,
@@ -234,48 +232,93 @@ class _TaskManagerViewState extends State<TaskManagerView>
             rect,
           ));
         } else {
-          _exit(_data = _TaskManagerExitAppAnimationData(
+          _exit(_data = _TaskManagerAppExitAnimationData(
             stackListViewRect,
             nextAppRect,
           ));
         }
       }
 
+      void forceExit() {
+        _exit(_data = _TaskManagerExitAnimationData(
+          stackListViewRect,
+          appRect,
+        ));
+      }
+
+      final bool isEnter;
+      final bool reenterEnable;
+      final bool isEnterApp;
+      final void Function() exit;
+      final Map<ShortcutActivator, Intent> shortcuts;
+
+      switch (data.stats) {
+        case TaskManagerStats.enter:
+          isEnter = true;
+          reenterEnable = true;
+          isEnterApp = false;
+          exit = forceExit;
+          shortcuts = {
+            LogicalKeySet(LogicalKeyboardKey.escape): _ActionIntent(exit),
+            LogicalKeySet(LogicalKeyboardKey.f3): _ActionIntent(exit),
+            LogicalKeySet(LogicalKeyboardKey.space):
+                _ActionIntent(() => enterApp(_getCurrentIndex())),
+            LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+                _ActionIntent(() => _scrollToIndex(_getCurrentIndex() + 1)),
+            LogicalKeySet(LogicalKeyboardKey.arrowRight):
+                _ActionIntent(() => _scrollToIndex(_getCurrentIndex() - 1)),
+          };
+          break;
+        case TaskManagerStats.enterApp:
+          isEnter = true;
+          reenterEnable = false;
+          isEnterApp = true;
+          exit = forceExit;
+          shortcuts = {
+            LogicalKeySet(LogicalKeyboardKey.escape): _ActionIntent(flyBack),
+            LogicalKeySet(LogicalKeyboardKey.f3):
+                _ActionIntent(enterTaskManager),
+          };
+          break;
+        case TaskManagerStats.drag:
+          isEnter = true;
+          reenterEnable = false;
+          isEnterApp = false;
+          exit = () {};
+          shortcuts = const {};
+          break;
+        case TaskManagerStats.exit:
+          isEnter = false;
+          reenterEnable = true;
+          isEnterApp = false;
+          exit = () {};
+          shortcuts = {
+            LogicalKeySet(LogicalKeyboardKey.f3):
+                _ActionIntent(enterTaskManager),
+            LogicalKeySet(LogicalKeyboardKey.space):
+                _ActionIntent(() => enterApp(_getCurrentIndex())),
+          };
+          break;
+      }
+
       return Shortcuts(
-        shortcuts: data.isEnter
-            ? {
-                LogicalKeySet(LogicalKeyboardKey.escape): data.isEnterApp
-                    ? _ActionIntent(flyBack)
-                    : _ActionIntent(exit),
-                LogicalKeySet(LogicalKeyboardKey.f3): data.isEnterApp
-                    ? _ActionIntent(enterTaskManager)
-                    : _ActionIntent(exit),
-              }
-            : {
-                LogicalKeySet(LogicalKeyboardKey.escape):
-                    _ActionIntent(enterTaskManager),
-                LogicalKeySet(LogicalKeyboardKey.f3):
-                    _ActionIntent(enterTaskManager),
-              },
+        shortcuts: shortcuts,
         child: Actions(
           actions: _actions,
           child: TaskManagerData(
             enter: _enter,
             appData: appData,
-            duration: data.hideFromWidgetDuration,
+            hideWidgetDuration: flyAnimation?.hideWidgetDuration,
             child: Stack(
               children: [
                 Positioned.fill(
                   child: Scale(
-                    enable: data.isEnter,
+                    enable: isEnter,
                     constraints: widget.constraints,
                     child: widget.child,
                   ),
                 ),
-                if (data.isEnter)
-                  const Positioned.fill(child: Blur(enable: true))
-                else
-                  const Positioned.fill(child: Blur(enable: false)),
+                Positioned.fill(child: Blur(enable: isEnter)),
                 Positioned.fromRect(
                   rect: stackListViewRect,
                   child: FittedBox(
@@ -292,52 +335,46 @@ class _TaskManagerViewState extends State<TaskManagerView>
                           controller: _scrollController,
                           constraints: _layoutConstraints,
                           data: _apps,
-                          itemBuilder: (context, delta, index, appData) {
+                          itemBuilder:
+                              (context, delta, index, sizeFactor, appData) {
                             final thisData = _apps[index];
                             final isPrimary = index == appRect.index;
-                            final isFlyAnimation =
-                                isPrimary ? data.isFlyAnimation : null;
-                            final child = TaskManagerAppCard(
-                              isFlyAnimation: isFlyAnimation,
-                              appData: appData,
-                              biggest: biggest,
-                              delta: delta,
-                              showDragBar: data.showDragBar,
-                              isEnterTaskManager: isEnterTaskManager,
-                              isFocus: appData == _focusApp,
-                              isEnterApp: data.isEnterApp,
-                              reenterEnable: data.reenterEnable,
-                              reenterApp: () {
-                                return enterApp(index);
-                              },
-                              updateSizeFactor: (value) {
-                                setState(() {
-                                  thisData.sizeFactor = value;
-                                });
-                              },
-                              removeApp: () {
-                                setState(() {
-                                  _apps.remove(thisData);
-                                });
-                              },
-                            );
-
                             return Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: padding,
-                              ),
+                              padding: cardPadding,
                               child: Stack(
                                 children: [
-                                  if (isPrimary)
-                                    Positioned.fromRect(
-                                      rect: appRect.rect,
-                                      child: child,
-                                    )
-                                  else
-                                    Positioned.fromRect(
-                                      rect: otherRect,
-                                      child: child,
+                                  Positioned.fromRect(
+                                    rect: isPrimary
+                                        ? appRect.rect
+                                        : appRect.other,
+                                    child: TaskManagerAppCard(
+                                      flyStats: isPrimary
+                                          ? flyAnimation?.flyStats
+                                          : null,
+                                      appData: appData,
+                                      constraints: widget.constraints,
+                                      delta: delta,
+                                      showDragBar: data.showDragBar,
+                                      sizeFactor: sizeFactor,
+                                      isEnterTaskManager: isEnterTaskManager,
+                                      isFocus: appData == _focusApp,
+                                      isEnterApp: isEnterApp,
+                                      reenterEnable: reenterEnable,
+                                      reenterApp: () {
+                                        return enterApp(index);
+                                      },
+                                      updateSizeFactor: (value) {
+                                        return setState(() {
+                                          thisData.sizeFactor = value;
+                                        });
+                                      },
+                                      removeApp: () {
+                                        return setState(() {
+                                          _apps.remove(thisData);
+                                        });
+                                      },
                                     ),
+                                  ),
                                 ],
                               ),
                             );
@@ -354,7 +391,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                   height: 28,
                   child: DragGesture(
                     behavior: HitTestBehavior.translucent,
-                    onDragUpdate: !data.isEnter
+                    onDragUpdate: !isEnter
                         ? null
                         : (details) {
                             bool isLongDrag() {
@@ -401,9 +438,10 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                     index,
                                     appRect.index == index
                                         ? appRect.rect
-                                        : otherRect,
+                                        : appRect.other,
                                     appRect.other,
                                   ),
+                                  data.showDragBar,
                                 ));
                               }
                             } else if (data
@@ -420,9 +458,10 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                     index,
                                     appRect.index == index
                                         ? appRect.rect
-                                        : otherRect,
+                                        : appRect.other,
                                     appRect.other,
                                   ),
+                                  data.showDragBar,
                                 ));
                               } else {
                                 setState(() {
@@ -438,17 +477,19 @@ class _TaskManagerViewState extends State<TaskManagerView>
                               final current = details.globalPosition;
                               final start = Offset(
                                   current.dx,
-                                  biggest.height * 2 -
-                                      otherRect.height -
-                                      otherRect.top);
+                                  widget.constraints.maxHeight * 2 -
+                                      appRect.other.height -
+                                      appRect.other.top);
                               final shift = current - start;
                               if (toTaskManager(shift)) {
                                 _reenter(_data = _TaskManagerDragAnimationData(
-                                    DateTime.now(),
-                                    start,
-                                    details.globalPosition,
-                                    stackListViewRect,
-                                    appRect));
+                                  DateTime.now(),
+                                  start,
+                                  details.globalPosition,
+                                  stackListViewRect,
+                                  appRect,
+                                  data.showDragBar,
+                                ));
                               } else {
                                 final index = _getCurrentIndex();
                                 _scrollToIndex(index);
@@ -459,17 +500,17 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                   details.globalPosition,
                                   stackListViewRect,
                                   _AppRect(
-                                    index,
-                                    appRect.index == index
-                                        ? appRect.rect
-                                        : otherRect,
-                                    appRect.other,
-                                  ),
+                                      index,
+                                      appRect.index == index
+                                          ? appRect.rect
+                                          : appRect.other,
+                                      appRect.other),
+                                  data.showDragBar,
                                 ));
                               }
                             }
                           },
-                    onDragEnd: !data.isEnter
+                    onDragEnd: !isEnter
                         ? null
                         : (details) {
                             if (data is _Drag) {
@@ -479,7 +520,6 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                 final delta = data.current - data.start;
                                 if (delta.dx.abs() > delta.dy.abs() * 1.5) {
                                   // horizontal
-
                                   final index =
                                       data is _TaskManagerDragEnterAnimationData
                                           ? _getCurrentIndex()
@@ -492,7 +532,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                       widget.constraints.maxHeight / 9) {
                                     if (data
                                         is _TaskManagerDragEnterAnimationData) {
-                                      exit();
+                                      forceExit();
                                     } else {
                                       enterApp(_getCurrentIndex());
                                     }
@@ -505,7 +545,6 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                 if (velocity.dx.abs() >
                                     velocity.dy.abs() * 1.5) {
                                   // horizontal
-
                                   final index =
                                       data is _TaskManagerDragEnterAnimationData
                                           ? _getCurrentIndex()
@@ -517,7 +556,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                   if (velocity.dy < 0) {
                                     if (data
                                         is _TaskManagerDragEnterAnimationData) {
-                                      exit();
+                                      forceExit();
                                     } else {
                                       flyBack();
                                     }
@@ -528,7 +567,11 @@ class _TaskManagerViewState extends State<TaskManagerView>
                               }
                             } else {
                               // unlikely
-                              exit();
+                              if (data.stats == TaskManagerStats.enterApp) {
+                                flyBack();
+                              } else {
+                                forceExit();
+                              }
                             }
                           },
                     child: const Center(),
@@ -543,22 +586,16 @@ class _TaskManagerViewState extends State<TaskManagerView>
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.f3): _ActionIntent(() {
+          final current = widget.constraints.toRect();
           _reenter(_data = _TaskManagerEnterAnimationData(
-            Rect.fromLTWH(
-              -widget.constraints.maxWidth,
-              0,
-              widget.constraints.maxWidth,
-              widget.constraints.maxHeight,
-            ),
-          ));
+              widget.constraints.toRect(left: -widget.constraints.maxWidth),
+              _AppRect(-1, current, current)));
         }),
       },
       child: Actions(
         actions: _actions,
         child: TaskManagerData(
           enter: _enter,
-          appData: null,
-          duration: Duration.zero,
           child: Stack(
             children: [
               Positioned.fill(
@@ -575,28 +612,23 @@ class _TaskManagerViewState extends State<TaskManagerView>
                 right: 0,
                 bottom: 0,
                 height: 28,
-                child: _apps.isEmpty
-                    ? const Center()
-                    : DragGesture(
-                        behavior: HitTestBehavior.translucent,
-                        onDragUpdate: (details) {
-                          for (final app in _apps) {
-                            app.sizeFactor = 0;
-                          }
-                          _reenter(_data = _TaskManagerDragEnterAnimationData(
-                            DateTime.now(),
-                            details.globalPosition,
-                            details.globalPosition,
-                          ));
-                        },
-                        onDragEnd: (details) {
-                          _exit(_data = const _TaskManagerExitAnimationData(
-                            Rect.zero,
-                            _AppRect.invalid,
-                          ));
-                        },
-                        child: const Center(),
-                      ),
+                child: DragGesture(
+                  behavior: HitTestBehavior.translucent,
+                  onDragUpdate: (details) {
+                    _reenter(_data = _TaskManagerDragEnterAnimationData(
+                      DateTime.now(),
+                      details.globalPosition,
+                      details.globalPosition,
+                    ));
+                  },
+                  onDragEnd: (details) {
+                    _exit(_data = const _TaskManagerExitAnimationData(
+                      Rect.zero,
+                      _AppRect.invalid,
+                    ));
+                  },
+                  child: const Center(),
+                ),
               ),
             ],
           ),
@@ -612,37 +644,30 @@ class _ActionIntent extends Intent {
 }
 
 class _Action extends Action<_ActionIntent> {
-  static final _i = _Action._internal();
   factory _Action() {
     return _i;
   }
   _Action._internal();
+  static final _i = _Action._internal();
 
   @override
   void invoke(covariant _ActionIntent intent) => intent.fn();
 }
 
 class _AppRect {
+  const _AppRect(this.index, this.rect, this.other);
   final int index;
   final Rect rect;
-  final double other;
-
-  const _AppRect(this.index, this.rect, this.other);
-  static const invalid = _AppRect(-1, Rect.zero, 1);
+  final Rect other;
+  static const invalid = _AppRect(-1, Rect.zero, Rect.zero);
 }
 
 abstract class _TaskManagerAnimationData {
   const _TaskManagerAnimationData();
 
-  bool get isEnter => true;
-  bool get isEnterApp => false;
-  bool get isDragging => false;
-  bool? get isFlyAnimation => null;
-  bool get reenterEnable => true;
+  TaskManagerStats get stats;
+  FlyAnimation? get flyAnimation => null;
   bool get showDragBar => false;
-
-  bool get hideFromWidget => false;
-  Duration get hideFromWidgetDuration => const Duration(milliseconds: 200);
 
   Rect toStackListViewRect(BoxConstraints constraints, double reenter);
   _AppRect toAppRect(BoxConstraints constraints, double reenter);
@@ -653,43 +678,31 @@ class _TaskManagerAppFlyInAnimationData extends _TaskManagerAnimationData {
   final _AppRect currentAppRect;
 
   @override
-  bool get isEnterApp => true;
+  TaskManagerStats get stats => TaskManagerStats.enterApp;
 
   @override
-  bool get reenterEnable => false;
-
-  @override
-  bool get hideFromWidget => true;
-
-  @override
-  Duration get hideFromWidgetDuration => Duration.zero;
+  FlyAnimation get flyAnimation => const FlyAnimation(
+        hideWidgetDuration: Duration.zero,
+        flyStats: FlyStats.enter,
+      );
 
   @override
   bool get showDragBar => true;
 
   @override
-  bool? get isFlyAnimation => true;
-
-  Rect targetAppRect(BoxConstraints constraints) {
-    return Rect.fromLTWH(0, 0, constraints.maxWidth, constraints.maxHeight);
-  }
-
-  @override
   Rect toStackListViewRect(BoxConstraints constraints, double reenter) {
-    return Rect.fromLTWH(0, 0, constraints.maxWidth, constraints.maxHeight);
+    return constraints.toRect();
   }
 
   @override
   _AppRect toAppRect(BoxConstraints constraints, double reenter) {
     final t = Curves.linearToEaseOut.transform(reenter);
+    final target = constraints.toRect();
     return _AppRect(
-        currentAppRect.index,
-        Rect.lerp(
-          currentAppRect.rect,
-          targetAppRect(constraints),
-          t,
-        )!,
-        Tween<double>(begin: currentAppRect.other, end: 1).transform(t));
+      currentAppRect.index,
+      Rect.lerp(currentAppRect.rect, target, t)!,
+      target,
+    );
   }
 }
 
@@ -699,25 +712,26 @@ abstract class _Base extends _TaskManagerAnimationData {
   final Rect currentStackListViewRect;
   final _AppRect currentAppRect;
 
-  Rect targetStackListViewRect(BoxConstraints constraints) {
-    return Rect.fromLTWH(0, 0, constraints.maxWidth, constraints.maxHeight);
+  Rect targetAppRect(BoxConstraints constraints) {
+    return constraints.toRect();
   }
 
-  Rect targetAppRect(BoxConstraints constraints) {
-    return Rect.fromLTWH(0, 0, constraints.maxWidth, constraints.maxHeight);
+  Rect targetAppOtherRect(BoxConstraints constraints) {
+    return constraints.toRect();
   }
 
   @override
   _AppRect toAppRect(BoxConstraints constraints, double reenter) {
     final t = Curves.linearToEaseOut.transform(reenter);
     return _AppRect(
-        currentAppRect.index,
-        Rect.lerp(
-          currentAppRect.rect,
-          targetAppRect(constraints),
-          t,
-        )!,
-        Tween<double>(begin: currentAppRect.other, end: 1).transform(t));
+      currentAppRect.index,
+      Rect.lerp(currentAppRect.rect, targetAppRect(constraints), t)!,
+      Rect.lerp(currentAppRect.other, targetAppOtherRect(constraints), t)!,
+    );
+  }
+
+  Rect targetStackListViewRect(BoxConstraints constraints) {
+    return constraints.toRect();
   }
 
   @override
@@ -731,20 +745,23 @@ abstract class _Base extends _TaskManagerAnimationData {
 }
 
 abstract class _Drag extends _Base {
-  final Offset start;
-  final Offset current;
-  final DateTime touchStartTime;
-
   const _Drag(
     this.touchStartTime,
     this.start,
     this.current,
     super.currentStackListViewRect,
     super.currentAppRect,
+    this.showDragBar,
   );
+  final Offset start;
+  final Offset current;
+  final DateTime touchStartTime;
 
   @override
-  bool get isDragging => true;
+  final bool showDragBar;
+
+  @override
+  TaskManagerStats get stats => TaskManagerStats.drag;
 
   _Drag moveTo(Offset current);
 }
@@ -754,13 +771,7 @@ class _TaskManagerDragEnterAnimationData extends _Drag {
     final DateTime touchStartTime,
     final Offset start,
     final Offset current,
-  ) : super(
-          touchStartTime,
-          start,
-          current,
-          Rect.zero,
-          _AppRect.invalid,
-        );
+  ) : super(touchStartTime, start, current, Rect.zero, _AppRect.invalid, false);
 
   @override
   _TaskManagerDragEnterAnimationData moveTo(Offset current) {
@@ -768,7 +779,7 @@ class _TaskManagerDragEnterAnimationData extends _Drag {
   }
 
   @override
-  Rect targetStackListViewRect(BoxConstraints constraints) {
+  Rect toStackListViewRect(BoxConstraints constraints, double reenter) {
     final shift = current - start - Offset(0, constraints.maxHeight / 12);
     final bottom = constraints.maxHeight + shift.dy;
     final top = -shift.dy;
@@ -776,23 +787,16 @@ class _TaskManagerDragEnterAnimationData extends _Drag {
     final width = constraints.maxWidth * height / constraints.maxHeight;
     final heightCenter = (bottom + top) / 2;
     return Rect.fromCenter(
-      center: Offset(
-        shift.dx - width / 2,
-        heightCenter,
-      ),
+      center: Offset(shift.dx - width / 2, heightCenter),
       width: width,
       height: height,
     );
   }
 
   @override
-  Rect toStackListViewRect(BoxConstraints constraints, double reenter) {
-    return targetStackListViewRect(constraints);
-  }
-
-  @override
   _AppRect toAppRect(BoxConstraints constraints, double reenter) {
-    return _AppRect.invalid;
+    final target = constraints.toRect();
+    return _AppRect(-1, target, target);
   }
 }
 
@@ -803,10 +807,8 @@ class _TaskManagerDragAnimationData extends _Drag {
     super.current,
     super.currentStackListViewRect,
     super.currentAppRect,
+    super.showDragBar,
   );
-
-  @override
-  bool get reenterEnable => false;
 
   @override
   _TaskManagerDragAnimationData moveTo(Offset current) {
@@ -816,6 +818,7 @@ class _TaskManagerDragAnimationData extends _Drag {
       current,
       currentStackListViewRect,
       currentAppRect,
+      showDragBar,
     );
   }
 
@@ -842,10 +845,8 @@ class _TaskManagerDragAppAnimationData extends _Drag {
     super.current,
     super.currentStackListViewRect,
     super.currentAppRect,
+    super.showDragBar,
   );
-
-  @override
-  bool get showDragBar => true;
 
   @override
   _TaskManagerDragAppAnimationData moveTo(Offset current) {
@@ -855,6 +856,7 @@ class _TaskManagerDragAppAnimationData extends _Drag {
       current,
       currentStackListViewRect,
       currentAppRect,
+      showDragBar,
     );
   }
 
@@ -876,9 +878,12 @@ class _TaskManagerDragAppAnimationData extends _Drag {
 
 class _TaskManagerEnterAnimationData extends _Base {
   const _TaskManagerEnterAnimationData(
-    super.currentStackListViewRect, [
-    super.currentAppRect = _AppRect.invalid,
-  ]);
+    super.currentStackListViewRect,
+    super.currentAppRect,
+  );
+
+  @override
+  TaskManagerStats get stats => TaskManagerStats.enter;
 
   @override
   Rect targetAppRect(BoxConstraints constraints) {
@@ -891,16 +896,13 @@ class _TaskManagerEnterAnimationData extends _Base {
   }
 
   @override
-  _AppRect toAppRect(BoxConstraints constraints, double reenter) {
-    final t = Curves.linearToEaseOut.transform(reenter);
-    return _AppRect(
-        currentAppRect.index,
-        Rect.lerp(
-          currentAppRect.rect,
-          targetAppRect(constraints),
-          t,
-        )!,
-        Tween<double>(begin: currentAppRect.other, end: 2 / 3).transform(t));
+  Rect targetAppOtherRect(BoxConstraints constraints) {
+    return Rect.fromLTWH(
+      constraints.maxWidth * 1 / 6,
+      constraints.maxHeight * 1 / 6,
+      constraints.maxWidth * 2 / 3,
+      constraints.maxHeight * 2 / 3,
+    );
   }
 }
 
@@ -911,10 +913,7 @@ class _TaskManagerEnterAppAnimationData extends _Base {
   );
 
   @override
-  bool get isEnterApp => true;
-
-  @override
-  bool get reenterEnable => false;
+  TaskManagerStats get stats => TaskManagerStats.enterApp;
 
   @override
   bool get showDragBar => true;
@@ -924,7 +923,7 @@ class _Exit extends _Base {
   const _Exit(super.currentStackListViewRect, super.currentAppRect);
 
   @override
-  bool get isEnter => false;
+  TaskManagerStats get stats => TaskManagerStats.exit;
 
   @override
   Rect toStackListViewRect(BoxConstraints constraints, double reenter) {
@@ -944,13 +943,10 @@ class _Exit extends _Base {
   _AppRect toAppRect(BoxConstraints constraints, double reenter) {
     final t = Curves.easeInToLinear.transform(reenter);
     return _AppRect(
-        currentAppRect.index,
-        Rect.lerp(
-          targetAppRect(constraints),
-          currentAppRect.rect,
-          t,
-        )!,
-        currentAppRect.other);
+      currentAppRect.index,
+      Rect.lerp(targetAppRect(constraints), currentAppRect.rect, t)!,
+      currentAppRect.other,
+    );
   }
 }
 
@@ -960,16 +956,12 @@ class _TaskManagerExitAnimationData extends _Exit {
 
   @override
   Rect targetStackListViewRect(BoxConstraints constraints) {
-    return Rect.fromCenter(
-      center: Offset(-constraints.maxWidth * 2, constraints.maxHeight / 2),
-      width: constraints.maxWidth,
-      height: constraints.maxHeight,
-    );
+    return constraints.toRect(left: -constraints.maxWidth * 2);
   }
 }
 
-class _TaskManagerExitAppAnimationData extends _Exit {
-  const _TaskManagerExitAppAnimationData(
+class _TaskManagerAppExitAnimationData extends _Exit {
+  const _TaskManagerAppExitAnimationData(
     super.currentStackListViewRect,
     super.currentAppRect,
   );
@@ -991,10 +983,10 @@ class _TaskManagerAppFlyBackAnimationData extends _Exit {
   final Rect targetRect;
 
   @override
-  bool get hideFromWidget => true;
-
-  @override
-  bool? get isFlyAnimation => false;
+  FlyAnimation get flyAnimation => const FlyAnimation(
+        hideWidgetDuration: Duration(milliseconds: 200),
+        flyStats: FlyStats.exit,
+      );
 
   @override
   Rect targetAppRect(BoxConstraints constraints) {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class AppStore extends StatelessWidget {
+
+  const AppStore({super.key});
   static final appData = AppData(
     app: const AppStore(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class AppStore extends StatelessWidget {
     ),
     name: 'App Store',
   );
-
-  const AppStore({super.key});
 
   @override
   Widget build(BuildContext context) {

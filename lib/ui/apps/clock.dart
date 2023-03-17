@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Clock extends StatelessWidget {
+
+  const Clock({super.key});
   static final appData = AppData(
     app: const Clock(),
     icon: const _Icon(),
@@ -15,8 +17,6 @@ class Clock extends StatelessWidget {
     ),
     name: 'Clock',
   );
-
-  const Clock({super.key});
 
   @override
   Widget build(BuildContext context) {

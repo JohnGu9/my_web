@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class FindMy extends StatelessWidget {
+
+  const FindMy({super.key});
   static final appData = AppData(
     app: const FindMy(),
     icon: const _Icon(),
@@ -12,8 +14,6 @@ class FindMy extends StatelessWidget {
     ),
     name: 'Find My',
   );
-
-  const FindMy({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class Google extends StatelessWidget {
+
+  const Google({super.key});
   static final appData = AppData(
     app: const Google(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class Google extends StatelessWidget {
     ),
     name: 'Google',
   );
-
-  const Google({super.key});
 
   @override
   Widget build(BuildContext context) {

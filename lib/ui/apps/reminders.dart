@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Reminders extends StatelessWidget {
+
+  const Reminders({super.key});
   static final appData = AppData(
     app: const Reminders(),
     icon: const Icon(
@@ -16,8 +18,6 @@ class Reminders extends StatelessWidget {
     ),
     name: 'Reminders',
   );
-
-  const Reminders({super.key});
 
   @override
   Widget build(BuildContext context) {

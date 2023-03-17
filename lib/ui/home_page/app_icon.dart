@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
-import 'task_manager_view/task_manager_data.dart';
 import 'task_manager_view/task_manager_app_card.dart';
+import 'task_manager_view/task_manager_data.dart';
+
+/// also view: [TaskManagerAppCard]
 
 class AppIcon extends StatefulWidget {
-  /// also view: [TaskManagerAppCard]
-  static const borderRadius = BorderRadius.all(Radius.circular(12));
-
   const AppIcon({super.key, required this.data});
+  static const borderRadius = BorderRadius.all(Radius.circular(12));
   final AppData data;
 
   @override
@@ -64,7 +64,7 @@ class _StackHero extends StatelessWidget {
     final data = context.dependOnInheritedWidgetOfExactType<TaskManagerData>()!;
     return AnimatedOpacity(
       opacity: data.appData == appData ? 0 : 1,
-      duration: data.duration,
+      duration: data.hideWidgetDuration,
       child: GestureDetector(
         onTapDown: (details) {
           controller.animateTo(1);

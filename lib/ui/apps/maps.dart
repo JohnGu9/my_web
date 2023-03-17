@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class Maps extends StatelessWidget {
+
+  const Maps({super.key});
   static final appData = AppData(
     app: const Maps(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class Maps extends StatelessWidget {
     ),
     name: 'Maps',
   );
-
-  const Maps({super.key});
 
   @override
   Widget build(BuildContext context) {

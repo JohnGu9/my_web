@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class Twitch extends StatelessWidget {
+
+  const Twitch({super.key});
   static final appData = AppData(
     app: const Twitch(),
     icon: Stack(
@@ -27,8 +29,6 @@ class Twitch extends StatelessWidget {
     ),
     name: 'Twitch',
   );
-
-  const Twitch({super.key});
 
   @override
   Widget build(BuildContext context) {

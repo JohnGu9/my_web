@@ -4,24 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/apps/app_store.dart';
 import 'package:my_web/ui/apps/books.dart';
-import 'package:my_web/ui/apps/find_my.dart';
-import 'package:my_web/ui/apps/home.dart';
-import 'package:my_web/ui/apps/maps.dart';
-import 'package:my_web/ui/apps/reminders.dart';
-import 'package:my_web/ui/apps/stocks.dart';
-import 'package:my_web/ui/apps/wallet.dart';
-import 'package:my_web/ui/apps/weather.dart';
-import 'package:my_web/ui/apps/zafari.dart';
 import 'package:my_web/ui/apps/calender.dart';
 import 'package:my_web/ui/apps/camera.dart';
 import 'package:my_web/ui/apps/clock.dart';
+import 'package:my_web/ui/apps/find_my.dart';
+import 'package:my_web/ui/apps/home.dart';
 import 'package:my_web/ui/apps/mail.dart';
+import 'package:my_web/ui/apps/maps.dart';
 import 'package:my_web/ui/apps/message.dart';
 import 'package:my_web/ui/apps/notes.dart';
 import 'package:my_web/ui/apps/other.dart';
 import 'package:my_web/ui/apps/phone.dart';
 import 'package:my_web/ui/apps/photos.dart';
+import 'package:my_web/ui/apps/reminders.dart';
 import 'package:my_web/ui/apps/settings.dart';
+import 'package:my_web/ui/apps/stocks.dart';
+import 'package:my_web/ui/apps/wallet.dart';
+import 'package:my_web/ui/apps/weather.dart';
+import 'package:my_web/ui/apps/zafari.dart';
+import 'package:my_web/ui/other_apps/about.dart';
 import 'package:my_web/ui/other_apps/google.dart';
 import 'package:my_web/ui/other_apps/google_translate.dart';
 import 'package:my_web/ui/other_apps/reddit.dart';
@@ -69,15 +70,16 @@ class _DesktopViewState extends State<DesktopView> {
 
   @override
   Widget build(BuildContext context) {
-    const pages = 3;
     final theme = Theme.of(context);
     final data = MediaQuery.of(context);
-
+    const pages = 2;
     final gridHeight =
         widget.constraints.maxHeight - data.padding.top - 112 - 32;
     final gridWidth = widget.constraints.maxWidth;
     final gridRows = min((gridHeight / 89).floor(), 4);
     final gridColumns = (gridWidth / 160).floor().clamp(4, 6);
+    final gridPadding = EdgeInsets.symmetric(
+        horizontal: (gridWidth - gridColumns * 64) / (gridColumns + 1) / 2);
     return Focus(
       autofocus: true,
       child: _TouchProtect(
@@ -88,42 +90,48 @@ class _DesktopViewState extends State<DesktopView> {
               child: PageView(
                 controller: _controller,
                 children: [
-                  _Grid(
-                    rows: gridRows,
-                    columns: gridColumns,
-                    data: [
-                      Calender.appData,
-                      Photos.appData,
-                      Mail.appData,
-                      Clock.appData,
-                      Notes.appData,
-                      Stocks.appData,
-                      Weather.appData,
-                      Reminders.appData,
-                      Maps.appData,
-                      AppStore.appData,
-                      Home.appData,
-                      Books.appData,
-                      FindMy.appData,
-                      Wallet.appData,
-                      Settings.appData,
-                    ],
+                  Padding(
+                    padding: gridPadding,
+                    child: _Grid(
+                      rows: gridRows,
+                      columns: gridColumns,
+                      data: [
+                        Calender.appData,
+                        Photos.appData,
+                        Mail.appData,
+                        Clock.appData,
+                        Notes.appData,
+                        Stocks.appData,
+                        Weather.appData,
+                        Reminders.appData,
+                        Maps.appData,
+                        AppStore.appData,
+                        Home.appData,
+                        Books.appData,
+                        FindMy.appData,
+                        Wallet.appData,
+                        Settings.appData,
+                      ],
+                    ),
                   ),
-                  _Grid(
-                    rows: gridRows,
-                    columns: gridColumns,
-                    data: [
-                      Youtube.appData,
-                      Spotify.appData,
-                      Google.appData,
-                      GoogleTranslate.appData,
-                      Reddit.appData,
-                      Twitch.appData,
-                      Telegram.appData,
-                      Other.appData,
-                    ],
+                  Padding(
+                    padding: gridPadding,
+                    child: _Grid(
+                      rows: gridRows,
+                      columns: gridColumns,
+                      data: [
+                        Youtube.appData,
+                        Spotify.appData,
+                        Google.appData,
+                        GoogleTranslate.appData,
+                        Reddit.appData,
+                        Twitch.appData,
+                        Telegram.appData,
+                        Other.appData,
+                        About.appData,
+                      ],
+                    ),
                   ),
-                  const _About(),
                 ],
               ),
             ),
@@ -237,10 +245,7 @@ class _TouchProtectState extends State<_TouchProtect> {
 }
 
 class _TouchProtectData extends InheritedWidget {
-  const _TouchProtectData({
-    required super.child,
-    required this.enable,
-  });
+  const _TouchProtectData({required super.child, required this.enable});
   final bool enable;
 
   @override
@@ -283,15 +288,13 @@ class _Grid extends StatelessWidget {
   }
 
   Widget _itemBuilder(int index) {
-    if (index >= data.length) return const SizedBox(width: 64);
+    if (index >= data.length) return const Expanded(child: SizedBox());
     final d = data[index];
-    return SizedBox(
-      width: 64,
+    return Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AppIcon(
-            data: d,
-          ),
+          AppIcon(data: d),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
@@ -302,116 +305,6 @@ class _Grid extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _About extends StatelessWidget {
-  const _About();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _AppIcon(
-            child: SizedBox(
-              height: 64,
-              width: 64,
-              child: Material(
-                elevation: 2,
-                animationDuration: Duration.zero,
-                borderRadius: AppIcon.borderRadius,
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Container(color: Colors.white),
-                    ),
-                    const Positioned.fill(
-                      child: Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: FlutterLogo(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            "About",
-            style: TextStyle(fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-        ],
-      ),
-    );
-  }
-}
-
-class _AppIcon extends StatefulWidget {
-  const _AppIcon({required this.child});
-  final Widget child;
-
-  @override
-  State<_AppIcon> createState() => _AppIconState();
-}
-
-class _AppIconState extends State<_AppIcon>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Container(
-          foregroundDecoration: BoxDecoration(
-            borderRadius: AppIcon.borderRadius,
-            color: Colors.black.withOpacity(_controller.value * 0.28),
-          ),
-          child: child,
-        );
-      },
-      child: GestureDetector(
-        onTapDown: (details) {
-          _controller.animateTo(1);
-        },
-        onTapUp: (details) {
-          _controller.animateBack(0);
-          showAboutDialog(
-              context: context,
-              applicationName: "My Web",
-              applicationIcon: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: FlutterLogo(),
-              ),
-              applicationVersion: "@JohnGu9");
-        },
-        onTapCancel: () {
-          _controller.animateBack(0);
-        },
-        child: widget.child,
       ),
     );
   }

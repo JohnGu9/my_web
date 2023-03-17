@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class Reddit extends StatelessWidget {
+
+  const Reddit({super.key});
   static final appData = AppData(
     app: const Reddit(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class Reddit extends StatelessWidget {
     ),
     name: 'Reddit',
   );
-
-  const Reddit({super.key});
 
   @override
   Widget build(BuildContext context) {

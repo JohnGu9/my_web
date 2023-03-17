@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class Youtube extends StatelessWidget {
+
+  const Youtube({super.key});
   static final appData = AppData(
     app: const Youtube(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class Youtube extends StatelessWidget {
     ),
     name: 'Youtube',
   );
-
-  const Youtube({super.key});
 
   @override
   Widget build(BuildContext context) {

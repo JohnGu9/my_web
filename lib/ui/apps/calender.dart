@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Calender extends StatelessWidget {
+
+  const Calender({super.key});
   static final appData = AppData(
     app: const Calender(),
     icon: const _Icon(),
@@ -12,8 +14,6 @@ class Calender extends StatelessWidget {
     ),
     name: 'Calender',
   );
-
-  const Calender({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +54,8 @@ class _Icon extends StatelessWidget {
 }
 
 class _Weekday extends StatelessWidget {
+
+  const _Weekday({required this.now});
   static String toWeekdayString(int i) {
     switch (i) {
       case 1:
@@ -72,8 +74,6 @@ class _Weekday extends StatelessWidget {
         return "SUN";
     }
   }
-
-  const _Weekday({required this.now});
   final DateTime now;
 
   @override

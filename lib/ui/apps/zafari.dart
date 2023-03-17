@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Zafari extends StatelessWidget {
+  const Zafari({super.key});
   static final appData = AppData(
     app: const Zafari(),
     icon: const Icon(
@@ -16,7 +17,6 @@ class Zafari extends StatelessWidget {
     ),
     name: 'Zafari',
   );
-  const Zafari({super.key});
 
   @override
   Widget build(BuildContext context) {

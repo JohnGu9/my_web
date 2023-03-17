@@ -26,24 +26,19 @@ class _WebView extends StatefulWidget {
 
 class _WebViewState extends State<_WebView> {
   WebViewXController? _controller;
-  set controller(WebViewXController value) {
-    _controller ??= value
-      ..loadContent(widget.uri.toString(), SourceType.urlBypass);
-  }
 
   @override
   Widget build(BuildContext context) {
     final data = MediaQuery.of(context);
     return LayoutBuilder(
-      builder: (p0, p1) {
+      builder: (context, constraints) {
         return WebViewX(
-          width: p1.maxWidth,
-          height: p1.maxHeight - data.padding.bottom,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight - data.padding.bottom,
           ignoreAllGestures: true,
-          initialMediaPlaybackPolicy:
-              AutoMediaPlaybackPolicy.requireUserActionForAllMediaTypes,
           onWebViewCreated: (controller) {
-            _controller ??= controller;
+            _controller ??= controller
+              ..loadContent(widget.uri.toString(), SourceType.urlBypass);
           },
         );
       },

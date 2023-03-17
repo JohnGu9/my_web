@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Mail extends StatelessWidget {
+
+  const Mail({super.key});
   static final appData = AppData(
     app: const Mail(),
     icon: const Icon(
@@ -16,8 +18,6 @@ class Mail extends StatelessWidget {
     ),
     name: 'Mail',
   );
-
-  const Mail({super.key});
 
   @override
   Widget build(BuildContext context) {

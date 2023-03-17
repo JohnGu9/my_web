@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Telegram extends StatelessWidget {
+
+  const Telegram({super.key});
   static final appData = AppData(
     app: const Telegram(),
     icon: Container(
@@ -21,8 +23,6 @@ class Telegram extends StatelessWidget {
     ),
     name: 'Telegram',
   );
-
-  const Telegram({super.key});
 
   @override
   Widget build(BuildContext context) {

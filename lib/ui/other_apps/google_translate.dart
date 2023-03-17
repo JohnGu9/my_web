@@ -3,6 +3,8 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class GoogleTranslate extends StatelessWidget {
+
+  const GoogleTranslate({super.key});
   static final appData = AppData(
     app: const GoogleTranslate(),
     icon: const Icon(
@@ -17,8 +19,6 @@ class GoogleTranslate extends StatelessWidget {
     ),
     name: 'Google Translate',
   );
-
-  const GoogleTranslate({super.key});
 
   @override
   Widget build(BuildContext context) {

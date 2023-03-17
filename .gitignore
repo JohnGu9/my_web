@@ -42,3 +42,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+.VSCodeCounter
+
+# flutter build web --release --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/

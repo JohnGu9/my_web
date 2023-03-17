@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Photos extends StatelessWidget {
+
+  const Photos({super.key});
   static final appData = AppData(
     app: const Photos(),
     icon: const _Icon(),
@@ -15,8 +17,6 @@ class Photos extends StatelessWidget {
     ),
     name: 'Photos',
   );
-
-  const Photos({super.key});
 
   @override
   Widget build(BuildContext context) {

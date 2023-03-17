@@ -4,15 +4,18 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_web/core/data/assets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_web/ui/widgets/temp_focus_node.dart';
 
 import 'drag_bar.dart';
 
 class NotificationBar extends StatelessWidget {
+  const NotificationBar({
+    super.key,
+    required this.child,
+    required this.constraints,
+  });
   static const statusBarHeight = 20.0;
-  const NotificationBar(
-      {super.key, required this.child, required this.constraints});
   final Widget child;
   final BoxConstraints constraints;
 
@@ -123,10 +126,11 @@ class _NotificationBarState extends State<_NotificationBar>
         },
         child: Stack(
           children: [
-            const Positioned.fill(
-              child: Image(
-                image: Assets.background,
+            Positioned.fill(
+              child: SvgPicture.asset(
+                "assets/background.svg",
                 fit: BoxFit.cover,
+                placeholderBuilder: _placeholderBuilder,
               ),
             ),
             Positioned.fill(
@@ -205,9 +209,10 @@ class _Bar extends StatelessWidget {
               sigmaX: 20 * (1 - animation.value),
               sigmaY: 20 * (1 - animation.value),
             ),
-            child: const Image(
-              image: Assets.background,
+            child: SvgPicture.asset(
+              "assets/background.svg",
               fit: BoxFit.cover,
+              placeholderBuilder: _placeholderBuilder,
             ),
           ),
         ),
@@ -421,6 +426,8 @@ class _TimeViewState extends State<_TimeView> {
 }
 
 class _Weekday extends StatelessWidget {
+
+  const _Weekday();
   static String toWeekdayString(int i) {
     switch (i) {
       case 1:
@@ -440,10 +447,14 @@ class _Weekday extends StatelessWidget {
     }
   }
 
-  const _Weekday();
-
   @override
   Widget build(BuildContext context) {
     return Text(toWeekdayString(DateTime.now().weekday));
   }
+}
+
+Widget _placeholderBuilder(BuildContext context) {
+  return Container(
+    color: const Color.fromRGBO(81, 46, 95, 1),
+  );
 }

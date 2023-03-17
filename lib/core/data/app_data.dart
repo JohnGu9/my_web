@@ -1,6 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:ui' as ui;
 
 class AppData {
   AppData({
@@ -21,16 +22,10 @@ class AppData {
   final snapshot = ValueNotifier<ui.Image?>(null);
   Future<void> updateSnapshot() async {
     try {
-      final obj =
-          appKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (obj != null) {
+      final obj = appKey.currentContext?.findRenderObject();
+      if (obj is RenderRepaintBoundary) {
         snapshot.value = await obj.toImage();
       }
-    } catch (e) {
-      assert(() {
-        print(e);
-        return true;
-      }());
-    }
+    } catch (_) {}
   }
 }

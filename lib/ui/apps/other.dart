@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Other extends StatelessWidget {
+
+  const Other({super.key});
   static final appData = AppData(
     app: const Other(),
     icon: const Icon(
@@ -16,8 +18,6 @@ class Other extends StatelessWidget {
     ),
     name: 'adb',
   );
-
-  const Other({super.key});
 
   @override
   Widget build(BuildContext context) {
