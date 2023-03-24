@@ -6,9 +6,9 @@ class TaskManagerData extends InheritedWidget {
     super.key,
     required super.child,
     required this.enter,
+    required this.hideWidgetDuration,
     this.appData,
-    Duration? hideWidgetDuration,
-  }) : hideWidgetDuration = hideWidgetDuration ?? Duration.zero;
+  });
 
   final void Function(AppData data) enter;
   final AppData? appData;

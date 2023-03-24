@@ -204,11 +204,9 @@ class _Bar extends StatelessWidget {
           right: 0,
           top: 0,
           height: constraints.maxHeight,
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(
-              sigmaX: 20 * (1 - animation.value),
-              sigmaY: 20 * (1 - animation.value),
-            ),
+          child: FadeTransition(
+            opacity: CurvedAnimation(
+                parent: animation, curve: Curves.linearToEaseOut),
             child: SvgPicture.asset(
               "assets/background.svg",
               fit: BoxFit.cover,
@@ -219,15 +217,24 @@ class _Bar extends StatelessWidget {
         Positioned(
           left: 0,
           right: 0,
+          top: 0,
+          height: constraints.maxHeight,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 30 * (1 - animation.value),
+                sigmaY: 30 * (1 - animation.value),
+              ),
+              child: const Center(),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
           bottom: 0,
           height: constraints.maxHeight,
-          child: FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: const Interval(0.1, 0.6),
-            ),
-            child: _FullBar(showDragBar: showDragBar),
-          ),
+          child: _FullBar(showDragBar: showDragBar),
         ),
       ],
     );
@@ -426,7 +433,6 @@ class _TimeViewState extends State<_TimeView> {
 }
 
 class _Weekday extends StatelessWidget {
-
   const _Weekday();
   static String toWeekdayString(int i) {
     switch (i) {

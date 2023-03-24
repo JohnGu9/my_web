@@ -187,11 +187,19 @@ class _TaskManagerViewState extends State<TaskManagerView>
             (_layoutConstraints.maxWidth - widget.constraints.maxWidth) / 2,
       );
 
-      void enterTaskManager() {
+      void directlyEnterTaskManager() {
         _reenter(_data = _TaskManagerEnterAnimationData(
           stackListViewRect,
           appRect,
         ));
+      }
+
+      void enterTaskManager(TaskManagerStats stats) {
+        final index = _getCurrentIndex();
+        if (index == 0 && stats == TaskManagerStats.enterApp) {
+          _scrollToIndex((1).clamp(0, _apps.length - 1));
+        }
+        directlyEnterTaskManager();
       }
 
       void enterApp(int index) {
@@ -277,7 +285,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
           shortcuts = {
             LogicalKeySet(LogicalKeyboardKey.escape): _ActionIntent(flyBack),
             LogicalKeySet(LogicalKeyboardKey.f3):
-                _ActionIntent(enterTaskManager),
+                _ActionIntent(directlyEnterTaskManager),
           };
           break;
         case TaskManagerStats.drag:
@@ -294,7 +302,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
           exit = () {};
           shortcuts = {
             LogicalKeySet(LogicalKeyboardKey.f3):
-                _ActionIntent(enterTaskManager),
+                _ActionIntent(directlyEnterTaskManager),
             LogicalKeySet(LogicalKeyboardKey.space):
                 _ActionIntent(() => enterApp(_getCurrentIndex())),
           };
@@ -308,7 +316,8 @@ class _TaskManagerViewState extends State<TaskManagerView>
           child: TaskManagerData(
             enter: _enter,
             appData: appData,
-            hideWidgetDuration: flyAnimation?.hideWidgetDuration,
+            hideWidgetDuration: flyAnimation?.hideWidgetDuration ??
+                const Duration(milliseconds: 200),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -394,26 +403,20 @@ class _TaskManagerViewState extends State<TaskManagerView>
                     onDragUpdate: !isEnter
                         ? null
                         : (details) {
-                            bool isLongDrag() {
-                              if (data is _TaskManagerDragAppAnimationData) {
-                                final now = DateTime.now();
-                                final delta =
-                                    now.difference(data.touchStartTime);
-                                return delta >
-                                    const Duration(milliseconds: 150);
-                              }
-                              return true;
+                            bool isLongDrag(DateTime touchStartTime) {
+                              final now = DateTime.now();
+                              final delta = now.difference(touchStartTime);
+                              return delta > const Duration(milliseconds: 150);
                             }
 
-                            bool toTaskManager(Offset shift) {
-                              if (shift.dx.abs() > shift.dy.abs() * 1.5 &&
-                                  isLongDrag()) {
+                            bool toTaskManager(
+                                Offset shift, DateTime? touchStartTime) {
+                              if (shift.dx.abs() > shift.dy.abs() * 1.5) {
                                 return true;
-                              } else if (shift.distance >
-                                      widget.constraints.maxHeight / 6 &&
-                                  shift.distance <
-                                      widget.constraints.maxHeight / 2 &&
-                                  isLongDrag()) {
+                              } else if (shift.distance <
+                                      widget.constraints.maxHeight / 3 &&
+                                  (touchStartTime == null ||
+                                      isLongDrag(touchStartTime))) {
                                 return true;
                               } else {
                                 return false;
@@ -422,7 +425,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
 
                             if (data is _TaskManagerDragAnimationData) {
                               final shift = details.globalPosition - data.start;
-                              if (toTaskManager(shift)) {
+                              if (toTaskManager(shift, null)) {
                                 setState(() {
                                   _data = data.moveTo(details.globalPosition);
                                 });
@@ -442,12 +445,19 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                     appRect.other,
                                   ),
                                   data.showDragBar,
+                                  data.lastStats,
                                 ));
                               }
                             } else if (data
                                 is _TaskManagerDragAppAnimationData) {
                               final shift = details.globalPosition - data.start;
-                              if (toTaskManager(shift)) {
+                              final willDragStopMoving =
+                                  details.delta.distance < 3;
+                              if (toTaskManager(
+                                  shift,
+                                  willDragStopMoving
+                                      ? null
+                                      : data.touchStartTime)) {
                                 final index = _getCurrentIndex();
                                 _reenter(_data = _TaskManagerDragAnimationData(
                                   data.touchStartTime,
@@ -462,6 +472,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                     appRect.other,
                                   ),
                                   data.showDragBar,
+                                  data.lastStats,
                                 ));
                               } else {
                                 setState(() {
@@ -477,25 +488,29 @@ class _TaskManagerViewState extends State<TaskManagerView>
                               final current = details.globalPosition;
                               final start = Offset(
                                   current.dx,
-                                  widget.constraints.maxHeight * 2 -
+                                  current.dy +
+                                      widget.constraints.maxHeight -
                                       appRect.other.height -
                                       appRect.other.top);
                               final shift = current - start;
-                              if (toTaskManager(shift)) {
+                              final touchStartTime = DateTime.now();
+                              if (toTaskManager(
+                                  shift, isEnterApp ? touchStartTime : null)) {
                                 _reenter(_data = _TaskManagerDragAnimationData(
-                                  DateTime.now(),
+                                  touchStartTime,
                                   start,
                                   details.globalPosition,
                                   stackListViewRect,
                                   appRect,
                                   data.showDragBar,
+                                  data.stats,
                                 ));
                               } else {
                                 final index = _getCurrentIndex();
                                 _scrollToIndex(index);
                                 _reenter(
                                     _data = _TaskManagerDragAppAnimationData(
-                                  DateTime.now(),
+                                  touchStartTime,
                                   start,
                                   details.globalPosition,
                                   stackListViewRect,
@@ -506,6 +521,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                           : appRect.other,
                                       appRect.other),
                                   data.showDragBar,
+                                  data.stats,
                                 ));
                               }
                             }
@@ -537,7 +553,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                                       enterApp(_getCurrentIndex());
                                     }
                                   } else {
-                                    enterTaskManager();
+                                    enterTaskManager(data.lastStats);
                                   }
                                 }
                               } else {
@@ -567,7 +583,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
                               }
                             } else {
                               // unlikely
-                              if (data.stats == TaskManagerStats.enterApp) {
+                              if (isEnterApp) {
                                 flyBack();
                               } else {
                                 forceExit();
@@ -596,6 +612,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
         actions: _actions,
         child: TaskManagerData(
           enter: _enter,
+          hideWidgetDuration: Duration.zero,
           child: Stack(
             children: [
               Positioned.fill(
@@ -752,10 +769,12 @@ abstract class _Drag extends _Base {
     super.currentStackListViewRect,
     super.currentAppRect,
     this.showDragBar,
+    this.lastStats,
   );
   final Offset start;
   final Offset current;
   final DateTime touchStartTime;
+  final TaskManagerStats lastStats;
 
   @override
   final bool showDragBar;
@@ -771,7 +790,8 @@ class _TaskManagerDragEnterAnimationData extends _Drag {
     final DateTime touchStartTime,
     final Offset start,
     final Offset current,
-  ) : super(touchStartTime, start, current, Rect.zero, _AppRect.invalid, false);
+  ) : super(touchStartTime, start, current, Rect.zero, _AppRect.invalid, false,
+            TaskManagerStats.exit);
 
   @override
   _TaskManagerDragEnterAnimationData moveTo(Offset current) {
@@ -808,6 +828,7 @@ class _TaskManagerDragAnimationData extends _Drag {
     super.currentStackListViewRect,
     super.currentAppRect,
     super.showDragBar,
+    super.lastStats,
   );
 
   @override
@@ -819,6 +840,7 @@ class _TaskManagerDragAnimationData extends _Drag {
       currentStackListViewRect,
       currentAppRect,
       showDragBar,
+      lastStats,
     );
   }
 
@@ -846,6 +868,7 @@ class _TaskManagerDragAppAnimationData extends _Drag {
     super.currentStackListViewRect,
     super.currentAppRect,
     super.showDragBar,
+    super.lastStats,
   );
 
   @override
@@ -857,6 +880,7 @@ class _TaskManagerDragAppAnimationData extends _Drag {
       currentStackListViewRect,
       currentAppRect,
       showDragBar,
+      lastStats,
     );
   }
 

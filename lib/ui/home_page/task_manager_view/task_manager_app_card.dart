@@ -52,7 +52,11 @@ class _TaskManagerAppCardState extends State<TaskManagerAppCard>
       vsync: this,
       value: widget.flyStats == FlyStats.enter ? 0 : 1,
       duration: const Duration(milliseconds: 150),
-    )..addListener(() {
+    )
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener((status) {
         setState(() {});
       });
     _controller.animateTo(1);
@@ -84,6 +88,7 @@ class _TaskManagerAppCardState extends State<TaskManagerAppCard>
       begin: AppIcon.borderRadius,
       end: BorderRadius.zero,
     ).evaluate(_controller);
+    final isCompleted = _controller.isCompleted;
     final size = widget.constraints.biggest;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -97,34 +102,33 @@ class _TaskManagerAppCardState extends State<TaskManagerAppCard>
           clipBehavior: Clip.none,
           children: [
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: borderRadius,
-                clipBehavior: Clip.hardEdge,
-                child: FadeTransition(
-                  opacity: _controller.isCompleted
-                      ? const AlwaysStoppedAnimation(0)
-                      : const AlwaysStoppedAnimation(1),
-                  child: widget.appData.iconBackground,
-                ),
-              ),
+              child: !isCompleted
+                  ? ClipRRect(
+                      borderRadius: borderRadius,
+                      clipBehavior: Clip.hardEdge,
+                      child: widget.appData.iconBackground,
+                    )
+                  : const SizedBox(),
             ),
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: borderRadius,
-                clipBehavior: Clip.hardEdge,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: 64,
-                    height: 64,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: widget.appData.icon,
-                    ),
-                  ),
-                ),
-              ),
+              child: !isCompleted
+                  ? ClipRRect(
+                      borderRadius: borderRadius,
+                      clipBehavior: Clip.hardEdge,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          width: 64,
+                          height: 64,
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: widget.appData.icon,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             ),
             Positioned.fill(
               child: FittedBox(
@@ -166,16 +170,17 @@ class _TaskManagerAppCardState extends State<TaskManagerAppCard>
                 ),
               ),
             ),
-            if (widget.reenterEnable)
-              Positioned.fill(
-                child: _Dismissible(
-                  isEnterTaskManager: widget.isEnterTaskManager,
-                  reenterApp: widget.reenterApp,
-                  constraints: widget.constraints,
-                  updateSizeFactor: widget.updateSizeFactor,
-                  removeApp: widget.removeApp,
-                ),
+            Positioned.fill(
+              child: _Dismissible(
+                enable: widget.reenterEnable,
+                isEnterTaskManager: widget.isEnterTaskManager,
+                reenterApp: widget.reenterApp,
+                constraints: widget.constraints,
+                updateSizeFactor: widget.updateSizeFactor,
+                removeApp: widget.removeApp,
+                sizeFactor: widget.sizeFactor,
               ),
+            ),
           ],
         ),
       ),
@@ -298,19 +303,21 @@ class _AppViewState extends State<_AppView>
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(
-            child: FadeTransition(
-              opacity: Tween<double>(begin: 1, end: 0).animate(
-                CurvedAnimation(
-                  parent: _controller,
-                  curve: const Interval(0.7, 1),
-                ),
-              ),
-              child: RawImage(
-                image: image,
-                fit: BoxFit.fill,
-                filterQuality: FilterQuality.low,
-              ),
-            ),
+            child: !_controller.isCompleted
+                ? FadeTransition(
+                    opacity: Tween<double>(begin: 1, end: 0).animate(
+                      CurvedAnimation(
+                        parent: _controller,
+                        curve: const Interval(0.7, 1),
+                      ),
+                    ),
+                    child: RawImage(
+                      image: image,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.low,
+                    ),
+                  )
+                : const SizedBox(),
           ),
           Positioned.fill(
             child: !_controller.isDismissed
@@ -344,8 +351,11 @@ class _Dismissible extends StatefulWidget {
     required this.constraints,
     required this.updateSizeFactor,
     required this.removeApp,
+    required this.sizeFactor,
+    required this.enable,
   });
-
+  final bool enable;
+  final double sizeFactor;
   final bool isEnterTaskManager;
   final BoxConstraints constraints;
   final void Function() reenterApp;
@@ -365,38 +375,42 @@ class _DismissibleState extends State<_Dismissible>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      value: 0,
+      value: widget.sizeFactor,
       upperBound: 1,
       lowerBound: -1,
       duration: const Duration(milliseconds: 450),
     )..addListener(() {
         widget.updateSizeFactor(_controller.value);
       });
+    if (widget.sizeFactor != 0) _controller.animateTo(0);
   }
 
   @override
   void dispose() {
-    if (_controller.value != 0) {
-      Future.microtask(() => widget.updateSizeFactor(0));
-    }
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isEnterTaskManager) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.reenterApp,
-        onVerticalDragUpdate: _onVerticalDragUpdate,
-        onVerticalDragEnd: _onVerticalDragEnd,
-        child: const Center(),
-      );
+    if (widget.enable) {
+      if (widget.isEnterTaskManager) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.reenterApp,
+          onVerticalDragUpdate: _onVerticalDragUpdate,
+          onVerticalDragEnd: _onVerticalDragEnd,
+          child: const Center(),
+        );
+      } else {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.reenterApp,
+          child: const Center(),
+        );
+      }
     } else {
       return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.reenterApp,
         child: const Center(),
       );
     }
