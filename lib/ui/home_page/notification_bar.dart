@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_web/ui/widgets/temp_focus_node.dart';
+import 'package:my_web/ui/widgets/timer_builder.dart';
 
 import 'drag_bar.dart';
 
@@ -393,42 +393,24 @@ class _CloseAction extends Action<_CloseIntent> {
   void invoke(covariant _CloseIntent intent) => close();
 }
 
-class _TimeView extends StatefulWidget {
+class _TimeView extends StatelessWidget {
   const _TimeView();
 
-  @override
-  State<_TimeView> createState() => _TimeViewState();
-}
-
-class _TimeViewState extends State<_TimeView> {
-  late Timer _timer;
-  DateTime _now = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer(Duration(seconds: 60 - _now.second), () {
-      setState(() {
-        _now = DateTime.now();
-      });
-      _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
-        setState(() {
-          _now = DateTime.now();
-        });
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
+  static Duration beforeNextMinutes() {
+    final now = DateTime.now();
+    return Duration(seconds: 60 - now.second);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-        "${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}");
+    return TimerBuilder(
+      delay: beforeNextMinutes,
+      periodic: const Duration(minutes: 1),
+      builder: (now) {
+        return Text(
+            "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}");
+      },
+    );
   }
 }
 

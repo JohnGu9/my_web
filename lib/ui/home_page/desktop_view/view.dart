@@ -20,21 +20,23 @@ class _ViewState extends State<View> {
   late PageController _controller;
   var _page = 0;
 
+  _onPageChange() {
+    final page = _controller.page;
+    if (page != null) {
+      final p = page.round();
+      if (p != _page) {
+        setState(() {
+          _page = p;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _controller = PageController(initialPage: _page)
-      ..addListener(() {
-        final page = _controller.page;
-        if (page != null) {
-          final p = page.round();
-          if (p != _page) {
-            setState(() {
-              _page = p;
-            });
-          }
-        }
-      });
+      ..addListener(_onPageChange);
   }
 
   @override
@@ -63,37 +65,45 @@ class _ViewState extends State<View> {
           SizedBox(height: data.padding.top),
           Expanded(
             child: TouchProtect(
-              child: PageView(
+              child: PageSwitchDragTarget(
                 controller: _controller,
-                clipBehavior: Clip.none,
-                children: [
-                  for (var i = 0; i < pagesData.length; i++)
-                    PageSwitchDragTarget(
-                      horizontalPadding: horizontalPadding,
-                      controller: _controller,
-                      pageIndex: i,
-                      pageCount: pagesData.length,
+                horizontalPadding: horizontalPadding * 2,
+                pageCount: pagesData.length,
+                child: PageView.builder(
+                  controller: _controller,
+                  clipBehavior: Clip.none,
+                  itemCount: pagesData.length,
+                  itemBuilder: (context, i) {
+                    final reLayout = context
+                        .dependOnInheritedWidgetOfExactType<ReLayoutData>()!;
+                    final data = pagesData[i];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                      ),
                       child: PageGrid(
                         rows: gridRows,
                         columns: gridColumns,
-                        data: pagesData[i],
+                        data: data,
                         pageIndex: i,
+                        reLayout: reLayout,
                       ),
-                    ),
-                ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
           // height: 32
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Material(
-                color: Colors.transparent,
-                shape: const StadiumBorder(),
-                child: SizedBox(
-                  height: 24,
-                  width: 21.0 * pagesData.length,
+          SizedBox(
+            height: 32,
+            child: Center(
+              child: SizedBox(
+                height: 24,
+                width: 21.0 * pagesData.length,
+                child: Material(
+                  color: Colors.transparent,
+                  shape: const StadiumBorder(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -103,8 +113,9 @@ class _ViewState extends State<View> {
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color:
-                                Colors.white.withOpacity(_page == i ? 1 : 0.3),
+                            color: Colors.white.withOpacity(
+                              _page == i ? 1 : 0.3,
+                            ),
                             shape: BoxShape.circle,
                           ),
                         ),

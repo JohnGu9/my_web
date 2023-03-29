@@ -10,21 +10,24 @@ class TouchProtect extends StatefulWidget {
 
 class _TouchProtectState extends State<TouchProtect> {
   var _enable = true;
+
+  bool _onNotification(ScrollNotification notification) {
+    if (notification is ScrollStartNotification) {
+      setState(() {
+        _enable = false;
+      });
+    } else if (notification is ScrollEndNotification) {
+      setState(() {
+        _enable = true;
+      });
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        if (notification is ScrollStartNotification) {
-          setState(() {
-            _enable = false;
-          });
-        } else if (notification is ScrollEndNotification) {
-          setState(() {
-            _enable = true;
-          });
-        }
-        return false;
-      },
+      onNotification: _onNotification,
       child: TouchProtectData(
         enable: _enable,
         child: widget.child,
@@ -34,8 +37,11 @@ class _TouchProtectState extends State<TouchProtect> {
 }
 
 class TouchProtectData extends InheritedWidget {
-  const TouchProtectData(
-      {super.key, required super.child, required this.enable});
+  const TouchProtectData({
+    super.key,
+    required super.child,
+    required this.enable,
+  });
   final bool enable;
 
   @override

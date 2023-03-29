@@ -1,77 +1,94 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DragTarget;
 import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/home_page/app_icon.dart';
-import 'package:my_web/ui/home_page/desktop_view/fly_back_positioned.dart';
-import 'package:my_web/ui/home_page/desktop_view/re_layout.dart';
+import 'package:my_web/ui/widgets/drag_target.dart';
 
-import 'touch_protect.dart';
+import 're_layout.dart';
 
-class PageGrid extends StatelessWidget {
+class PageGrid extends StatefulWidget {
   const PageGrid({
     super.key,
     required this.rows,
     required this.columns,
     required this.data,
     required this.pageIndex,
+    required this.reLayout,
   });
   final List<AppData> data;
   final int rows;
   final int columns;
   final int pageIndex;
+  final ReLayoutData reLayout;
+
+  @override
+  State<PageGrid> createState() => _PageGridState();
+}
+
+class _PageGridState extends State<PageGrid> {
+  Offset? _getTargetPosition() {
+    if (mounted) {
+      final obj = context.findRenderObject();
+      if (obj is RenderBox) {
+        return obj.localToGlobal(Offset.zero);
+      }
+    }
+    return null;
+  }
+
+  void _onDragStart(AppData appData, DragAvatar avatar) {
+    final index = widget.data.indexOf(appData);
+    if (index != -1) {
+      context
+          .dependOnInheritedWidgetOfExactType<ReLayoutData>()
+          ?.startDrag(ReLayoutDragPositionData.fromPage(
+            appData,
+            avatar,
+            widget.pageIndex,
+            index,
+            _getTargetPosition,
+          ));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final positionData = widget.reLayout.positionData;
+    if (positionData is ReLayoutDragPositionData) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (mounted) {
+          widget.reLayout.updateDragData(positionData.toPage(
+            widget.pageIndex,
+            widget.data.length,
+            _getTargetPosition,
+          ));
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final enable =
-        context.dependOnInheritedWidgetOfExactType<TouchProtectData>()?.enable;
-    final reLayout = context.dependOnInheritedWidgetOfExactType<ReLayoutData>();
-    Offset? getTargetPosition() {
-      if (context.mounted) {
-        final obj = context.findRenderObject();
-        if (obj is RenderBox) {
-          return obj.localToGlobal(Offset.zero);
-        }
-      }
-      return null;
-    }
-
-    void onDragStart(AppData appData) {
-      final index = data.indexOf(appData);
-      if (index != -1) {
-        context
-            .dependOnInheritedWidgetOfExactType<ReLayoutData>()
-            ?.startDrag(ReLayoutDragPositionData.fromPage(
-              appData,
-              pageIndex,
-              index,
-              getTargetPosition,
-            ));
-      }
-    }
-
-    return IgnorePointer(
-      ignoring: enable == false,
-      child: ReLayoutOnDragStartData(
-        onDragStart: onDragStart,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth / columns;
-            final height = constraints.maxHeight / rows;
-            final children = _children(
-              context,
-              width,
-              height,
-              reLayout,
-              getTargetPosition,
-            );
-            return Stack(
-              clipBehavior: Clip.none,
-              fit: StackFit.expand,
-              children: [
-                if (children.isNotEmpty) ...children,
-              ],
-            );
-          },
-        ),
+    return ReLayoutOnDragStartData(
+      onDragStart: _onDragStart,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth / widget.columns;
+          final height = constraints.maxHeight / widget.rows;
+          final children = _children(
+            context,
+            width,
+            height,
+            _getTargetPosition,
+          );
+          return Stack(
+            clipBehavior: Clip.none,
+            fit: StackFit.expand,
+            children: [
+              if (children.isNotEmpty) ...children,
+            ],
+          );
+        },
       ),
     );
   }
@@ -80,28 +97,27 @@ class PageGrid extends StatelessWidget {
     BuildContext context,
     double width,
     double height,
-    ReLayoutData? reLayout,
     Offset? Function() getTargetPosition,
   ) sync* {
-    final positionData = reLayout?.positionData;
+    final positionData = widget.reLayout.positionData;
     if (positionData is ReLayoutDragPositionData) {
-      final dragTargetIndex = positionData.getPagePosition(pageIndex);
-      final data = this
-          .data
+      final dragTargetIndex = positionData.getPagePosition(widget.pageIndex);
+      final data = widget.data
           .where((element) => element != positionData.appData)
           .toList(growable: false);
-      yield* _reLayoutChildren(data, width, height, reLayout!, dragTargetIndex);
+      yield* _reLayoutChildren(
+          data, width, height, widget.reLayout, dragTargetIndex);
       yield* _dragTargets(
         width,
         height,
-        reLayout,
+        widget.reLayout,
         positionData,
         dragTargetIndex,
         getTargetPosition,
       );
     } else {
       if (positionData is ReLayoutFlyBackPositionData &&
-          positionData.positionData.getPagePosition(pageIndex) != null) {
+          positionData.positionData.getPagePosition(widget.pageIndex) != null) {
         final startRect = Rect.fromLTWH(
           positionData.shift.dx,
           positionData.shift.dy,
@@ -111,11 +127,11 @@ class PageGrid extends StatelessWidget {
         var endRect = startRect;
         var index = 0;
         var top = 0.0;
-        for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (var rowIndex = 0; rowIndex < widget.rows; rowIndex++) {
           var left = 0.0;
-          for (var colIndex = 0; colIndex < columns; colIndex++) {
-            if (index == data.length) break;
-            final d = data[index];
+          for (var colIndex = 0; colIndex < widget.columns; colIndex++) {
+            if (index == widget.data.length) break;
+            final d = widget.data[index];
             if (d != positionData.appData) {
               yield AnimatedPositioned.fromRect(
                 key: ValueKey(d),
@@ -132,15 +148,21 @@ class PageGrid extends StatelessWidget {
             ++index;
             left += width;
           }
-          if (index == data.length) break;
+          if (index == widget.data.length) break;
           top += height;
         }
-        yield FlyBackPositioned(
-          key: const ValueKey(0),
-          start: startRect,
-          end: endRect,
-          onEnd: () {
-            reLayout?.clear();
+        yield AnimatedBuilder(
+          animation: widget.reLayout.animation,
+          builder: (context, child) {
+            return Positioned.fromRect(
+              rect: Rect.lerp(
+                startRect,
+                endRect,
+                Curves.linearToEaseOut
+                    .transform(widget.reLayout.animation.value),
+              )!,
+              child: child!,
+            );
           },
           child: Center(
             child: FloatingIcon(
@@ -156,11 +178,11 @@ class PageGrid extends StatelessWidget {
       } else {
         var index = 0;
         var top = 0.0;
-        for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (var rowIndex = 0; rowIndex < widget.rows; rowIndex++) {
           var left = 0.0;
-          for (var colIndex = 0; colIndex < columns; colIndex++) {
-            if (index == data.length) return;
-            final d = data[index];
+          for (var colIndex = 0; colIndex < widget.columns; colIndex++) {
+            if (index == widget.data.length) return;
+            final d = widget.data[index];
             yield AnimatedPositioned.fromRect(
               key: ValueKey(d),
               duration: const Duration(milliseconds: 450),
@@ -186,10 +208,10 @@ class PageGrid extends StatelessWidget {
     ReLayoutData reLayout,
     int? dragTargetIndex,
   ) sync* {
-    final columns = this.columns - 1;
+    final columns = widget.columns - 1;
     var index = 0;
     var top = 0.0;
-    for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
+    for (var rowIndex = 0; rowIndex < widget.rows; rowIndex++) {
       var left = 0.0;
       for (var colIndex = 0; colIndex < columns; colIndex++) {
         if (index == data.length) return;
@@ -240,11 +262,14 @@ class PageGrid extends StatelessWidget {
           (dragTargetIndex == null || i > dragTargetIndex) ? i - 1 : i;
       return DragTarget(
         builder: (context, candidateData, rejectedData) {
+          // return Placeholder(
+          //   color: index == dragTargetIndex ? Colors.red : Colors.blue,
+          // );
           return const Center();
         },
         onWillAccept: (data) {
           reLayout.updateDragData(
-              positionData.toPage(pageIndex, index, getTargetPosition));
+              positionData.toPage(widget.pageIndex, index, getTargetPosition));
           return true;
         },
       );
@@ -253,7 +278,7 @@ class PageGrid extends StatelessWidget {
     final halfWidth = width / 2;
     var index = 0;
     var top = 0.0;
-    for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
+    for (var rowIndex = 0; rowIndex < widget.rows; rowIndex++) {
       var left = halfWidth;
       yield Positioned(
         left: 0,
@@ -265,7 +290,7 @@ class PageGrid extends StatelessWidget {
             : index + 1),
       );
       ++index;
-      for (var colIndex = 0; colIndex < columns - 1; colIndex++) {
+      for (var colIndex = 0; colIndex < widget.columns - 1; colIndex++) {
         yield Positioned(
           left: left,
           top: top,

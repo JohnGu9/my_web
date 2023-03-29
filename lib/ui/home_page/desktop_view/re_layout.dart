@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/drag_target.dart';
 
 class ReLayout extends StatefulWidget {
   const ReLayout({super.key, required this.child, required this.data});
@@ -12,11 +13,14 @@ class ReLayout extends StatefulWidget {
   State<ReLayout> createState() => _ReLayoutState();
 }
 
-class _ReLayoutState extends State<ReLayout> {
+class _ReLayoutState extends State<ReLayout>
+    with SingleTickerProviderStateMixin {
   final _key = GlobalKey();
   ReLayoutPositionData? _positionData;
+  late AnimationController _controller;
 
   void _startDrag(ReLayoutDragPositionData positionData) {
+    _controller.value = 0;
     setState(() {
       final last = widget.data.pagesData.last;
       if (!(last.length == 1 && last[0] == positionData.appData)) {
@@ -38,15 +42,6 @@ class _ReLayoutState extends State<ReLayout> {
       final renderObject = _key.currentContext?.findRenderObject();
       final targetPosition = positionData.getTargetPosition();
       if (renderObject is RenderBox && targetPosition != null) {
-        final position = renderObject.localToGlobal(Offset.zero);
-        setState(() {
-          _positionData = ReLayoutFlyBackPositionData(
-            positionData,
-            position - targetPosition,
-            renderObject.size,
-          );
-        });
-
         final origin = positionData._origin;
         if (origin is _ReLayoutDeckPositionData) {
           widget.data.deckData.removeAt(origin.position);
@@ -54,32 +49,68 @@ class _ReLayoutState extends State<ReLayout> {
           widget.data.pagesData[origin.pageIndex].removeAt(origin.position);
         }
 
+        ReLayoutDragPositionData? data;
         if (positionData is _ReLayoutDeckPositionData) {
           final list = widget.data.deckData;
           list.insert(
             min(positionData.position, list.length),
             positionData.appData,
           );
+          widget.data.pagesData.removeWhere((element) => element.isEmpty);
         } else if (positionData is _ReLayoutPagePositionData) {
           final list = widget.data.pagesData[positionData.pageIndex];
           list.insert(
             min(positionData.position, list.length),
             positionData.appData,
           );
+          widget.data.pagesData.removeWhere((element) => element.isEmpty);
+          final currentIndex = widget.data.pagesData.indexOf(list);
+          if (currentIndex != positionData.pageIndex) {
+            data = positionData.toPage(currentIndex, positionData.position,
+                positionData.getTargetPosition);
+          }
         }
+
+        final position = renderObject.localToGlobal(Offset.zero);
+        _controller.animateTo(1);
+        setState(() {
+          _positionData = ReLayoutFlyBackPositionData(
+            data ?? positionData,
+            position - targetPosition,
+            renderObject.size,
+          );
+        });
       } else {
+        widget.data.pagesData.removeWhere((element) => element.isEmpty);
         setState(() {
           _positionData = null;
         });
       }
-      widget.data.pagesData.removeWhere((element) => element.isEmpty);
     }
   }
 
-  _clear() {
-    setState(() {
-      _positionData = null;
-    });
+  @override
+  void initState() {
+    super.initState();
+    widget.data.pagesData.removeWhere((element) => element.isEmpty);
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 450))
+      ..addStatusListener((status) {
+        switch (status) {
+          case AnimationStatus.completed:
+            setState(() {
+              _positionData = null;
+            });
+            break;
+          default:
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,10 +119,10 @@ class _ReLayoutState extends State<ReLayout> {
       orderData: widget.data,
       feedbackKey: _key,
       positionData: _positionData,
+      animation: _controller,
       startDrag: _startDrag,
       updateDragData: _updateDragData,
       submit: _submit,
-      clear: _clear,
       child: widget.child,
     );
   }
@@ -104,18 +135,18 @@ class ReLayoutData extends InheritedWidget {
     required this.orderData,
     required this.feedbackKey,
     required this.positionData,
+    required this.animation,
     required this.startDrag,
     required this.updateDragData,
     required this.submit,
-    required this.clear,
   });
   final GlobalKey feedbackKey;
   final ReLayoutOrderData orderData;
   final ReLayoutPositionData? positionData;
+  final Animation<double> animation;
   final void Function(ReLayoutDragPositionData data) startDrag;
   final void Function(ReLayoutDragPositionData data) updateDragData;
   final void Function() submit;
-  final void Function() clear;
 
   @override
   bool updateShouldNotify(covariant ReLayoutData oldWidget) {
@@ -124,9 +155,12 @@ class ReLayoutData extends InheritedWidget {
 }
 
 class ReLayoutOnDragStartData extends InheritedWidget {
-  const ReLayoutOnDragStartData(
-      {super.key, required super.child, required this.onDragStart});
-  final void Function(AppData appData) onDragStart;
+  const ReLayoutOnDragStartData({
+    super.key,
+    required super.child,
+    required this.onDragStart,
+  });
+  final void Function(AppData appData, DragAvatar avatar) onDragStart;
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
@@ -155,27 +189,29 @@ class ReLayoutFlyBackPositionData extends ReLayoutPositionData {
 }
 
 abstract class ReLayoutDragPositionData extends ReLayoutPositionData {
-  ReLayoutDragPositionData._(super.appData, this.getTargetPosition);
+  ReLayoutDragPositionData._(
+      super.appData, this.getTargetPosition, this.avatar);
 
-  factory ReLayoutDragPositionData.fromPage(AppData appData, int pageIndex,
-      int position, Offset? Function() getTargetPosition) {
+  factory ReLayoutDragPositionData.fromPage(AppData appData, DragAvatar avatar,
+      int pageIndex, int position, Offset? Function() getTargetPosition) {
     final result = _ReLayoutPagePositionData(
-        appData, getTargetPosition, pageIndex, position);
+        appData, getTargetPosition, avatar, pageIndex, position);
     result._origin = _ReLayoutPagePositionData(
-        appData, getTargetPosition, pageIndex, position);
+        appData, getTargetPosition, avatar, pageIndex, position);
     return result;
   }
 
-  factory ReLayoutDragPositionData.fromDeck(
-      AppData appData, int position, Offset? Function() getTargetPosition) {
+  factory ReLayoutDragPositionData.fromDeck(AppData appData, DragAvatar avatar,
+      int position, Offset? Function() getTargetPosition) {
     final result =
-        _ReLayoutDeckPositionData(appData, getTargetPosition, position);
+        _ReLayoutDeckPositionData(appData, getTargetPosition, avatar, position);
     result._origin =
-        _ReLayoutDeckPositionData(appData, getTargetPosition, position);
+        _ReLayoutDeckPositionData(appData, getTargetPosition, avatar, position);
     return result;
   }
 
   final Offset? Function() getTargetPosition;
+  final DragAvatar avatar;
 
   int? getPagePosition(int pageIndex) {
     return null;
@@ -186,7 +222,7 @@ abstract class ReLayoutDragPositionData extends ReLayoutPositionData {
   ReLayoutDragPositionData toPage(
       int pageIndex, int position, Offset? Function() getTargetPosition) {
     final result = _ReLayoutPagePositionData(
-        appData, getTargetPosition, pageIndex, position);
+        appData, getTargetPosition, avatar, pageIndex, position);
     result._origin = _origin;
     return result;
   }
@@ -194,7 +230,7 @@ abstract class ReLayoutDragPositionData extends ReLayoutPositionData {
   ReLayoutDragPositionData toDeck(
       int position, Offset? Function() getTargetPosition) {
     final result =
-        _ReLayoutDeckPositionData(appData, getTargetPosition, position);
+        _ReLayoutDeckPositionData(appData, getTargetPosition, avatar, position);
     result._origin = _origin;
     return result;
   }
@@ -204,11 +240,12 @@ abstract class ReLayoutDragPositionData extends ReLayoutPositionData {
 
 class _ReLayoutPagePositionData extends ReLayoutDragPositionData {
   _ReLayoutPagePositionData(
-    AppData appData,
-    Offset? Function() getTargetPosition,
+    super.appData,
+    super.getTargetPosition,
+    super.avatar,
     this.pageIndex,
     this.position,
-  ) : super._(appData, getTargetPosition);
+  ) : super._();
   final int pageIndex;
   final int position;
 
@@ -223,10 +260,11 @@ class _ReLayoutPagePositionData extends ReLayoutDragPositionData {
 
 class _ReLayoutDeckPositionData extends ReLayoutDragPositionData {
   _ReLayoutDeckPositionData(
-    AppData appData,
-    Offset? Function() getTargetPosition,
+    super.appData,
+    super.getTargetPosition,
+    super.avatar,
     this.position,
-  ) : super._(appData, getTargetPosition);
+  ) : super._();
   final int position;
 
   @override

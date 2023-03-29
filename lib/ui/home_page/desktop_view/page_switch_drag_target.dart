@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:my_web/ui/home_page/desktop_view/touch_protect.dart';
-
-import 're_layout.dart';
+import 'package:flutter/material.dart' hide DragTarget;
+import 'package:my_web/ui/home_page/desktop_view/re_layout.dart';
+import 'package:my_web/ui/widgets/drag_target.dart';
 
 class PageSwitchDragTarget extends StatelessWidget {
   const PageSwitchDragTarget({
@@ -11,63 +10,65 @@ class PageSwitchDragTarget extends StatelessWidget {
     required this.horizontalPadding,
     required this.child,
     required this.controller,
-    required this.pageIndex,
     required this.pageCount,
   });
   final double horizontalPadding;
   final Widget child;
   final PageController controller;
-  final int pageIndex;
   final int pageCount;
 
   @override
   Widget build(BuildContext context) {
-    final reLayout = context.dependOnInheritedWidgetOfExactType<ReLayoutData>();
-    final protect =
-        context.dependOnInheritedWidgetOfExactType<TouchProtectData>();
-    final enable = reLayout?.positionData is ReLayoutDragPositionData &&
-        protect?.enable != false;
-    return Row(
+    final enable = context
+        .dependOnInheritedWidgetOfExactType<ReLayoutData>()
+        ?.positionData is ReLayoutDragPositionData;
+    return Stack(
       children: [
-        SizedBox(
-          width: horizontalPadding,
-          height: double.infinity,
-          child: enable && pageIndex != 0
-              ? _DragTarget(
-                  delay: const Duration(milliseconds: 450),
-                  onWillAccept: () {
-                    controller.previousPage(
-                      duration: const Duration(milliseconds: 450),
-                      curve: Curves.ease,
-                    );
-                  },
-                )
-              : null,
-        ),
-        Expanded(child: child),
-        SizedBox(
-          width: horizontalPadding,
-          height: double.infinity,
-          child: enable && pageIndex != pageCount - 1
-              ? _DragTarget(
-                  delay: const Duration(milliseconds: 450),
-                  onWillAccept: () {
-                    controller.nextPage(
-                      duration: const Duration(milliseconds: 450),
-                      curve: Curves.ease,
-                    );
-                  },
-                )
-              : null,
-        ),
+        Positioned.fill(child: child),
+        if (enable)
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: horizontalPadding,
+            child: _DragTarget(
+              delay: const Duration(milliseconds: 450),
+              onWillAccept: () {
+                if ((controller.page ?? controller.initialPage) >= 1) {
+                  controller.previousPage(
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.ease,
+                  );
+                }
+              },
+            ),
+          ),
+        if (enable)
+          Positioned(
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: horizontalPadding,
+            child: _DragTarget(
+              delay: const Duration(milliseconds: 450),
+              onWillAccept: () {
+                if ((controller.page ?? controller.initialPage) <=
+                    pageCount - 2) {
+                  controller.nextPage(
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.ease,
+                  );
+                }
+              },
+            ),
+          ),
       ],
     );
   }
 }
 
 class _DragTarget extends StatefulWidget {
-  const _DragTarget(
-      {super.key, required this.delay, required this.onWillAccept});
+  const _DragTarget({required this.delay, required this.onWillAccept});
   final Duration delay;
   final void Function() onWillAccept;
 
@@ -77,6 +78,11 @@ class _DragTarget extends StatefulWidget {
 
 class _DragTargetState extends State<_DragTarget> {
   Timer? _timer;
+
+  _timerCallback() {
+    widget.onWillAccept();
+    _timer = Timer(widget.delay * 2, _timerCallback);
+  }
 
   @override
   void dispose() {
@@ -91,9 +97,7 @@ class _DragTargetState extends State<_DragTarget> {
         return const Center();
       },
       onWillAccept: (data) {
-        _timer = Timer(widget.delay, () {
-          widget.onWillAccept();
-        });
+        _timer = Timer(widget.delay, _timerCallback);
         return true;
       },
       onLeave: (details) {

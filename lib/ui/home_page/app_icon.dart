@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide LongPressDraggable;
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/home_page/desktop_view/touch_protect.dart';
+import 'package:my_web/ui/widgets/drag_target.dart';
 
 import 'desktop_view/re_layout.dart';
 import 'task_manager_view/task_manager_app_card.dart';
@@ -25,7 +27,7 @@ class _AppIconState extends State<AppIcon> with SingleTickerProviderStateMixin {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 100),
     );
   }
 
@@ -41,6 +43,7 @@ class _AppIconState extends State<AppIcon> with SingleTickerProviderStateMixin {
         context.dependOnInheritedWidgetOfExactType<ReLayoutData>()!;
     final taskManager =
         context.dependOnInheritedWidgetOfExactType<TaskManagerData>()!;
+    final isDragging = reLayout.positionData is ReLayoutDragPositionData;
     final text = FloatingIcon.createText(context, widget.data.name);
     return AnimatedBuilder(
       animation: _controller,
@@ -64,9 +67,7 @@ class _AppIconState extends State<AppIcon> with SingleTickerProviderStateMixin {
               left: 0,
               right: 0,
               bottom: -20,
-              child: Center(
-                child: text,
-              ),
+              child: Center(child: text),
             ),
           Positioned.fill(
             child: AnimatedOpacity(
@@ -79,17 +80,26 @@ class _AppIconState extends State<AppIcon> with SingleTickerProviderStateMixin {
                 },
                 onTapUp: (details) {
                   _controller.animateBack(0);
-                  taskManager.enter(widget.data);
+                  final protect = context
+                      .dependOnInheritedWidgetOfExactType<TouchProtectData>();
+                  if (!isDragging && protect?.enable != false) {
+                    taskManager.enter(widget.data);
+                  }
                 },
                 onTapCancel: () {
                   _controller.animateBack(0);
                 },
                 child: LongPressDraggable(
-                  onDragStarted: () {
-                    context
-                        .dependOnInheritedWidgetOfExactType<
-                            ReLayoutOnDragStartData>()
-                        ?.onDragStart(widget.data);
+                  onDragStarted: (avatar) {
+                    final dragCallback =
+                        context.dependOnInheritedWidgetOfExactType<
+                            ReLayoutOnDragStartData>();
+                    if (dragCallback != null &&
+                        reLayout.positionData is! ReLayoutDragPositionData) {
+                      dragCallback.onDragStart(widget.data, avatar);
+                      return avatar;
+                    }
+                    return null;
                   },
                   onDragCompleted: () {
                     reLayout.submit();

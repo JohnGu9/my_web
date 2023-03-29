@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DragTarget;
 import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/home_page/app_icon.dart';
-import 'package:my_web/ui/home_page/desktop_view/re_layout.dart';
+import 'package:my_web/ui/widgets/drag_target.dart';
 
-import 'fly_back_positioned.dart';
+import 're_layout.dart';
 
 class DeckRow extends StatelessWidget {
   const DeckRow({super.key, required this.data});
@@ -12,19 +12,26 @@ class DeckRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Offset? getTargetPosition() {
-      final obj = context.findRenderObject();
-      if (obj is RenderBox) {
-        return obj.localToGlobal(Offset.zero);
+      if (context.mounted) {
+        final obj = context.findRenderObject();
+        if (obj is RenderBox) {
+          return obj.localToGlobal(Offset.zero);
+        }
       }
       return null;
     }
 
-    void onDragStart(AppData appData) {
+    void onDragStart(AppData appData, DragAvatar avatar) {
       final index = data.indexOf(appData);
       if (index != -1) {
-        context.dependOnInheritedWidgetOfExactType<ReLayoutData>()?.startDrag(
-            ReLayoutDragPositionData.fromDeck(
-                appData, index, getTargetPosition));
+        context
+            .dependOnInheritedWidgetOfExactType<ReLayoutData>()
+            ?.startDrag(ReLayoutDragPositionData.fromDeck(
+              appData,
+              avatar,
+              index,
+              getTargetPosition,
+            ));
       }
     }
 
@@ -50,8 +57,9 @@ class DeckRow extends StatelessWidget {
     Offset? Function() getTargetPosition,
   ) sync* {
     final theme = Theme.of(context);
-    final reLayout = context.dependOnInheritedWidgetOfExactType<ReLayoutData>();
-    final positionData = reLayout?.positionData;
+    final reLayout =
+        context.dependOnInheritedWidgetOfExactType<ReLayoutData>()!;
+    final positionData = reLayout.positionData;
     if (positionData is ReLayoutDragPositionData) {
       final data =
           this.data.where((element) => element != positionData.appData);
@@ -95,7 +103,7 @@ class DeckRow extends StatelessWidget {
         iconLeft += (64 + 16);
       }
       //
-      yield* _dragTargets(left, columns, reLayout!, positionData,
+      yield* _dragTargets(left, columns, reLayout, positionData,
           dragTargetIndex, getTargetPosition);
     } else {
       final len = data.length;
@@ -146,12 +154,17 @@ class DeckRow extends StatelessWidget {
 
           iconLeft += (64 + 16);
         }
-        yield FlyBackPositioned(
-          key: const ValueKey(0),
-          start: startRect,
-          end: endRect,
-          onEnd: () {
-            reLayout?.clear();
+        yield AnimatedBuilder(
+          animation: reLayout.animation,
+          builder: (context, child) {
+            return Positioned.fromRect(
+              rect: Rect.lerp(
+                startRect,
+                endRect,
+                Curves.linearToEaseOut.transform(reLayout.animation.value),
+              )!,
+              child: child!,
+            );
           },
           child: Center(
             child: FloatingIcon(

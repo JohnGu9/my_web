@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/timer_builder.dart';
 
 class Calender extends StatelessWidget {
-
   const Calender({super.key});
   static final appData = AppData(
     app: const Calender(),
@@ -24,37 +24,45 @@ class Calender extends StatelessWidget {
 class _Icon extends StatelessWidget {
   const _Icon();
 
+  static Duration beforeNextDay() {
+    final now = DateTime.now();
+    final nextDay =
+        DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+    return nextDay.difference(now);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        DefaultTextStyle(
-          style: const TextStyle(
-            color: Colors.red,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
-          child: _Weekday(now: now),
-        ),
-        DefaultTextStyle(
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 36,
-            fontWeight: FontWeight.w300,
-          ),
-          child: _Day(
-            now: now,
-          ),
-        ),
-      ],
-    );
+    return TimerBuilder(
+        delay: beforeNextDay,
+        periodic: const Duration(days: 1),
+        builder: (now) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DefaultTextStyle(
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                child: _Weekday(now: now),
+              ),
+              DefaultTextStyle(
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w200,
+                ),
+                child: _Day(now: now),
+              ),
+            ],
+          );
+        });
   }
 }
 
 class _Weekday extends StatelessWidget {
-
   const _Weekday({required this.now});
   static String toWeekdayString(int i) {
     switch (i) {
@@ -74,6 +82,7 @@ class _Weekday extends StatelessWidget {
         return "SUN";
     }
   }
+
   final DateTime now;
 
   @override
