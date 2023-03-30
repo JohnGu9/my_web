@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/box_constraints_extension.dart';
 import 'package:my_web/ui/widgets/drag_gesture.dart';
+import 'package:my_web/ui/widgets/simple_shortcuts.dart';
 
 import 'task_manager_view/blur.dart';
 import 'task_manager_view/scale.dart';
@@ -25,7 +26,6 @@ class TaskManagerView extends StatefulWidget {
 
 class _TaskManagerViewState extends State<TaskManagerView>
     with SingleTickerProviderStateMixin {
-  static final _actions = {_ActionIntent: _Action()};
   late ScrollController _scrollController;
   late AnimationController _reenterController;
   late BoxConstraints _layoutConstraints;
@@ -258,7 +258,7 @@ class _TaskManagerViewState extends State<TaskManagerView>
       final bool reenterEnable;
       final bool isEnterApp;
       final void Function() exit;
-      final Map<ShortcutActivator, Intent> shortcuts;
+      final Map<ShortcutActivator, void Function()> shortcuts;
 
       switch (data.stats) {
         case TaskManagerStats.enter:
@@ -267,14 +267,14 @@ class _TaskManagerViewState extends State<TaskManagerView>
           isEnterApp = false;
           exit = forceExit;
           shortcuts = {
-            LogicalKeySet(LogicalKeyboardKey.escape): _ActionIntent(exit),
-            LogicalKeySet(LogicalKeyboardKey.f3): _ActionIntent(exit),
-            LogicalKeySet(LogicalKeyboardKey.space):
-                _ActionIntent(() => enterApp(_getCurrentIndex())),
-            LogicalKeySet(LogicalKeyboardKey.arrowLeft):
-                _ActionIntent(() => _scrollToIndex(_getCurrentIndex() + 1)),
-            LogicalKeySet(LogicalKeyboardKey.arrowRight):
-                _ActionIntent(() => _scrollToIndex(_getCurrentIndex() - 1)),
+            LogicalKeySet(LogicalKeyboardKey.escape): exit,
+            LogicalKeySet(LogicalKeyboardKey.f3): exit,
+            LogicalKeySet(LogicalKeyboardKey.space): () =>
+                enterApp(_getCurrentIndex()),
+            LogicalKeySet(LogicalKeyboardKey.arrowLeft): () =>
+                _scrollToIndex(_getCurrentIndex() + 1),
+            LogicalKeySet(LogicalKeyboardKey.arrowRight): () =>
+                _scrollToIndex(_getCurrentIndex() - 1),
           };
           break;
         case TaskManagerStats.enterApp:
@@ -283,9 +283,8 @@ class _TaskManagerViewState extends State<TaskManagerView>
           isEnterApp = true;
           exit = forceExit;
           shortcuts = {
-            LogicalKeySet(LogicalKeyboardKey.escape): _ActionIntent(flyBack),
-            LogicalKeySet(LogicalKeyboardKey.f3):
-                _ActionIntent(directlyEnterTaskManager),
+            LogicalKeySet(LogicalKeyboardKey.escape): flyBack,
+            LogicalKeySet(LogicalKeyboardKey.f3): directlyEnterTaskManager,
           };
           break;
         case TaskManagerStats.drag:
@@ -301,329 +300,94 @@ class _TaskManagerViewState extends State<TaskManagerView>
           isEnterApp = false;
           exit = () {};
           shortcuts = {
-            LogicalKeySet(LogicalKeyboardKey.f3):
-                _ActionIntent(directlyEnterTaskManager),
-            LogicalKeySet(LogicalKeyboardKey.space):
-                _ActionIntent(() => enterApp(_getCurrentIndex())),
+            LogicalKeySet(LogicalKeyboardKey.f3): directlyEnterTaskManager,
+            LogicalKeySet(LogicalKeyboardKey.space): () =>
+                enterApp(_getCurrentIndex()),
           };
           break;
       }
 
-      return Shortcuts(
+      return SimpleShortcuts(
         shortcuts: shortcuts,
-        child: Actions(
-          actions: _actions,
-          child: TaskManagerData(
-            enter: _enter,
-            appData: appData,
-            hideWidgetDuration: flyAnimation?.hideWidgetDuration ??
-                const Duration(milliseconds: 200),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Scale(
-                    enable: isEnter,
-                    constraints: widget.constraints,
-                    child: widget.child,
-                  ),
-                ),
-                Positioned.fill(child: Blur(enable: isEnter)),
-                Positioned.fromRect(
-                  rect: stackListViewRect,
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox.fromSize(
-                      size: _layoutConstraints.biggest,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.deferToChild,
-                        onTap: exit,
-                        child: StackListView<AppData>(
-                          isScrollEnable: isEnterTaskManager,
-                          stack: isEnterTaskManager,
-                          stackDuration: const Duration(milliseconds: 450),
-                          controller: _scrollController,
-                          constraints: _layoutConstraints,
-                          data: _apps,
-                          itemBuilder:
-                              (context, delta, index, sizeFactor, appData) {
-                            final thisData = _apps[index];
-                            final isPrimary = index == appRect.index;
-                            return Padding(
-                              padding: cardPadding,
-                              child: Stack(
-                                children: [
-                                  Positioned.fromRect(
-                                    rect: isPrimary
-                                        ? appRect.rect
-                                        : appRect.other,
-                                    child: TaskManagerAppCard(
-                                      flyStats: isPrimary
-                                          ? flyAnimation?.flyStats
-                                          : null,
-                                      appData: appData,
-                                      constraints: widget.constraints,
-                                      delta: delta,
-                                      showDragBar: data.showDragBar,
-                                      sizeFactor: sizeFactor,
-                                      isEnterTaskManager: isEnterTaskManager,
-                                      isFocus: appData == _focusApp,
-                                      isEnterApp: isEnterApp,
-                                      reenterEnable: reenterEnable,
-                                      reenterApp: () {
-                                        return enterApp(index);
-                                      },
-                                      updateSizeFactor: (value) {
-                                        return setState(() {
-                                          thisData.sizeFactor = value;
-                                        });
-                                      },
-                                      removeApp: () {
-                                        return setState(() {
-                                          _apps.remove(thisData);
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: 28,
-                  child: DragGesture(
-                    behavior: HitTestBehavior.translucent,
-                    onDragUpdate: !isEnter
-                        ? null
-                        : (details) {
-                            bool isLongDrag(DateTime touchStartTime) {
-                              final now = DateTime.now();
-                              final delta = now.difference(touchStartTime);
-                              return delta > const Duration(milliseconds: 150);
-                            }
-
-                            bool toTaskManager(
-                                Offset shift, DateTime? touchStartTime) {
-                              if (shift.dx.abs() > shift.dy.abs() * 1.5) {
-                                return true;
-                              } else if (shift.distance <
-                                      widget.constraints.maxHeight / 3 &&
-                                  (touchStartTime == null ||
-                                      isLongDrag(touchStartTime))) {
-                                return true;
-                              } else {
-                                return false;
-                              }
-                            }
-
-                            if (data is _TaskManagerDragAnimationData) {
-                              final shift = details.globalPosition - data.start;
-                              if (toTaskManager(shift, null)) {
-                                setState(() {
-                                  _data = data.moveTo(details.globalPosition);
-                                });
-                              } else {
-                                final index = _getCurrentIndex();
-                                _reenter(
-                                    _data = _TaskManagerDragAppAnimationData(
-                                  data.touchStartTime,
-                                  data.start,
-                                  details.globalPosition,
-                                  stackListViewRect,
-                                  _AppRect(
-                                    index,
-                                    appRect.index == index
-                                        ? appRect.rect
-                                        : appRect.other,
-                                    appRect.other,
-                                  ),
-                                  data.showDragBar,
-                                  data.lastStats,
-                                ));
-                              }
-                            } else if (data
-                                is _TaskManagerDragAppAnimationData) {
-                              final shift = details.globalPosition - data.start;
-                              final willDragStopMoving =
-                                  details.delta.distance < 3;
-                              if (toTaskManager(
-                                  shift,
-                                  willDragStopMoving
-                                      ? null
-                                      : data.touchStartTime)) {
-                                final index = _getCurrentIndex();
-                                _reenter(_data = _TaskManagerDragAnimationData(
-                                  data.touchStartTime,
-                                  data.start,
-                                  details.globalPosition,
-                                  stackListViewRect,
-                                  _AppRect(
-                                    index,
-                                    appRect.index == index
-                                        ? appRect.rect
-                                        : appRect.other,
-                                    appRect.other,
-                                  ),
-                                  data.showDragBar,
-                                  data.lastStats,
-                                ));
-                              } else {
-                                setState(() {
-                                  _data = data.moveTo(details.globalPosition);
-                                });
-                              }
-                            } else if (data
-                                is _TaskManagerDragEnterAnimationData) {
-                              setState(() {
-                                _data = data.moveTo(details.globalPosition);
-                              });
-                            } else {
-                              final current = details.globalPosition;
-                              final start = Offset(
-                                  current.dx,
-                                  current.dy +
-                                      widget.constraints.maxHeight -
-                                      appRect.other.height -
-                                      appRect.other.top);
-                              final shift = current - start;
-                              final touchStartTime = DateTime.now();
-                              if (toTaskManager(
-                                  shift, isEnterApp ? touchStartTime : null)) {
-                                _reenter(_data = _TaskManagerDragAnimationData(
-                                  touchStartTime,
-                                  start,
-                                  details.globalPosition,
-                                  stackListViewRect,
-                                  appRect,
-                                  data.showDragBar,
-                                  data.stats,
-                                ));
-                              } else {
-                                final index = _getCurrentIndex();
-                                _scrollToIndex(index);
-                                _reenter(
-                                    _data = _TaskManagerDragAppAnimationData(
-                                  touchStartTime,
-                                  start,
-                                  details.globalPosition,
-                                  stackListViewRect,
-                                  _AppRect(
-                                      index,
-                                      appRect.index == index
-                                          ? appRect.rect
-                                          : appRect.other,
-                                      appRect.other),
-                                  data.showDragBar,
-                                  data.stats,
-                                ));
-                              }
-                            }
-                          },
-                    onDragEnd: !isEnter
-                        ? null
-                        : (details) {
-                            if (data is _Drag) {
-                              final velocity = details.velocity.pixelsPerSecond;
-                              if (velocity.distance < 200) {
-                                // drag speed slow
-                                final delta = data.current - data.start;
-                                if (delta.dx.abs() > delta.dy.abs() * 1.5) {
-                                  // horizontal
-                                  final index =
-                                      data is _TaskManagerDragEnterAnimationData
-                                          ? _getCurrentIndex()
-                                          : _getCurrentIndex() +
-                                              (delta.dx > 0 ? 1 : -1);
-                                  enterApp(index);
-                                } else {
-                                  // vertical
-                                  if (-delta.dy <
-                                      widget.constraints.maxHeight / 9) {
-                                    if (data
-                                        is _TaskManagerDragEnterAnimationData) {
-                                      forceExit();
-                                    } else {
-                                      enterApp(_getCurrentIndex());
-                                    }
-                                  } else {
-                                    enterTaskManager(data.lastStats);
-                                  }
-                                }
-                              } else {
-                                // drag speed fast
-                                if (velocity.dx.abs() >
-                                    velocity.dy.abs() * 1.5) {
-                                  // horizontal
-                                  final index =
-                                      data is _TaskManagerDragEnterAnimationData
-                                          ? _getCurrentIndex()
-                                          : _getCurrentIndex() +
-                                              (velocity.dx > 0 ? 1 : -1);
-                                  enterApp(index);
-                                } else {
-                                  // vertical
-                                  if (velocity.dy < 0) {
-                                    if (data
-                                        is _TaskManagerDragEnterAnimationData) {
-                                      forceExit();
-                                    } else {
-                                      flyBack();
-                                    }
-                                  } else {
-                                    enterApp(_getCurrentIndex());
-                                  }
-                                }
-                              }
-                            } else {
-                              // unlikely
-                              if (isEnterApp) {
-                                flyBack();
-                              } else {
-                                forceExit();
-                              }
-                            }
-                          },
-                    child: const Center(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.f3): _ActionIntent(() {
-          final current = widget.constraints.toRect();
-          _reenter(_data = _TaskManagerEnterAnimationData(
-              widget.constraints.toRect(left: -widget.constraints.maxWidth),
-              _AppRect(-1, current, current)));
-        }),
-      },
-      child: Actions(
-        actions: _actions,
         child: TaskManagerData(
           enter: _enter,
-          hideWidgetDuration: Duration.zero,
+          appData: appData,
+          hideWidgetDuration: flyAnimation?.hideWidgetDuration ??
+              const Duration(milliseconds: 200),
           child: Stack(
             children: [
               Positioned.fill(
                 child: Scale(
-                  enable: false,
+                  enable: isEnter,
                   constraints: widget.constraints,
                   child: widget.child,
                 ),
               ),
-              const Positioned.fill(child: Blur(enable: false)),
-              const Positioned.fill(child: Center()),
+              Positioned.fill(child: Blur(enable: isEnter)),
+              Positioned.fromRect(
+                rect: stackListViewRect,
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox.fromSize(
+                    size: _layoutConstraints.biggest,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.deferToChild,
+                      onTap: exit,
+                      child: StackListView<AppData>(
+                        isScrollEnable: isEnterTaskManager,
+                        stack: isEnterTaskManager,
+                        stackDuration: const Duration(milliseconds: 450),
+                        controller: _scrollController,
+                        constraints: _layoutConstraints,
+                        data: _apps,
+                        itemBuilder:
+                            (context, delta, index, sizeFactor, appData) {
+                          final thisData = _apps[index];
+                          final isPrimary = index == appRect.index;
+                          return Padding(
+                            padding: cardPadding,
+                            child: Stack(
+                              children: [
+                                Positioned.fromRect(
+                                  rect:
+                                      isPrimary ? appRect.rect : appRect.other,
+                                  child: TaskManagerAppCard(
+                                    flyStats: isPrimary
+                                        ? flyAnimation?.flyStats
+                                        : null,
+                                    appData: appData,
+                                    constraints: widget.constraints,
+                                    delta: delta,
+                                    showDragBar: data.showDragBar,
+                                    sizeFactor: sizeFactor,
+                                    isEnterTaskManager: isEnterTaskManager,
+                                    isFocus: appData == _focusApp,
+                                    isEnterApp: isEnterApp,
+                                    reenterEnable: reenterEnable,
+                                    reenterApp: () {
+                                      return enterApp(index);
+                                    },
+                                    updateSizeFactor: (value) {
+                                      return setState(() {
+                                        thisData.sizeFactor = value;
+                                      });
+                                    },
+                                    removeApp: () {
+                                      return setState(() {
+                                        _apps.remove(thisData);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               Positioned(
                 left: 0,
                 right: 0,
@@ -631,44 +395,251 @@ class _TaskManagerViewState extends State<TaskManagerView>
                 height: 28,
                 child: DragGesture(
                   behavior: HitTestBehavior.translucent,
-                  onDragUpdate: (details) {
-                    _reenter(_data = _TaskManagerDragEnterAnimationData(
-                      DateTime.now(),
-                      details.globalPosition,
-                      details.globalPosition,
-                    ));
-                  },
-                  onDragEnd: (details) {
-                    _exit(_data = const _TaskManagerExitAnimationData(
-                      Rect.zero,
-                      _AppRect.invalid,
-                    ));
-                  },
+                  onDragUpdate: !isEnter
+                      ? null
+                      : (details) {
+                          bool isLongDrag(DateTime touchStartTime) {
+                            final now = DateTime.now();
+                            final delta = now.difference(touchStartTime);
+                            return delta > const Duration(milliseconds: 150);
+                          }
+
+                          bool toTaskManager(
+                              Offset shift, DateTime? touchStartTime) {
+                            if (shift.dx.abs() > shift.dy.abs() * 1.5) {
+                              return true;
+                            } else if (shift.distance <
+                                    widget.constraints.maxHeight / 3 &&
+                                (touchStartTime == null ||
+                                    isLongDrag(touchStartTime))) {
+                              return true;
+                            } else {
+                              return false;
+                            }
+                          }
+
+                          if (data is _TaskManagerDragAnimationData) {
+                            final shift = details.globalPosition - data.start;
+                            if (toTaskManager(shift, null)) {
+                              setState(() {
+                                _data = data.moveTo(details.globalPosition);
+                              });
+                            } else {
+                              final index = _getCurrentIndex();
+                              _reenter(_data = _TaskManagerDragAppAnimationData(
+                                data.touchStartTime,
+                                data.start,
+                                details.globalPosition,
+                                stackListViewRect,
+                                _AppRect(
+                                  index,
+                                  appRect.index == index
+                                      ? appRect.rect
+                                      : appRect.other,
+                                  appRect.other,
+                                ),
+                                data.showDragBar,
+                                data.lastStats,
+                              ));
+                            }
+                          } else if (data is _TaskManagerDragAppAnimationData) {
+                            final shift = details.globalPosition - data.start;
+                            final willDragStopMoving =
+                                details.delta.distance < 3;
+                            if (toTaskManager(
+                                shift,
+                                willDragStopMoving
+                                    ? null
+                                    : data.touchStartTime)) {
+                              final index = _getCurrentIndex();
+                              _reenter(_data = _TaskManagerDragAnimationData(
+                                data.touchStartTime,
+                                data.start,
+                                details.globalPosition,
+                                stackListViewRect,
+                                _AppRect(
+                                  index,
+                                  appRect.index == index
+                                      ? appRect.rect
+                                      : appRect.other,
+                                  appRect.other,
+                                ),
+                                data.showDragBar,
+                                data.lastStats,
+                              ));
+                            } else {
+                              setState(() {
+                                _data = data.moveTo(details.globalPosition);
+                              });
+                            }
+                          } else if (data
+                              is _TaskManagerDragEnterAnimationData) {
+                            setState(() {
+                              _data = data.moveTo(details.globalPosition);
+                            });
+                          } else {
+                            final current = details.globalPosition;
+                            final start = Offset(
+                                current.dx,
+                                current.dy +
+                                    widget.constraints.maxHeight -
+                                    appRect.other.height -
+                                    appRect.other.top);
+                            final shift = current - start;
+                            final touchStartTime = DateTime.now();
+                            if (toTaskManager(
+                                shift, isEnterApp ? touchStartTime : null)) {
+                              _reenter(_data = _TaskManagerDragAnimationData(
+                                touchStartTime,
+                                start,
+                                details.globalPosition,
+                                stackListViewRect,
+                                appRect,
+                                data.showDragBar,
+                                data.stats,
+                              ));
+                            } else {
+                              final index = _getCurrentIndex();
+                              _scrollToIndex(index);
+                              _reenter(_data = _TaskManagerDragAppAnimationData(
+                                touchStartTime,
+                                start,
+                                details.globalPosition,
+                                stackListViewRect,
+                                _AppRect(
+                                    index,
+                                    appRect.index == index
+                                        ? appRect.rect
+                                        : appRect.other,
+                                    appRect.other),
+                                data.showDragBar,
+                                data.stats,
+                              ));
+                            }
+                          }
+                        },
+                  onDragEnd: !isEnter
+                      ? null
+                      : (details) {
+                          if (data is _Drag) {
+                            final velocity = details.velocity.pixelsPerSecond;
+                            if (velocity.distance < 200) {
+                              // drag speed slow
+                              final delta = data.current - data.start;
+                              if (delta.dx.abs() > delta.dy.abs() * 1.5) {
+                                // horizontal
+                                final index =
+                                    data is _TaskManagerDragEnterAnimationData
+                                        ? _getCurrentIndex()
+                                        : _getCurrentIndex() +
+                                            (delta.dx > 0 ? 1 : -1);
+                                enterApp(index);
+                              } else {
+                                // vertical
+                                if (-delta.dy <
+                                    widget.constraints.maxHeight / 9) {
+                                  if (data
+                                      is _TaskManagerDragEnterAnimationData) {
+                                    forceExit();
+                                  } else {
+                                    enterApp(_getCurrentIndex());
+                                  }
+                                } else {
+                                  enterTaskManager(data.lastStats);
+                                }
+                              }
+                            } else {
+                              // drag speed fast
+                              if (velocity.dx.abs() > velocity.dy.abs() * 1.5) {
+                                // horizontal
+                                final index =
+                                    data is _TaskManagerDragEnterAnimationData
+                                        ? _getCurrentIndex()
+                                        : _getCurrentIndex() +
+                                            (velocity.dx > 0 ? 1 : -1);
+                                enterApp(index);
+                              } else {
+                                // vertical
+                                if (velocity.dy < 0) {
+                                  if (data
+                                      is _TaskManagerDragEnterAnimationData) {
+                                    forceExit();
+                                  } else {
+                                    flyBack();
+                                  }
+                                } else {
+                                  enterApp(_getCurrentIndex());
+                                }
+                              }
+                            }
+                          } else {
+                            // unlikely
+                            if (isEnterApp) {
+                              flyBack();
+                            } else {
+                              forceExit();
+                            }
+                          }
+                        },
                   child: const Center(),
                 ),
               ),
             ],
           ),
         ),
+      );
+    }
+    return SimpleShortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.f3): () {
+          final current = widget.constraints.toRect();
+          _reenter(_data = _TaskManagerEnterAnimationData(
+              widget.constraints.toRect(left: -widget.constraints.maxWidth),
+              _AppRect(-1, current, current)));
+        },
+      },
+      child: TaskManagerData(
+        enter: _enter,
+        hideWidgetDuration: Duration.zero,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Scale(
+                enable: false,
+                constraints: widget.constraints,
+                child: widget.child,
+              ),
+            ),
+            const Positioned.fill(child: Blur(enable: false)),
+            const Positioned.fill(child: Center()),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 28,
+              child: DragGesture(
+                behavior: HitTestBehavior.translucent,
+                onDragUpdate: (details) {
+                  _reenter(_data = _TaskManagerDragEnterAnimationData(
+                    DateTime.now(),
+                    details.globalPosition,
+                    details.globalPosition,
+                  ));
+                },
+                onDragEnd: (details) {
+                  _exit(_data = const _TaskManagerExitAnimationData(
+                    Rect.zero,
+                    _AppRect.invalid,
+                  ));
+                },
+                child: const Center(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class _ActionIntent extends Intent {
-  const _ActionIntent(this.fn);
-  final void Function() fn;
-}
-
-class _Action extends Action<_ActionIntent> {
-  factory _Action() {
-    return _i;
-  }
-  _Action._internal();
-  static final _i = _Action._internal();
-
-  @override
-  void invoke(covariant _ActionIntent intent) => intent.fn();
 }
 
 class _AppRect {

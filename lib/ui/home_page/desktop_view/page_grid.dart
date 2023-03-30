@@ -75,18 +75,16 @@ class _PageGridState extends State<PageGrid> {
         builder: (context, constraints) {
           final width = constraints.maxWidth / widget.columns;
           final height = constraints.maxHeight / widget.rows;
-          final children = _children(
-            context,
-            width,
-            height,
-            _getTargetPosition,
-          );
+
           return Stack(
             clipBehavior: Clip.none,
             fit: StackFit.expand,
-            children: [
-              if (children.isNotEmpty) ...children,
-            ],
+            children: _children(
+              context,
+              width,
+              height,
+              _getTargetPosition,
+            ).toList(growable: false),
           );
         },
       ),

@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_web/ui/home_page/lock_view.dart';
+import 'package:my_web/ui/widgets/simple_shortcuts.dart';
 import 'package:my_web/ui/widgets/temp_focus_node.dart';
 import 'package:my_web/ui/widgets/timer_builder.dart';
 
@@ -41,7 +43,8 @@ class _NotificationBarState extends State<_NotificationBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late VerticalDragGestureRecognizer _recognizer;
-  late TempFocusNode _focusNode;
+  late LockViewData _lockViewData;
+  final _focusNode = TempFocusNode();
 
   void _handleDragStart(DragStartDetails details) {}
 
@@ -83,6 +86,12 @@ class _NotificationBarState extends State<_NotificationBar>
     _controller.animateBack(0, curve: Curves.ease);
   }
 
+  _lockViewDataListener() {
+    if (_controller.value < 0.5) {
+      _lockViewData.unlock();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -90,19 +99,23 @@ class _NotificationBarState extends State<_NotificationBar>
       vsync: this,
       value: 1,
       duration: const Duration(milliseconds: 450),
-    )
-      ..addListener(() {
-        setState(() {});
-      })
-      ..addStatusListener((status) {
-        setState(() {});
-      });
+    );
     _recognizer = VerticalDragGestureRecognizer(debugOwner: this)
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
       ..onCancel = _handleDragCancel;
-    _focusNode = TempFocusNode();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _lockViewData = context.dependOnInheritedWidgetOfExactType<LockViewData>()!;
+    if (_lockViewData.isLocking) {
+      _controller.addListener(_lockViewDataListener);
+    } else {
+      _controller.removeListener(_lockViewDataListener);
+    }
+    super.didChangeDependencies();
   }
 
   @override
@@ -115,68 +128,73 @@ class _NotificationBarState extends State<_NotificationBar>
 
   @override
   Widget build(BuildContext context) {
-    return Shortcuts(
+    return SimpleShortcuts(
       shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.space): const _CloseIntent(),
-        LogicalKeySet(LogicalKeyboardKey.escape): const _CloseIntent(),
+        LogicalKeySet(LogicalKeyboardKey.space): _close,
+        LogicalKeySet(LogicalKeyboardKey.escape): _close,
       },
-      child: Actions(
-        actions: {
-          _CloseIntent: _CloseAction(_close),
-        },
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: SvgPicture.asset(
-                "assets/background.svg",
-                fit: BoxFit.cover,
-                placeholderBuilder: _placeholderBuilder,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: SvgPicture.asset(
+              "assets/background.svg",
+              fit: BoxFit.cover,
+              placeholderBuilder: _placeholderBuilder,
+            ),
+          ),
+          Positioned.fill(child: widget.child),
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: NotificationBar.statusBarHeight,
+            child: _StatusBar(showTime: true),
+          ),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: Tween<double>(
+                  begin: 0,
+                  end: widget.constraints.maxHeight,
+                ).transform(_controller.value),
+                child: child!,
+              );
+            },
+            child: Focus(
+              focusNode: _focusNode,
+              child: _Bar(
+                animation: _controller,
+                constraints: widget.constraints,
+                recognizer: _recognizer,
+                showDragBar: !_controller.isDismissed,
               ),
             ),
-            Positioned.fill(
-              child: widget.child,
+          ),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Positioned(
+                left: 0,
+                right: 0,
+                bottom: Tween<double>(
+                  begin: widget.constraints.maxHeight -
+                      NotificationBar.statusBarHeight,
+                  end: 0,
+                ).transform(_controller.value),
+                height: 100,
+                child: child!,
+              );
+            },
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: _handlePointerDown,
             ),
-            const Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              height: NotificationBar.statusBarHeight,
-              child: _StatusBar(showTime: true),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: Tween<double>(
-                begin: 0,
-                end: widget.constraints.maxHeight,
-              ).transform(_controller.value),
-              child: Focus(
-                focusNode: _focusNode,
-                child: _Bar(
-                  animation: _controller,
-                  constraints: widget.constraints,
-                  recognizer: _recognizer,
-                  showDragBar: !_controller.isDismissed,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: Tween<double>(
-                begin: widget.constraints.maxHeight -
-                    NotificationBar.statusBarHeight,
-                end: 0,
-              ).transform(_controller.value),
-              height: 100,
-              child: Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: _handlePointerDown,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -206,7 +224,9 @@ class _Bar extends StatelessWidget {
           height: constraints.maxHeight,
           child: FadeTransition(
             opacity: CurvedAnimation(
-                parent: animation, curve: Curves.linearToEaseOut),
+              parent: animation,
+              curve: Curves.linearToEaseOut,
+            ),
             child: SvgPicture.asset(
               "assets/background.svg",
               fit: BoxFit.cover,
@@ -220,13 +240,17 @@ class _Bar extends StatelessWidget {
           top: 0,
           height: constraints.maxHeight,
           child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 30 * (1 - animation.value),
-                sigmaY: 30 * (1 - animation.value),
-              ),
-              child: const Center(),
-            ),
+            child: AnimatedBuilder(
+                animation: animation,
+                builder: (context, child) {
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: 30 * (1 - animation.value),
+                      sigmaY: 30 * (1 - animation.value),
+                    ),
+                    child: const Center(),
+                  );
+                }),
           ),
         ),
         Positioned(
@@ -378,19 +402,6 @@ class _FullBar extends StatelessWidget {
       ],
     );
   }
-}
-
-class _CloseIntent extends Intent {
-  const _CloseIntent();
-}
-
-class _CloseAction extends Action<_CloseIntent> {
-  _CloseAction(this.close);
-
-  final void Function() close;
-
-  @override
-  void invoke(covariant _CloseIntent intent) => close();
 }
 
 class _TimeView extends StatelessWidget {
