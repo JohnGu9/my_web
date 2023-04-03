@@ -268,5 +268,5 @@ class _ReLayoutDeckPositionData extends ReLayoutDragPositionData {
   final int position;
 
   @override
-  int? get deckPosition => position;
+  int get deckPosition => position;
 }

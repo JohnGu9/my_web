@@ -53,10 +53,7 @@ class _StackListViewState<T> extends State<StackListView<T>>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this)
-      ..addListener(() {
-        setState(() {});
-      });
+    _controller = AnimationController(vsync: this)..addListener(_update);
     _controller.animateTo(
       widget.stack ? 1 : 0,
       duration: widget.stackDuration,

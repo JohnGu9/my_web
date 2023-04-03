@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/home_page/app_icon.dart';
@@ -22,29 +24,21 @@ class LockViewPageGrid extends StatelessWidget {
       parent: animation,
       curve: Curves.easeOutExpo,
     );
-    return IgnorePointer(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth / columns;
-          final height = constraints.maxHeight / rows;
-          return AnimatedBuilder(
-              animation: animation,
-              builder: (context, child) {
-                final value = tween.evaluate(curvedAnimation);
-                return Stack(
-                  children: animation.isDismissed
-                      ? const []
-                      : _children(
-                          context,
-                          constraints,
-                          width,
-                          height,
-                          value,
-                        ).toList(growable: false),
-                );
-              });
-        },
-      ),
+    final newAnimation = tween.animate(curvedAnimation);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth / columns;
+        final height = constraints.maxHeight / rows;
+        return Stack(
+          children: _children(
+            context,
+            constraints,
+            width,
+            height,
+            newAnimation,
+          ).toList(growable: false),
+        );
+      },
     );
   }
 
@@ -53,15 +47,16 @@ class LockViewPageGrid extends StatelessWidget {
     BoxConstraints constraints,
     double width,
     double height,
-    double animation,
+    Animation<double> animation,
   ) sync* {
     var index = 0;
     var top = 0.0;
     const rowCenter = 2;
     final columnCenter = columns / 2;
-    final standardDistance = Offset(width, height).distance;
+    final standardDistance = _distance(width, height);
     final factor = 2 *
-        Offset(constraints.maxWidth, constraints.maxHeight).distance /
+        _distance(constraints.maxWidth, constraints.maxHeight) /
+        standardDistance /
         standardDistance;
     for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
       var left = 0.0;
@@ -72,16 +67,19 @@ class LockViewPageGrid extends StatelessWidget {
           (columnCenter * 2 - 1) - colIndex * 2,
           (rowCenter * 2 - 1) - rowIndex * 2,
         );
-        final distance =
-            Offset(alignment.x * width, alignment.y * height).distance /
-                standardDistance;
-        final scale = 1.0 + (factor * distance * animation);
+        final distance = _distance(alignment.x * width, alignment.y * height);
+        final f = factor * distance;
         yield Positioned.fromRect(
-          key: ValueKey(d),
           rect: Rect.fromLTWH(left, top, width, height),
-          child: Transform.scale(
-            alignment: alignment,
-            scale: scale,
+          child: AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) {
+              return Transform.scale(
+                alignment: alignment,
+                scale: 1.0 + (f * animation.value),
+                child: animation.isDismissed ? const Center() : child!,
+              );
+            },
             child: Center(
               child: _SimpleAppIcon(data: d),
             ),
@@ -102,7 +100,6 @@ class _SimpleAppIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = FloatingIcon.createText(context, data.name);
-
     return SizedBox(
       width: 64,
       height: 64,
@@ -141,3 +138,5 @@ class _SimpleAppIcon extends StatelessWidget {
     );
   }
 }
+
+double _distance(double dx, double dy) => math.sqrt(dx * dx + dy * dy);

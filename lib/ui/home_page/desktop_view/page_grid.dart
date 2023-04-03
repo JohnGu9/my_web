@@ -75,7 +75,6 @@ class _PageGridState extends State<PageGrid> {
         builder: (context, constraints) {
           final width = constraints.maxWidth / widget.columns;
           final height = constraints.maxHeight / widget.rows;
-
           return Stack(
             clipBehavior: Clip.none,
             fit: StackFit.expand,
@@ -104,7 +103,12 @@ class _PageGridState extends State<PageGrid> {
           .where((element) => element != positionData.appData)
           .toList(growable: false);
       yield* _reLayoutChildren(
-          data, width, height, widget.reLayout, dragTargetIndex);
+        data,
+        width,
+        height,
+        widget.reLayout,
+        dragTargetIndex,
+      );
       yield* _dragTargets(
         width,
         height,

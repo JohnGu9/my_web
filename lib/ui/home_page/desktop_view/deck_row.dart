@@ -103,8 +103,14 @@ class DeckRow extends StatelessWidget {
         iconLeft += (64 + 16);
       }
       //
-      yield* _dragTargets(left, columns, reLayout, positionData,
-          dragTargetIndex, getTargetPosition);
+      yield* _dragTargets(
+        left,
+        columns,
+        reLayout,
+        positionData,
+        dragTargetIndex,
+        getTargetPosition,
+      );
     } else {
       final len = data.length;
       final double width = 64 * len + 16 * (len + 1);

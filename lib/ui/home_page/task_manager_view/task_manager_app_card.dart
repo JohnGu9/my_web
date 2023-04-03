@@ -48,18 +48,27 @@ class _TaskManagerAppCardState extends State<TaskManagerAppCard>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      value: widget.flyStats == FlyStats.enter ? 0 : 1,
-      duration: const Duration(milliseconds: 150),
-    )
+    if (widget.flyStats == FlyStats.enter) {
+      _controller = AnimationController(
+        vsync: this,
+        value: 0,
+        duration: const Duration(milliseconds: 150),
+      );
+      _controller.animateTo(1);
+    } else {
+      _controller = AnimationController(
+        vsync: this,
+        value: 1,
+        duration: const Duration(milliseconds: 150),
+      );
+    }
+    _controller
       ..addListener(() {
         setState(() {});
       })
       ..addStatusListener((status) {
         setState(() {});
       });
-    _controller.animateTo(1);
   }
 
   @override

@@ -1,11 +1,11 @@
 {
-    "name": "my_web",
-    "short_name": "my_web",
+    "name": "JohnGu Web",
+    "short_name": "JohnGu Web",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "##512E5F",
+    "theme_color": "#512E5F",
+    "description": "",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

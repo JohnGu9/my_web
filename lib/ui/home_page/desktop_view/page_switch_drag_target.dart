@@ -33,6 +33,7 @@ class PageSwitchDragTarget extends StatelessWidget {
             width: horizontalPadding,
             child: _DragTarget(
               delay: const Duration(milliseconds: 450),
+              repeatDelay: const Duration(milliseconds: 900),
               onWillAccept: () {
                 if ((controller.page ?? controller.initialPage) >= 1) {
                   controller.previousPage(
@@ -51,6 +52,7 @@ class PageSwitchDragTarget extends StatelessWidget {
             width: horizontalPadding,
             child: _DragTarget(
               delay: const Duration(milliseconds: 450),
+              repeatDelay: const Duration(milliseconds: 900),
               onWillAccept: () {
                 if ((controller.page ?? controller.initialPage) <=
                     pageCount - 2) {
@@ -68,8 +70,12 @@ class PageSwitchDragTarget extends StatelessWidget {
 }
 
 class _DragTarget extends StatefulWidget {
-  const _DragTarget({required this.delay, required this.onWillAccept});
+  const _DragTarget(
+      {required this.delay,
+      required this.onWillAccept,
+      required this.repeatDelay});
   final Duration delay;
+  final Duration repeatDelay;
   final void Function() onWillAccept;
 
   @override
@@ -81,7 +87,7 @@ class _DragTargetState extends State<_DragTarget> {
 
   _timerCallback() {
     widget.onWillAccept();
-    _timer = Timer(widget.delay * 2, _timerCallback);
+    _timer = Timer(widget.repeatDelay, _timerCallback);
   }
 
   @override

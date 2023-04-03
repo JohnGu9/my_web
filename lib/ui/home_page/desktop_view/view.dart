@@ -151,7 +151,7 @@ class _ViewState extends State<View> {
                 end: Offset.zero,
               ).animate(CurvedAnimation(
                 parent: lockViewData.animation,
-                curve: Curves.easeOut,
+                curve: Curves.linearToEaseOut,
               )),
               child: DeckRow(data: reLayout.orderData.deckData),
             ),
