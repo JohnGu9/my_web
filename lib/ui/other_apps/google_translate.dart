@@ -3,7 +3,6 @@ import 'package:my_web/core/data/app_data.dart';
 import 'package:my_web/ui/widgets/web_view.dart';
 
 class GoogleTranslate extends StatelessWidget {
-
   const GoogleTranslate({super.key});
   static final appData = AppData(
     app: const GoogleTranslate(),

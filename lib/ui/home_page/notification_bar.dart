@@ -3,12 +3,13 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_web/ui/home_page/lock_view.dart';
+import 'package:my_web/ui/home_page/quick_access.dart';
 import 'package:my_web/ui/widgets/simple_shortcuts.dart';
 import 'package:my_web/ui/widgets/temp_focus_node.dart';
 import 'package:my_web/ui/widgets/timer_builder.dart';
 
+import 'desktop_background.dart';
 import 'drag_bar.dart';
 
 class NotificationBar extends StatelessWidget {
@@ -81,12 +82,12 @@ class _NotificationBarState extends State<_NotificationBar>
     _recognizer.addPointer(event);
   }
 
-  _close() {
+  void _close() {
     _focusNode.unfocus();
     _controller.animateBack(0, curve: Curves.ease);
   }
 
-  _lockViewDataListener() {
+  void _lockViewDataListener() {
     if (_controller.value < 0.5) {
       _lockViewData.unlock();
     }
@@ -110,7 +111,7 @@ class _NotificationBarState extends State<_NotificationBar>
   @override
   void didChangeDependencies() {
     _lockViewData = context.dependOnInheritedWidgetOfExactType<LockViewData>()!;
-    if (_lockViewData.isLocking) {
+    if (_lockViewData.status != AnimationStatus.completed) {
       _controller.addListener(_lockViewDataListener);
     } else {
       _controller.removeListener(_lockViewDataListener);
@@ -135,13 +136,6 @@ class _NotificationBarState extends State<_NotificationBar>
       },
       child: Stack(
         children: [
-          Positioned.fill(
-            child: SvgPicture.asset(
-              "assets/background.svg",
-              fit: BoxFit.cover,
-              placeholderBuilder: _placeholderBuilder,
-            ),
-          ),
           Positioned.fill(child: widget.child),
           const Positioned(
             left: 0,
@@ -213,6 +207,9 @@ class _Bar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final background = context
+        .dependOnInheritedWidgetOfExactType<DesktopBackgroundData>()!
+        .background;
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.hardEdge,
@@ -227,11 +224,7 @@ class _Bar extends StatelessWidget {
               parent: animation,
               curve: Curves.linearToEaseOut,
             ),
-            child: SvgPicture.asset(
-              "assets/background.svg",
-              fit: BoxFit.cover,
-              placeholderBuilder: _placeholderBuilder,
-            ),
+            child: background,
           ),
         ),
         Positioned(
@@ -271,6 +264,8 @@ class _StatusBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickAccessOpened =
+        context.dependOnInheritedWidgetOfExactType<QuickAccessData>()?.opened;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 8),
       child: IconTheme(
@@ -284,18 +279,20 @@ class _StatusBar extends StatelessWidget {
               child: Icon(Icons.near_me),
             ),
             const Expanded(child: Center()),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(Icons.signal_cellular_alt),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(Icons.wifi),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(Icons.battery_full),
-            ),
+            if (quickAccessOpened != true) ...const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.signal_cellular_alt),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.wifi),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.battery_full),
+              ),
+            ],
           ],
         ),
       ),
@@ -450,10 +447,4 @@ class _Weekday extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(toWeekdayString(DateTime.now().weekday));
   }
-}
-
-Widget _placeholderBuilder(BuildContext context) {
-  return Container(
-    color: const Color.fromRGBO(81, 46, 95, 1),
-  );
 }

@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/standard_app.dart';
 
 class Clock extends StatelessWidget {
-
   const Clock({super.key});
   static final appData = AppData(
     app: const Clock(),
@@ -20,47 +20,28 @@ class Clock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CupertinoTabScaffold(
-            tabBar: CupertinoTabBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.language),
-                  label: 'World Clock',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.alarm_fill),
-                  label: 'Alarm',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.stopwatch_fill),
-                  label: 'Stopwatch',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.timer),
-                  label: 'Timer',
-                ),
-              ],
-            ),
-            tabBuilder: (BuildContext context, int index) {
-              return CupertinoTabView(
-                builder: (BuildContext context) {
-                  return const Center();
-                },
-              );
-            },
-          ),
+    return StandardAppLayout(
+      tabBarItems: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.language),
+          label: 'World Clock',
         ),
-        Container(
-          height: MediaQuery.of(context).padding.bottom,
-          color: CupertinoDynamicColor.resolve(
-            CupertinoTheme.of(context).barBackgroundColor,
-            context,
-          ),
-        )
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.alarm_fill),
+          label: 'Alarm',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.stopwatch_fill),
+          label: 'Stopwatch',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.timer),
+          label: 'Timer',
+        ),
       ],
+      tabBuilder: (context, index) {
+        return const Center();
+      },
     );
   }
 }

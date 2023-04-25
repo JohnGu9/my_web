@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Spotify extends StatelessWidget {
-
   const Spotify({super.key});
   static final appData = AppData(
     app: const Spotify(),

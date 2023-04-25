@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/standard_app.dart';
 
 class Home extends StatelessWidget {
-
   const Home({super.key});
   static final appData = AppData(
     app: const Home(),
@@ -21,6 +22,24 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.house);
+    return StandardAppLayout(
+      tabBarItems: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.house),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.alarm_fill),
+          label: 'Automation',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.star),
+          label: 'Discover',
+        ),
+      ],
+      tabBuilder: (context, index) {
+        return const Center();
+      },
+    );
   }
 }

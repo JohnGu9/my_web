@@ -23,9 +23,10 @@ class Zafari extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-            child: Container(
-          color: Colors.black87,
-        )),
+          child: Container(
+            color: Colors.black87,
+          ),
+        ),
         Material(
           child: SafeArea(
             top: false,

@@ -55,7 +55,7 @@ class PageSwitchDragTarget extends StatelessWidget {
               repeatDelay: const Duration(milliseconds: 900),
               onWillAccept: () {
                 if ((controller.page ?? controller.initialPage) <=
-                    pageCount - 2) {
+                    (pageCount - 2)) {
                   controller.nextPage(
                     duration: const Duration(milliseconds: 450),
                     curve: Curves.ease,

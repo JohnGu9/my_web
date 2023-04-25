@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/standard_app.dart';
+import 'package:my_web/ui/widgets/web_view.dart';
 
 class FindMy extends StatelessWidget {
-
   const FindMy({super.key});
   static final appData = AppData(
     app: const FindMy(),
@@ -17,7 +18,29 @@ class FindMy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.track_changes);
+    return StandardAppLayout(
+      tabBarItems: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: 'People',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.devices),
+          label: 'Devices',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.category),
+          label: 'Items',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Me',
+        ),
+      ],
+      tabBuilder: (context, index) {
+        return WebView(uri: Uri.parse("https://www.google.com/maps/"));
+      },
+    );
   }
 }
 

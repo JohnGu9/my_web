@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Wallet extends StatelessWidget {
-
   const Wallet({super.key});
   static final appData = AppData(
     app: const Wallet(),
@@ -21,6 +20,40 @@ class Wallet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.wallet);
+    return Material(
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            title: const Text("Wallet"),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.category),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.add),
+              ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: AspectRatio(
+                aspectRatio: 5 / 3,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

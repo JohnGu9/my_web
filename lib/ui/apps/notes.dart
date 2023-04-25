@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Notes extends StatelessWidget {
-
   const Notes({super.key});
   static final appData = AppData(
     app: const Notes(),
@@ -27,7 +26,10 @@ class Notes extends StatelessWidget {
           SliverAppBar.large(
             title: const Text("Folder"),
             actions: [
-              TextButton(onPressed: () {}, child: const Text("Edit")),
+              TextButton(
+                onPressed: () {},
+                child: const Text("Edit"),
+              ),
             ],
           ),
           SliverToBoxAdapter(
@@ -43,7 +45,7 @@ class Notes extends StatelessWidget {
                     leading: Icon(Icons.folder),
                     title: Text("Notes"),
                     trailing: Icon(Icons.arrow_forward_ios),
-                  )
+                  ),
                 ],
               ),
             ),

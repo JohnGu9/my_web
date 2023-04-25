@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Stocks extends StatelessWidget {
-
   const Stocks({super.key});
   static final appData = AppData(
     app: const Stocks(),
@@ -21,6 +20,14 @@ class Stocks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.trending_up);
+    return Material(
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            title: const Text("Stocks"),
+          ),
+        ],
+      ),
+    );
   }
 }

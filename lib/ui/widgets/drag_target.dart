@@ -38,7 +38,7 @@ typedef DragTargetBuilder<T> = Widget Function(
 /// Signature for when a [Draggable] is starting to be dragged across the screen.
 ///
 /// The return [DragAvatar] hints what [DragAvatar] to mount to overlay.
-/// Return null that [Draggable] would no create mount the [DrDragAvatarag] to overlay.
+/// Return null that [Draggable] would no create mount the [DragAvatar] to overlay.
 ///
 /// Used by [Draggable.onDragStarted].
 typedef DragStartCallback<T extends Object> = DragAvatar<T>? Function(

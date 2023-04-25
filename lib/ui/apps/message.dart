@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
 
 class Message extends StatelessWidget {
-
   const Message({super.key});
   static final appData = AppData(
     app: const Message(),

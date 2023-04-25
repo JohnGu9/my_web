@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/standard_app.dart';
 
 class Photos extends StatelessWidget {
-
   const Photos({super.key});
   static final appData = AppData(
     app: const Photos(),
@@ -20,47 +20,28 @@ class Photos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CupertinoTabScaffold(
-            tabBar: CupertinoTabBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.photo),
-                  label: 'Library',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.rectangle),
-                  label: 'For You',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.square_stack),
-                  label: 'Albums',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.search),
-                  label: 'Search',
-                ),
-              ],
-            ),
-            tabBuilder: (BuildContext context, int index) {
-              return CupertinoTabView(
-                builder: (BuildContext context) {
-                  return const Center();
-                },
-              );
-            },
-          ),
+    return StandardAppLayout(
+      tabBarItems: const [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.photo),
+          label: 'Library',
         ),
-        Container(
-          height: MediaQuery.of(context).padding.bottom,
-          color: CupertinoDynamicColor.resolve(
-            CupertinoTheme.of(context).barBackgroundColor,
-            context,
-          ),
-        )
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.rectangle),
+          label: 'For You',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.square_stack),
+          label: 'Albums',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.search),
+          label: 'Search',
+        ),
       ],
+      tabBuilder: (context, index) {
+        return const Center();
+      },
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/ui/home_page/desktop_view/lock_view_page_grid.dart';
 import 'package:my_web/ui/home_page/lock_view.dart';
+import 'package:my_web/ui/home_page/task_manager_view/task_manager_data.dart';
 
 import 'deck_row.dart';
 import 'page_grid.dart';
@@ -21,6 +23,7 @@ class View extends StatefulWidget {
 class _ViewState extends State<View> {
   late PageController _controller;
   var _page = 0;
+  ValueListenable<DragEndDetails>? _returnHome;
 
   _onPageChange() {
     final page = _controller.page;
@@ -34,6 +37,11 @@ class _ViewState extends State<View> {
     }
   }
 
+  _returnHomeCallback() {
+    _controller.animateToPage(0,
+        duration: const Duration(milliseconds: 450), curve: Curves.ease);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +50,21 @@ class _ViewState extends State<View> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final returnHome = context
+        .dependOnInheritedWidgetOfExactType<TaskManagerData>()
+        ?.returnHome;
+    if (_returnHome != returnHome) {
+      _returnHome?.removeListener(_returnHomeCallback);
+      returnHome?.addListener(_returnHomeCallback);
+      _returnHome = returnHome;
+    }
+  }
+
+  @override
   void dispose() {
+    _returnHome?.removeListener(_returnHomeCallback);
     _controller.dispose();
     super.dispose();
   }
@@ -77,22 +99,10 @@ class _ViewState extends State<View> {
                   controller: _controller,
                   clipBehavior: Clip.none,
                   itemCount: pagesData.length,
-                  itemBuilder: lockViewData.isLocking
-                      ? (context, i) {
-                          final data = pagesData[i];
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: horizontalPadding,
-                            ),
-                            child: LockViewPageGrid(
-                              rows: gridRows,
-                              columns: gridColumns,
-                              data: data,
-                              animation: lockViewData.animation,
-                            ),
-                          );
-                        }
-                      : (context, i) {
+                  itemBuilder: () {
+                    switch (lockViewData.status) {
+                      case AnimationStatus.completed:
+                        return (context, i) {
                           final data = pagesData[i];
                           return Padding(
                             padding: EdgeInsets.symmetric(
@@ -106,7 +116,33 @@ class _ViewState extends State<View> {
                               reLayout: reLayout,
                             ),
                           );
-                        },
+                        };
+                      case AnimationStatus.forward:
+                        return (context, i) {
+                          final data = pagesData[i];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding,
+                            ),
+                            child: LockViewPageGrid(
+                              rows: gridRows,
+                              columns: gridColumns,
+                              data: data,
+                              animation: lockViewData.animation,
+                            ),
+                          );
+                        };
+                      default:
+                        return (context, i) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding,
+                            ),
+                            child: const Center(),
+                          );
+                        };
+                    }
+                  }(),
                 ),
               ),
             ),
@@ -114,29 +150,32 @@ class _ViewState extends State<View> {
           // height: 32
           SizedBox(
             height: 32,
-            child: Center(
-              child: SizedBox(
-                height: 24,
-                width: 21.0 * pagesData.length,
-                child: Material(
-                  color: Colors.transparent,
-                  shape: const StadiumBorder(),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      for (var i = 0; i < pagesData.length; i++)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(
-                              _page == i ? 1 : 0.3,
+            child: FadeTransition(
+              opacity: lockViewData.animation,
+              child: Center(
+                child: SizedBox(
+                  height: 24,
+                  width: 21.0 * pagesData.length,
+                  child: Material(
+                    color: Colors.transparent,
+                    shape: const StadiumBorder(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        for (var i = 0; i < pagesData.length; i++)
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(
+                                _page == i ? 1 : 0.3,
+                              ),
+                              shape: BoxShape.circle,
                             ),
-                            shape: BoxShape.circle,
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -153,7 +192,9 @@ class _ViewState extends State<View> {
                 parent: lockViewData.animation,
                 curve: Curves.linearToEaseOut,
               )),
-              child: DeckRow(data: reLayout.orderData.deckData),
+              child: lockViewData.status == AnimationStatus.dismissed
+                  ? const Center()
+                  : DeckRow(data: reLayout.orderData.deckData),
             ),
           ),
         ],

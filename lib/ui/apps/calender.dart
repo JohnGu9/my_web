@@ -31,34 +31,37 @@ class _Icon extends StatelessWidget {
     return nextDay.difference(now);
   }
 
+  static Widget builder(DateTime now) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DefaultTextStyle(
+          style: const TextStyle(
+            color: Colors.red,
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
+          child: _Weekday(now: now),
+        ),
+        DefaultTextStyle(
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 36,
+            fontWeight: FontWeight.w300,
+          ),
+          child: _Day(now: now),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return TimerBuilder(
-        delay: beforeNextDay,
-        periodic: const Duration(days: 1),
-        builder: (now) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DefaultTextStyle(
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-                child: _Weekday(now: now),
-              ),
-              DefaultTextStyle(
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w200,
-                ),
-                child: _Day(now: now),
-              ),
-            ],
-          );
-        });
+    return const TimerBuilder(
+      delay: beforeNextDay,
+      periodic: Duration(days: 1),
+      builder: builder,
+    );
   }
 }
 

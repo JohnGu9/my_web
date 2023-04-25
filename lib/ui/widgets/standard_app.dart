@@ -1,5 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_web/core/data/localizations_delegates.dart';
+
+class StandardApp extends StatelessWidget {
+  const StandardApp({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scrollBehavior = ScrollConfiguration.of(context);
+    final locale = Localizations.localeOf(context);
+    final mediaQuery = MediaQuery.of(context);
+    return MaterialApp(
+      theme: theme,
+      locale: locale,
+      scrollBehavior: scrollBehavior,
+      localizationsDelegates: localizationsDelegates,
+      supportedLocales: supportedLocales,
+      home: MediaQuery(
+        data: mediaQuery,
+        child: child,
+      ),
+    );
+  }
+}
 
 class StandardAppLayout extends StatelessWidget {
   const StandardAppLayout(
@@ -11,11 +36,11 @@ class StandardAppLayout extends StatelessWidget {
     return (BuildContext context, int index) {
       return CustomScrollView(
         slivers: [
-          SliverAppBar.medium(
+          SliverAppBar.large(
             pinned: true,
             title: titles[index],
             actions: actions,
-          )
+          ),
         ],
       );
     };
@@ -30,9 +55,6 @@ class StandardAppLayout extends StatelessWidget {
       children: [
         Expanded(
           child: CupertinoTabScaffold(
-            tabBar: CupertinoTabBar(
-              items: tabBarItems,
-            ),
             tabBuilder: (BuildContext context, int index) {
               return CupertinoTabView(
                 builder: (BuildContext context) {
@@ -40,6 +62,9 @@ class StandardAppLayout extends StatelessWidget {
                 },
               );
             },
+            tabBar: CupertinoTabBar(
+              items: tabBarItems,
+            ),
           ),
         ),
         Container(

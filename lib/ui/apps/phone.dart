@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_web/core/data/app_data.dart';
+import 'package:my_web/ui/widgets/standard_app.dart';
 
 class Phone extends StatelessWidget {
-
   const Phone({super.key});
   static final appData = AppData(
     app: const Phone(),
@@ -22,47 +22,28 @@ class Phone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CupertinoTabScaffold(
-            tabBar: CupertinoTabBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.star_fill),
-                  label: 'Favorites',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.clock_solid),
-                  label: 'Recent',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.person_alt_circle_fill),
-                  label: 'Contacts',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.circle_grid_3x3_fill),
-                  label: 'Keypad',
-                ),
-              ],
-            ),
-            tabBuilder: (BuildContext context, int index) {
-              return CupertinoTabView(
-                builder: (BuildContext context) {
-                  return const Center();
-                },
-              );
-            },
-          ),
+    return StandardAppLayout(
+      tabBarItems: const [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.star_fill),
+          label: 'Favorites',
         ),
-        Container(
-          height: MediaQuery.of(context).padding.bottom,
-          color: CupertinoDynamicColor.resolve(
-            CupertinoTheme.of(context).barBackgroundColor,
-            context,
-          ),
-        )
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.clock_solid),
+          label: 'Recent',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.person_alt_circle_fill),
+          label: 'Contacts',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.circle_grid_3x3_fill),
+          label: 'Keypad',
+        ),
       ],
+      tabBuilder: (context, index) {
+        return const Center();
+      },
     );
   }
 }

@@ -120,11 +120,12 @@ class _StackListViewState<T> extends State<StackListView<T>>
       );
     }
 
-    final child = Stack(
-      children: [
-        for (var index = 0; index < itemCount; index++) itemBuilder(index),
-      ].reversed.toList(growable: false),
-    );
+    final children = List.generate(
+      itemCount,
+      (index) => itemBuilder(index),
+      growable: false,
+    ).reversed.toList(growable: false);
+
     const physics = PageScrollPhysics(parent: BouncingScrollPhysics());
     return CustomScrollView(
       controller: widget.controller,
@@ -139,7 +140,7 @@ class _StackListViewState<T> extends State<StackListView<T>>
           pinned: true,
           delegate: _P(
             extent: width,
-            child: child,
+            child: Stack(children: children),
           ),
         ),
         SliverToBoxAdapter(
@@ -173,6 +174,6 @@ class _P extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _P oldDelegate) {
-    return child != oldDelegate.child;
+    return child != oldDelegate.child || minExtent != oldDelegate.minExtent;
   }
 }

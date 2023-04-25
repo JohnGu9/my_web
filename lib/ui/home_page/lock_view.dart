@@ -38,7 +38,7 @@ class _LockViewState extends State<LockView>
     return LockViewData(
       unlock: _unlock,
       animation: _controller,
-      isLocking: !_controller.isCompleted,
+      status: _controller.status,
       child: widget.child,
     );
   }
@@ -50,14 +50,14 @@ class LockViewData extends InheritedWidget {
     required super.child,
     required this.unlock,
     required this.animation,
-    required this.isLocking,
+    required this.status,
   });
   final void Function() unlock;
   final Animation<double> animation;
-  final bool isLocking;
+  final AnimationStatus status;
 
   @override
   bool updateShouldNotify(covariant LockViewData oldWidget) {
-    return isLocking != oldWidget.isLocking;
+    return status != oldWidget.status;
   }
 }

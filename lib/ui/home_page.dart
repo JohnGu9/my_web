@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_web/ui/home_page/quick_access.dart';
 
+import 'home_page/desktop_background.dart';
 import 'home_page/desktop_view.dart';
 import 'home_page/lock_view.dart';
 import 'home_page/notification_bar.dart';
@@ -18,26 +20,22 @@ class HomePage extends StatelessWidget {
           bottom: 28,
         )),
         child: LockView(
-          child: LayoutBuilder(builder: (context, constraints) {
-            final data = MediaQuery.of(context);
-            return NotificationBar(
-              constraints: constraints,
-              child: TaskManagerView(
+          child: DesktopBackground(
+            child: LayoutBuilder(builder: (context, constraints) {
+              return QuickAccess(
                 constraints: constraints,
-                child: MediaQuery(
-                  data: data.copyWith(
-                    padding: const EdgeInsets.only(
-                      top: NotificationBar.statusBarHeight,
-                      bottom: 28,
+                child: NotificationBar(
+                  constraints: constraints,
+                  child: TaskManagerView(
+                    constraints: constraints,
+                    child: DesktopView(
+                      constraints: constraints,
                     ),
                   ),
-                  child: DesktopView(
-                    constraints: constraints,
-                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

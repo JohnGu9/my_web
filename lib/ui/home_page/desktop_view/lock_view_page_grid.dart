@@ -51,13 +51,12 @@ class LockViewPageGrid extends StatelessWidget {
   ) sync* {
     var index = 0;
     var top = 0.0;
-    const rowCenter = 2;
+    final rowCenter = rows * 2 / 5;
     final columnCenter = columns / 2;
     final standardDistance = _distance(width, height);
     final factor = 2 *
         _distance(constraints.maxWidth, constraints.maxHeight) /
-        standardDistance /
-        standardDistance;
+        (standardDistance * standardDistance);
     for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
       var left = 0.0;
       for (var colIndex = 0; colIndex < columns; colIndex++) {
@@ -77,7 +76,7 @@ class LockViewPageGrid extends StatelessWidget {
               return Transform.scale(
                 alignment: alignment,
                 scale: 1.0 + (f * animation.value),
-                child: animation.isDismissed ? const Center() : child!,
+                child: child!,
               );
             },
             child: Center(
