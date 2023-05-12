@@ -100,7 +100,9 @@ class _NotificationBarState extends State<_NotificationBar>
       vsync: this,
       value: 1,
       duration: const Duration(milliseconds: 450),
-    );
+    )..addStatusListener((status) {
+        setState(() {});
+      });
     _recognizer = VerticalDragGestureRecognizer(debugOwner: this)
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate

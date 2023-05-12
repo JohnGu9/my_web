@@ -12,15 +12,15 @@ import 'page_switch_drag_target.dart';
 import 're_layout.dart';
 import 'touch_protect.dart';
 
-class View extends StatefulWidget {
-  const View({super.key, required this.constraints});
+class LayoutView extends StatefulWidget {
+  const LayoutView({super.key, required this.constraints});
   final BoxConstraints constraints;
 
   @override
-  State<View> createState() => _ViewState();
+  State<LayoutView> createState() => _LayoutViewState();
 }
 
-class _ViewState extends State<View> {
+class _LayoutViewState extends State<LayoutView> {
   late PageController _controller;
   var _page = 0;
   ValueListenable<DragEndDetails>? _returnHome;

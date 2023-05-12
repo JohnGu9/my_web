@@ -30,7 +30,7 @@ import 'package:my_web/ui/other_apps/telegram.dart';
 import 'package:my_web/ui/other_apps/twitch.dart';
 import 'package:my_web/ui/other_apps/youtube.dart';
 
-import 'desktop_view/view.dart';
+import 'desktop_view/layout_view.dart';
 
 final orderData = ReLayoutOrderData([
   [
@@ -76,7 +76,7 @@ class DesktopView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReLayout(
       data: orderData,
-      child: View(constraints: constraints),
+      child: LayoutView(constraints: constraints),
     );
   }
 }

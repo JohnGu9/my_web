@@ -2,7 +2,7 @@ document.documentElement.classList.add("loading");
 
 let cancelDownlinkListener = function () { };
 
-setTimeout(function () {
+const initialTimer = setTimeout(function () {
     if ('connection' in navigator && 'downlink' in navigator.connection) {
         const loader = document.body.querySelector(".loader .connection-speed");
         if (loader) {
@@ -27,6 +27,10 @@ setTimeout(function () {
         }
     }
 }, 500);
+
+cancelDownlinkListener = function () {
+    clearTimeout(initialTimer);
+}
 
 const longTimeLoadTimer = setTimeout(function () {
     const errorHint = document.body.querySelector(".loader .error-hint");
